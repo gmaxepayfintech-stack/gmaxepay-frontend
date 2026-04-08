@@ -15,6 +15,17 @@ import {
   PAYOUT_SETTING_CREATE_FAILURE,
   PAYOUT_SETTING_SWITCH_SUCCESS,
   PAYOUT_SETTING_SWITCH_FAILURE,
+  EMPLOYEE_PAYOUT_HISTORY_SUCCESS,
+  EMPLOYEE_PAYOUT_BANK_LIST_SUCCESS,
+  EMPLOYEE_PAYOUT_BANK_LIST_FAILURE,
+  EMPLOYEE_PAYOUT_TRANSACTION_SUCCESS,
+  EMPLOYEE_PAYOUT_TRANSACTION_FAILURE,
+  EMPLOYEE_PAYOUT_SETTING_LIST_SUCCESS,
+  EMPLOYEE_PAYOUT_SETTING_LIST_FAILURE,
+  EMPLOYEE_PAYOUT_SETTING_CREATE_SUCCESS,
+  EMPLOYEE_PAYOUT_SETTING_CREATE_FAILURE,
+  EMPLOYEE_PAYOUT_SETTING_SWITCH_SUCCESS,
+  EMPLOYEE_PAYOUT_SETTING_SWITCH_FAILURE,
 } from "../actionType/payOutType";
 const initialState = {
   loading: false,
@@ -28,6 +39,7 @@ const initialState = {
   payoutCompanyTransaction: null,
   payoutHistory: null,
   payoutSettingList: null,
+  payoutHistoryEmployee: null,
 };
 
 const payoutReducer = (state = initialState, action) => {
@@ -41,7 +53,24 @@ const payoutReducer = (state = initialState, action) => {
         payoutBankList: action?.payload,
         message: action?.payload?.message || action?.payload,
       };
+    case EMPLOYEE_PAYOUT_BANK_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: action?.payload?.message || action?.payload,
+        success: action?.payload?.status,
+        payoutBankList: action?.payload,
+        message: action?.payload?.message || action?.payload,
+      };
     case PAYOUT_TRANSACTION_SUCCESS:
+      return {
+        ...state,
+        error: action?.payload?.error,
+        payoutTransaction: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
+      };
+    case EMPLOYEE_PAYOUT_TRANSACTION_SUCCESS:
       return {
         ...state,
         error: action?.payload?.error,
@@ -75,6 +104,15 @@ const payoutReducer = (state = initialState, action) => {
         status: action?.payload?.status,
         message: action?.payload?.message,
       };
+    case EMPLOYEE_PAYOUT_HISTORY_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        error: null,
+        payoutHistoryEmployee: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
+      }
     
     case PAYOUT_HISTORY_FAILURE:
       return {
@@ -135,7 +173,21 @@ const payoutReducer = (state = initialState, action) => {
         error: null,
         payoutSettingList: action?.payload,
       };
+    case EMPLOYEE_PAYOUT_SETTING_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        payoutSettingList: action?.payload,
+      };
     case PAYOUT_SETTING_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action?.payload?.message,
+        payoutSettingList: null,
+      };
+    case EMPLOYEE_PAYOUT_SETTING_LIST_FAILURE:
       return {
         ...state,
         loading: false,
@@ -146,13 +198,21 @@ const payoutReducer = (state = initialState, action) => {
     // ✅ PAYOUT SETTING CREATE
     case PAYOUT_SETTING_CREATE_SUCCESS:
       return { ...state, loading: false, error: null, message: action?.payload?.message };
+    case EMPLOYEE_PAYOUT_SETTING_CREATE_SUCCESS:
+      return { ...state, loading: false, error: null, message: action?.payload?.message };
     case PAYOUT_SETTING_CREATE_FAILURE:
+      return { ...state, loading: false, error: action?.payload };
+    case EMPLOYEE_PAYOUT_SETTING_CREATE_FAILURE:
       return { ...state, loading: false, error: action?.payload };
 
     // ✅ PAYOUT SWITCH STATUS
     case PAYOUT_SETTING_SWITCH_SUCCESS:
       return { ...state, loading: false, error: null, message: action?.payload?.message };
+    case EMPLOYEE_PAYOUT_SETTING_SWITCH_SUCCESS:
+      return { ...state, loading: false, error: null, message: action?.payload?.message };
     case PAYOUT_SETTING_SWITCH_FAILURE:
+      return { ...state, loading: false, error: action?.payload };
+    case EMPLOYEE_PAYOUT_SETTING_SWITCH_FAILURE:
       return { ...state, loading: false, error: action?.payload };
 
     default:

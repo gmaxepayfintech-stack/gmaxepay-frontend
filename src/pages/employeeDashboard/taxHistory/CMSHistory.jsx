@@ -3,52 +3,11 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { Search, Share, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import ButtonLoader from "../../../widgets/layout/loader";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 import CMSTransactionDetails from "../reports/CMSTransactionDetails";
 import * as XLSX from "xlsx";
-import { cmsAdminHistory } from "../../../redux/action/rechargeAction";
+import { cmsEmployeeHistory } from "../../../redux/action/rechargeAction";
 
-const DUMMY_CMS_HISTORY = [
-    {
-        id: "1",
-        createdAt: new Date().toISOString(),
-        user: { name: "John Doe", userId: "USER001" },
-        mobileNo: "9876543210",
-        event: "CMS_POSTING",
-        billerName: "CMS Collection Service",
-        referenceId: "CMS1234567890",
-        utr: "UTR123456789",
-        amount: 5000,
-        commission: 50,
-        status: "SUCCESS",
-    },
-    {
-        id: "2",
-        createdAt: new Date().toISOString(),
-        user: { name: "Jane Smith", userId: "USER002" },
-        mobileNo: "9876543211",
-        event: "CMS_DEPOSIT",
-        billerName: "CMS Deposit Service",
-        referenceId: "CMS1234567891",
-        utr: "UTR123456790",
-        amount: 2500,
-        commission: 25,
-        status: "PENDING",
-    },
-    {
-        id: "3",
-        createdAt: new Date().toISOString(),
-        user: { name: "Bob Wilson", userId: "USER003" },
-        mobileNo: "9876543212",
-        event: "CMS_POSTING",
-        billerName: "CMS Collection Service",
-        referenceId: "CMS1234567892",
-        utr: "UTR123456791",
-        amount: 1000,
-        commission: 10,
-        status: "FAILED",
-    }
-];
 
 const CMSHistory = ({ onBack }) => {
     const dispatch = useDispatch();
@@ -63,13 +22,26 @@ const CMSHistory = ({ onBack }) => {
     const [selectedTransactionData, setSelectedTransactionData] = useState(null);
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
 
-    const cmsAdminReportsResponse = useSelector((state) => state?.recharge?.cmsAdminReports);
-    // const apiData = cmsAdminReportsResponse?.cmsAdminReports || [];
-    const apiData = DUMMY_CMS_HISTORY;
-    const paginator = cmsAdminReportsResponse?.paginator || {};
-    const totalPages = paginator.pageCount || 1;
-    // const totalCount = paginator.itemCount || 0;
-    const totalCount = DUMMY_CMS_HISTORY.length;
+    const cmsEmployeeReportsResponse = useSelector((state) => state?.recharge?.cmsEmployeeReports);
+    
+    // Robust array extraction
+    let apiData = [];
+    if (cmsEmployeeReportsResponse) {
+        if (Array.isArray(cmsEmployeeReportsResponse.cmsEmployeeReports)) {
+            apiData = cmsEmployeeReportsResponse.cmsEmployeeReports;
+        } else if (Array.isArray(cmsEmployeeReportsResponse.data)) {
+            apiData = cmsEmployeeReportsResponse.data;
+        } else if (Array.isArray(cmsEmployeeReportsResponse)) {
+            apiData = cmsEmployeeReportsResponse;
+        } else if (cmsEmployeeReportsResponse.data?.data && Array.isArray(cmsEmployeeReportsResponse.data.data)) {
+            apiData = cmsEmployeeReportsResponse.data.data;
+        }
+    }
+
+    const paginator = cmsEmployeeReportsResponse?.paginator || cmsEmployeeReportsResponse?.data?.paginator || {};
+    const totalCount = cmsEmployeeReportsResponse?.total ?? cmsEmployeeReportsResponse?.data?.total ?? paginator?.itemCount ?? 0;
+    const totalPages = paginator?.pageCount ?? Math.ceil(totalCount / itemsPerPage) ?? 1;
+    
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     const fetchData = useCallback((page = 1) => {
@@ -81,8 +53,8 @@ const CMSHistory = ({ onBack }) => {
             ...(debouncedSearchQuery.trim() ? { customSearch: { transactionId: debouncedSearchQuery.trim() } } : {}),
             options: { page, paginate: itemsPerPage, sort: { createdAt: -1 } },
         };
-        // dispatch(cmsAdminHistory(payload));
-    }, [/* dispatch, */ fromDate, toDate, statusFilter, debouncedSearchQuery, itemsPerPage]);
+        dispatch(cmsEmployeeHistory(payload));
+    }, [dispatch, fromDate, toDate, statusFilter, debouncedSearchQuery, itemsPerPage]);
 
     useEffect(() => {
         const timer = setTimeout(() => { setDebouncedSearchQuery(searchQuery); setCurrentPage(1); }, 500);
@@ -114,9 +86,12 @@ const CMSHistory = ({ onBack }) => {
                 txnUser: item.user?.name || "N/A", userId: item.user?.userId || "N/A",
                 mobileNo: item.mobileNo || item.user?.mobileNo || "N/A", event: item.event || "N/A",
                 billerName: item.billerName || "N/A", transactionId: item.referenceId || "N/A",
-                refNo: item.utr || item.ackno || "N/A", amount: `₹${item.amount ?? 0}`,
-                commission: item.commission ?? 0, openingWallet: item.openingWallet, closingWallet: item.closingWallet,
-                debit: item.debit ?? 0, credit: item.credit ?? 0, errorMsg: item.errorMsg || null, status, originalItem: item,
+                refNo: item.utr || item.ackno || "N/A", amount: `₹${Number(item.amount || 0).toFixed(2)}`,
+                commission: item.commission ?? 0, 
+                openingWallet: item.openingWallet !== null ? `₹${Number(item.openingWallet).toFixed(2)}` : "N/A", 
+                closingWallet: item.closingWallet !== null ? `₹${Number(item.closingWallet).toFixed(2)}` : "N/A",
+                debit: `₹${Number(item.debit ?? 0).toFixed(2)}`, credit: `₹${Number(item.credit ?? 0).toFixed(2)}`, 
+                errorMsg: item.errorMsg || null, status, originalItem: item,
             };
         });
     };
@@ -164,7 +139,7 @@ const CMSHistory = ({ onBack }) => {
                                 {status}
                             </button>
                         ))}
-                        <button onClick={() => { setFromDate(""); setToDate(""); setSearchQuery(""); setStatusFilter("All"); setCurrentPage(1); setIsReloading(true); /* dispatch(cmsAdminHistory({ options: { page: 1, paginate: itemsPerPage, sort: { createdAt: -1 } } })); */ alert("Data refreshed (Demo Mode)"); setTimeout(() => setIsReloading(false), 500); }}
+                        <button onClick={() => { setFromDate(""); setToDate(""); setSearchQuery(""); setStatusFilter("All"); setCurrentPage(1); setIsReloading(true); dispatch(cmsEmployeeHistory({ options: { page: 1, paginate: itemsPerPage, sort: { createdAt: -1 } } })); }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading}>
                             <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isLoading ? "animate-spin" : ""}`} />
                         </button>

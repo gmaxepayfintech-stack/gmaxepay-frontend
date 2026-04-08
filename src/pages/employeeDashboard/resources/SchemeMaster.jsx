@@ -15,25 +15,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { createSlab, updateSlab, getSlabList } from "../../../redux/action/slabAction";
-import { useList } from "../../../redux/action/whiteLabelAction";
+import { employeeList } from "../../../redux/action/whiteLabelAction";
+import { createEmployeeSlab, employeeSlabList, updateEmployeeSlab } from "../../../redux/action/slabAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import EditMembership from "./EditMembership";
-
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_SLABS = [
-  { id: 1, slabName: "Global Free Plan", schemaMode: "global", schemaType: "free", subscriptionAmount: 0, isActive: true, createdAt: "2026-01-01T00:00:00Z", totalUsers: 150, totalViews: 1000 },
-  { id: 2, slabName: "Premium Gold", schemaMode: "global", schemaType: "premium", subscriptionAmount: 999, isActive: true, createdAt: "2026-02-15T00:00:00Z", totalUsers: 45, totalViews: 250 },
-  { id: 3, slabName: "Private Enterprise", schemaMode: "private", schemaType: "premium", subscriptionAmount: 5000, isActive: true, createdAt: "2026-03-10T00:00:00Z", totalUsers: 5, totalViews: 12 },
-  { id: 4, slabName: "Starter Pack", schemaMode: "global", schemaType: "free", isActive: false, createdAt: "2026-03-20T00:00:00Z", totalUsers: 0, totalViews: 0 }
-];
-
-const DUMMY_USERS = [
-  { id: "u1", name: "Corporate Partner A", company: "Partner A Co Ltd", mobileNo: "9876543210" },
-  { id: "u2", name: "Regional Dist ABC", company: "ABC Solutions", mobileNo: "8765432109" },
-  { id: "u3", name: "Local Agent X", company: "X Enterprises", mobileNo: "7654321098" }
-];
 
 const SchemeMaster = () => {
   const dispatch = useDispatch();
@@ -45,16 +30,17 @@ const SchemeMaster = () => {
   // Redux state
   const slabState = useSelector((state) => state?.slab);
   const {
-    // slabs,
-    // loading: slabsLoading,
-    createSlabSuccess,
-    createSlabMessage,
-    createSlabError,
-    updateSlabSuccess,
-    updateSlabMessage,
-    updateSlabError,
+    EmployeeuserList: slabs = [],
+    loading: slabsLoading,
+    EmployeecreateSlabSuccess,
+    EmployeecreateSlabMessage,
+    EmployeecreateSlabError,
+    EmployeeupdateSlabSuccess,
+    EmployeeupdateSlabMessage,
+    EmployeeupdateSlabError,
+    EmployeeuserListPaginator: paginator = {}
   } = slabState || {};
-  const slabsLoading = false; // Mock loading state
+  
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -81,26 +67,17 @@ const SchemeMaster = () => {
   const modalRef = useRef(null);
   const userModalRef = useRef(null);
 
-  // Get users list from Redux (Mocked for demo)
-  /*
-  const usersListRaw = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || []
-  );
-  */
-  const usersListRaw = DUMMY_USERS;
+  // Get users list from Redux
+  const usersResponse = useSelector((state) => state?.whitelabel?.employeeList);
+  const usersListRaw = usersResponse?.employeeList || [];
+  
   const usersList = useMemo(
     () => (Array.isArray(usersListRaw) ? usersListRaw : []),
     [usersListRaw]
   );
-  // const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const usersLoading = false;
-  /*
-  const usersTotalCount = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || usersList.length || 0;
-  });
-  */
-  const usersTotalCount = DUMMY_USERS.length;
+  
+  const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
+  const usersTotalCount = usersResponse?.total || usersList.length || 0;
   const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;
 
   // Get company ID
@@ -112,19 +89,16 @@ const SchemeMaster = () => {
 
   // Fetch slabs on component mount and when page changes
   useEffect(() => {
-    /*
     const companyId = getCompanyId();
     if (companyId) {
-      dispatch(getSlabList(companyId, currentPage, 6));
+      dispatch(employeeSlabList(companyId, currentPage, 6));
     }
-    */
-    // For demo mode, we don't need to dispatch
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, companyData]);
 
   // Handle create success
   useEffect(() => {
-    if (createSlabSuccess && createSlabMessage) {
-      success(createSlabMessage || "Slab created successfully");
+    if (EmployeecreateSlabSuccess && EmployeecreateSlabMessage) {
+      success(EmployeecreateSlabMessage || "Slab created successfully");
       setIsModalOpen(false);
       setFormData({
         schemeName: "",
@@ -135,32 +109,26 @@ const SchemeMaster = () => {
       });
       setSelectedUserIds([]);
       setSelectedUsersData([]);
-      // Reset to first page after creating
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        // Redux refresh commented out for demo
-        /*
-        const companyId = getCompanyId();
-        if (companyId) {
-          dispatch(getSlabList(companyId, 1, 6));
-        }
-        */
+      
+      const companyId = getCompanyId();
+      if (companyId) {
+        dispatch(employeeSlabList(companyId, 1, 6));
       }
+      setCurrentPage(1);
     }
-  }, [createSlabSuccess, createSlabMessage, dispatch, currentPage, success]);
+  }, [EmployeecreateSlabSuccess, EmployeecreateSlabMessage, dispatch, success, companyData]);
 
   // Handle create error
   useEffect(() => {
-    if (createSlabError) {
-      showError(createSlabError);
+    if (EmployeecreateSlabError) {
+      showError(EmployeecreateSlabError);
     }
-  }, [createSlabError, showError]);
+  }, [EmployeecreateSlabError, showError]);
 
   // Handle update success
   useEffect(() => {
-    if (updateSlabSuccess && updateSlabMessage) {
-      success(updateSlabMessage || "Slab updated successfully");
+    if (EmployeeupdateSlabSuccess && EmployeeupdateSlabMessage) {
+      success(EmployeeupdateSlabMessage || "Slab updated successfully");
       setIsEditModalOpen(false);
       setSelectedScheme(null);
       setFormData({
@@ -172,27 +140,21 @@ const SchemeMaster = () => {
       });
       setSelectedUserIds([]);
       setSelectedUsersData([]);
-      // Reset to first page after updating
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        // Redux refresh commented out for demo
-        /*
-        const companyId = getCompanyId();
-        if (companyId) {
-          dispatch(getSlabList(companyId, 1, 6));
-        }
-        */
+      
+      const companyId = getCompanyId();
+      if (companyId) {
+        dispatch(employeeSlabList(companyId, 1, 6));
       }
+      setCurrentPage(1);
     }
-  }, [updateSlabSuccess, updateSlabMessage, dispatch, currentPage, success]);
+  }, [EmployeeupdateSlabSuccess, EmployeeupdateSlabMessage, dispatch, success, companyData]);
 
   // Handle update error
   useEffect(() => {
-    if (updateSlabError) {
-      showError(updateSlabError);
+    if (EmployeeupdateSlabError) {
+      showError(EmployeeupdateSlabError);
     }
-  }, [updateSlabError, showError]);
+  }, [EmployeeupdateSlabError, showError]);
 
   // Close modal when clicking outside (but not when user selection modal is open)
   useEffect(() => {
@@ -219,13 +181,11 @@ const SchemeMaster = () => {
   //Reset page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-    /*
     const companyId = getCompanyId();
     if (companyId) {
-      dispatch(getSlabList(companyId, 1, 6));
+      dispatch(employeeSlabList(companyId, 1, 6));
     }
-    */
-  }, [searchQuery, activeFilter, dispatch]);
+  }, [searchQuery, activeFilter, dispatch, companyData]);
 
   // Debounce user search query
   useEffect(() => {
@@ -239,13 +199,12 @@ const SchemeMaster = () => {
   // Fetch users when user selection modal opens
   useEffect(() => {
     if (showUserSelectionModal) {
-      /*
       const payload = {
         query: {
-          userRole: 2,
+         // userRole: 2,
         },
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: userPage,
           paginate: 10,
         },
@@ -256,8 +215,7 @@ const SchemeMaster = () => {
           }
           : {},
       };
-      dispatch(useList(payload));
-      */
+      dispatch(employeeList(payload));
     }
   }, [showUserSelectionModal, userPage, debouncedUserSearchQuery, dispatch]);
 
@@ -362,7 +320,7 @@ const SchemeMaster = () => {
     };
   };
 
-  const schemes = (DUMMY_SLABS || []).map(mapSlabToScheme);
+  const schemes = (slabs || []).map(mapSlabToScheme);
 
   const filters = ["All Schemes", "Global", "Private", "Premium", "Free"];
 
@@ -382,8 +340,7 @@ const SchemeMaster = () => {
   });
 
   // 2️⃣ Use API paginator for total pages
-  const paginator = slabState?.paginator || {};
-  const totalPages = paginator.pageCount || 1;
+  const totalPages = paginator?.pageCount || 1;
 
   // Display filtered schemes (search/filter works on current page)
   const paginatedSchemes = filteredSchemes;
@@ -421,7 +378,7 @@ const SchemeMaster = () => {
   };
 
   const handleSelectAllUsers = () => {
-    const allUserIds = DUMMY_USERS.map((user) => user.id || user._id).filter(Boolean);
+    const allUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
     // Remove duplicates
     const uniqueUserIds = [...new Set(allUserIds)];
 
@@ -430,7 +387,7 @@ const SchemeMaster = () => {
       setSelectedUsersData([]);
     } else {
       // Remove duplicates from usersList
-      const uniqueUsers = DUMMY_USERS.filter((user, index, self) => {
+      const uniqueUsers = usersList.filter((user, index, self) => {
         const userId = user.id || user._id;
         return index === self.findIndex((u) => (u.id || u._id) === userId);
       });
@@ -494,23 +451,14 @@ const SchemeMaster = () => {
 
     setIsCreating(true);
     try {
-      /*
-      const result = await dispatch(createSlab(slabDataToSend, companyId));
+      const result = await dispatch(createEmployeeSlab(slabDataToSend, companyId));
       if (result?.success) {
         // Success is handled in useEffect
-        // List refresh is handled in the action
       } else {
         showError(
           result?.message || "Failed to create slab. Please try again.",
         );
       }
-      */
-      setTimeout(() => {
-        setIsCreating(false);
-        setIsModalOpen(false);
-        success("Slab created successfully (Demo Mode)");
-      }, 500);
-      return; 
     } catch (error) {
       showError(
         error?.message ||
@@ -563,23 +511,14 @@ const SchemeMaster = () => {
 
     setIsUpdating(true);
     try {
-      /*
-      const result = await dispatch(updateSlab(selectedScheme.id, slabDataToSend, companyId));
+      const result = await dispatch(updateEmployeeSlab(selectedScheme.id, slabDataToSend, companyId));
       if (result?.success) {
         // Success is handled in useEffect
-        // List refresh is handled in the action
       } else {
         showError(
           result?.message || "Failed to update slab. Please try again.",
         );
       }
-      */
-      setTimeout(() => {
-        setIsUpdating(false);
-        setIsEditModalOpen(false);
-        success("Slab updated successfully (Demo Mode)");
-      }, 500);
-      return;
     } catch (error) {
       showError(
         error?.message ||

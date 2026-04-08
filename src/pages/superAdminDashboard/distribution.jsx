@@ -18,6 +18,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
+  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -58,24 +59,43 @@ const Distribution = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  );
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   const kycRetrieved = kycDetailsState?.data || null;
 
+  // Get kycStatusCheck success state to refresh table after update
+  const kycStatusCheckResponse = useSelector(
+    (state) => state?.whitelabel?.kycStatusCheck,
+  );
+
+  // Get kycUnlock success state to refresh table after unlock
+  const kycLockStatusResponse = useSelector(
+    (state) => state?.whitelabel?.kycLockStatus,
+  );
+
   // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use prop data from API - no dummy data
-  const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
+  // Use prop data from API fallback if no active search
+  const responseForTable = useSelector(
+    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+  );
+
+  const allTableData = debouncedSearchTerm.trim()
+    ? Array.isArray(responseForTable) && responseForTable.length > 0
+      ? responseForTable
+      : []
+    : Array.isArray(propTableData) && propTableData.length > 0
       ? propTableData
       : [];
 
@@ -87,7 +107,9 @@ const Distribution = ({
 
   // Use Redux total count if available, otherwise use current data length
   const totalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
+    debouncedSearchTerm.trim() && totalCountFromRedux > 0
+      ? totalCountFromRedux
+      : allTableData.length;
 
   // Calculate total pages based on total count (10 records per page)
   const totalPages = Math.ceil(totalCount / 10) || 1;
@@ -137,6 +159,122 @@ const Distribution = ({
       return () => clearTimeout(timer);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
+
+  // Debounce search term to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page when search changes
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Fetch data from API based on role
+  useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role
+        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
+
+    dispatch(useListAction(payload));
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+
+  // Refresh table when kycStatusCheck succeeds
+  useEffect(() => {
+    if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 10,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+          : {},
+      };
+      dispatch(useListAction(payload));
+    }
+  }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+
+  // Refresh table when kycUnlock succeeds
+  useEffect(() => {
+    if (kycLockStatusResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 10,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+          : {},
+      };
+      dispatch(useListAction(payload));
+    }
+  }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -216,20 +354,14 @@ const Distribution = ({
                 <input
                   type="date"
                   value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setFromDate(e.target.value)}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
 
                 <input
                   type="date"
                   value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setToDate(e.target.value)}
                   min={fromDate || undefined}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
@@ -238,7 +370,9 @@ const Distribution = ({
               <div className="relative w-full sm:w-48">
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Search by Mobile No or Name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
@@ -628,29 +762,28 @@ const Distribution = ({
 
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
               <div className="flex flex-col xs:flex-row gap-3">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="From Date"
-                    className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
-                  />
-                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-                </div>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
 
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="To Date"
-                    className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
-                  />
-                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-                </div>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  min={fromDate || undefined}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
               </div>
 
               <div className="relative w-full sm:w-48">
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Search by Mobile No or Name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />

@@ -31,7 +31,7 @@ const TaxHistory = () => {
   let transactionType = null;
 
   if (viewHistory) {
-    // Match patterns like: aeps1-cw-history, aeps2-ms-history, aeps-be-history
+    // Match patterns like: aeps1-cw-history, aeps2-ms-history, aeps1-be-history
     const regex = /^aeps([12])?-(cw|ms|be)-history$/;
     const match = regex.exec(viewHistory);
     if (match) {

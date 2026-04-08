@@ -10,44 +10,23 @@ import {
   FaUniversity,
   FaExpand,
 } from "react-icons/fa";
-import {
-  kycData as kycDataAction,
-  kycStatusCheck,
-  kycUnlock,
-  useList as useListAction,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
-} from "../../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
+} from "../../../redux/action/whiteLabelAction";
+import {
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
+import ProfileDetails from "./ProfileDetails";
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_ONBOARDING_MASTER_DISTRIBUTORS = [
-  {
-    id: "MD001",
-    date: "2026-03-26",
-    userId: "MD_PEND_001",
-    name: "Suresh Khanna",
-    userRole: "Master Distributor",
-    mobileNo: "9400011122",
-    email: "suresh.k@example.com",
-    parentName: "Admin User",
-    parentRole: "Admin",
-    companyName: "Khanna Solutions",
-    kycStatus: "Pending",
-    kycSteps: "3",
-    mainWallet: 0,
-    apes1Wallet: 0,
-    apes2Wallet: 0,
-    status: "Inactive",
-    lock: false,
-  },
-];
 
 const MasterDistributionOnboarding = ({
   embedded = false,
@@ -55,7 +34,7 @@ const MasterDistributionOnboarding = ({
   isLoading: propIsLoading = false,
 }) => {
   const dispatch = useDispatch();
-  const isLoading = false; // Force false for demo
+  const isLoading = propIsLoading;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKyc, setSelectedKyc] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -111,7 +90,7 @@ const MasterDistributionOnboarding = ({
   const startIndex = (currentPage - 1) * 5;
   const endIndex = startIndex + 5;
   // Use Dummy data for testing/demo if prop data is empty
-  const tableData = allTableData.length > 0 ? allTableData.slice(startIndex, endIndex) : DUMMY_ONBOARDING_MASTER_DISTRIBUTORS;
+  const tableData = allTableData.slice(startIndex, endIndex);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -124,11 +103,10 @@ const MasterDistributionOnboarding = ({
     </tr>
   );
 
-  // Refresh table when kycStatusCheck succeeds - DISABLED for demo
+  // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
-    /*
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching employeeUseList again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -141,16 +119,14 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [kycStatusCheckResponse, currentPage, dispatch]);
 
-  // Refresh table when kycUnlock succeeds - DISABLED for demo
+  // Refresh table when kycUnlock succeeds
   useEffect(() => {
-    /*
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching employeeUseList again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -163,9 +139,8 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [kycLockStatusResponse, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
@@ -186,9 +161,8 @@ const MasterDistributionOnboarding = ({
     }
   }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
 
-  // Refresh KYC data when revert succeeds - MOCKED for demo
+  // Refresh KYC data when revert succeeds
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -201,12 +175,11 @@ const MasterDistributionOnboarding = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
@@ -485,17 +458,7 @@ const MasterDistributionOnboarding = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              // dispatch(kycDataAction(userId));
-                              setSelectedKycData({
-                                kycStatus: row.kycStatus || "Pending",
-                                kycSteps: row.kycSteps || "3",
-                                userDetails: {
-                                  userId: row.userId,
-                                  name: row.name,
-                                  mobileNo: row.mobileNo,
-                                  email: row.emailId
-                                }
-                              });
+                              dispatch(employeeKycData(userId));
                               setShowKycModal(true);
                             }
                           }}
@@ -515,25 +478,22 @@ const MasterDistributionOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  /*
                                   // Handle both cases: active → inactive and inactive → active
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     // Toggling from inactive to active (ON)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
                                   }
-                                  */
-                                  alert(`Account status updated for ${row.name || "user"}`);
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -559,11 +519,8 @@ const MasterDistributionOnboarding = ({
                           return (
                             <button
                               onClick={() => {
-                                // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  // dispatch(kycUnlock(userId));
-                                  alert("Account access has been enabled successfully.");
+                                  dispatch(employeeKycUnlock(userId));
                                 }
                               }}
                               disabled={!isLocked}
@@ -590,8 +547,7 @@ const MasterDistributionOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
-                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
+                                  dispatch(employeeRescendOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -609,8 +565,7 @@ const MasterDistributionOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(deActiveOnboarding(userId));
-                                  alert(`Deactivation request sent for ${row.name || "user"}`);
+                                  dispatch(employeeDeActiveOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"

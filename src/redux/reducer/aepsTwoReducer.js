@@ -15,6 +15,7 @@ import {
   AEPSTWO_STATUS_CHECK_SUCCESS,
   AEPSTWO_SUBMIT_OTP_SUCCESS,
   AEPSTWO_TWO_FA_VERIFICATION_SUCCESS,
+  AEPSTWO_CW_HISTORY_EMPLOYEE_SUCCESS,
 } from "../actionType/aepsTwoActionType";
 
 const initialState = {
@@ -37,6 +38,7 @@ const initialState = {
   aeps2CwHistoryCompany: null,
   aeps2CwHistoryUsers: null,
   aeps2CwHistoryTransactionDetails: null,
+  aeps2CwHistoryEmployee: null,
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -190,6 +192,15 @@ const aepsTwoReducer = (state = initialState, action) => {
                     success: action?.payload?.status,
                     message: action?.payload?.message,
                   }
+                  case AEPSTWO_CW_HISTORY_EMPLOYEE_SUCCESS:
+              return{
+                ...state,
+                loading: false,
+                error: null,
+                aeps2CwHistoryEmployee: action?.payload,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+              }
     default:
       return state;
   }

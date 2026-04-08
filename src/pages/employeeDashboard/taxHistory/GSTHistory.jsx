@@ -11,44 +11,9 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { adminGstHistory } from "../../../redux/action/walletAction";
+import { employeeGstHistory } from "../../../redux/action/walletAction";
 import * as XLSX from "xlsx";
 
-const DUMMY_GST_HISTORY = [
-    {
-        id: "1",
-        transactionId: "GST1234567890",
-        user: { name: "John Doe" },
-        amount: 100,
-        openingAmt: 1000,
-        closingAmt: 900,
-        status: "SUCCESS",
-        aepsType: "GST_ENQUIRY",
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "2",
-        transactionId: "GST1234567891",
-        user: { name: "Jane Smith" },
-        amount: 100,
-        openingAmt: 900,
-        closingAmt: 800,
-        status: "PENDING",
-        aepsType: "GST_ENQUIRY",
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "3",
-        transactionId: "GST1234567892",
-        user: { name: "Bob Wilson" },
-        amount: 100,
-        openingAmt: 800,
-        closingAmt: 700,
-        status: "FAILED",
-        aepsType: "GST_ENQUIRY",
-        createdAt: new Date().toISOString(),
-    }
-];
 
 const GSTHistory = ({ onBack, type }) => {
     const dispatch = useDispatch();
@@ -62,12 +27,29 @@ const GSTHistory = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get GST history from Redux
-    const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.adminGstHistory?.data
+    // Corrected Redux selector key to match walletReducer.js
+    const employeeGstHistoryResponse = useSelector(
+        (state) => state?.wallet?.employeeGstHistory
     );
-    // const apiData = walletHistoryResponse || [];
-    const apiData = DUMMY_GST_HISTORY;
+
+    // Robust array extraction that handles multiple nesting patterns
+    let apiData = [];
+    if (employeeGstHistoryResponse) {
+        if (Array.isArray(employeeGstHistoryResponse.data)) {
+            apiData = employeeGstHistoryResponse.data;
+        } else if (Array.isArray(employeeGstHistoryResponse.employeeGstHistory)) {
+            apiData = employeeGstHistoryResponse.employeeGstHistory;
+        } else if (Array.isArray(employeeGstHistoryResponse)) {
+            apiData = employeeGstHistoryResponse;
+        } else if (employeeGstHistoryResponse.data?.data && Array.isArray(employeeGstHistoryResponse.data.data)) {
+            apiData = employeeGstHistoryResponse.data.data;
+        }
+    }
+    
+    // Extract pagination data if available
+    const paginator = employeeGstHistoryResponse?.paginator || employeeGstHistoryResponse?.data?.paginator || {};
+    const apiTotalCount = employeeGstHistoryResponse?.total ?? employeeGstHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
+
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -90,10 +72,10 @@ const GSTHistory = ({ onBack, type }) => {
                     .replace(/\//g, "-");
             }
 
-            // Format amounts with currency symbol
-            const formattedAmount = item.amount !== undefined ? `₹${item.amount}` : "₹0";
-            const formattedOpening = item.openingAmt !== undefined ? `₹${item.openingAmt}` : "₹0";
-            const formattedClosing = item.closingAmt !== undefined ? `₹${item.closingAmt}` : "₹0";
+            // Format amounts with currency symbol safely to two decimals
+            const formattedAmount = `₹${Number(item.amount || 0).toFixed(2)}`;
+            const formattedOpening = `₹${Number(item.openingAmt || 0).toFixed(2)}`;
+            const formattedClosing = `₹${Number(item.closingAmt || 0).toFixed(2)}`;
 
             return {
                 id: item.id,
@@ -154,14 +136,8 @@ const GSTHistory = ({ onBack, type }) => {
             }
         };
 
-        // dispatch(adminGstHistory(payload)).then((res) => {
-        //     if (res?.status === "SUCCESS") {
-        //         showNotification("GST history fetched successfully", "success");
-        //     } else {
-        //         showNotification(res?.message || "Failed to fetch GST history", "error");
-        //     }
-        // });
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery, showNotification]);
+        dispatch(employeeGstHistory(payload));
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -277,15 +253,7 @@ const GSTHistory = ({ onBack, type }) => {
                                     }
                                 };
 
-                                // dispatch(adminGstHistory(payload)).then((res) => {
-                                //     if (res?.status === "SUCCESS") {
-                                //         showNotification("GST history refreshed successfully", "success");
-                                //     } else {
-                                //         showNotification(res?.message || "Failed to refresh GST history", "error");
-                                //     }
-                                // });
-                                showNotification("Data refreshed (Demo Mode)", "success");
-                                setIsReloading(false);
+                                dispatch(employeeGstHistory(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

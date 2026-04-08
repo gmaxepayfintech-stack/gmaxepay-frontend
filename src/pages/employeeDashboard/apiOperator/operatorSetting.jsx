@@ -1,45 +1,22 @@
 import { ChevronLeft, ChevronRight, Pencil, Plus, Search } from "lucide-react";
 import { FiChevronDown } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
 import {
-  listOperators,
-  createOperator,
-  updateOperator,
+  listEmployeeOperators,
+  createEmployeeOperator,
+  updateEmployeeOperator,
 } from "../../../redux/action/operatorActions";
-import { listServices } from "../../../redux/action/serviceActions";
-import React, { useState, useEffect } from "react";
+import { listEmployeeServices } from "../../../redux/action/serviceActions";
+import { useState, useEffect } from "react";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_OPERATORS = {
-  data: [
-    { id: "OP001", operatorName: "Airtel", operatorCode: "AT", operatorType: "Mobile Prepaid", minValue: 10, maxValue: 5000, comm: 2.5, commType: "com", amtType: "per", hsnCode: "HSN1234", accountRemark: "Fast processing" },
-    { id: "OP002", operatorName: "Jio", operatorCode: "JO", operatorType: "Mobile Prepaid", minValue: 10, maxValue: 9999, comm: 3.0, commType: "com", amtType: "per", hsnCode: "HSN1234", accountRemark: "Instant" },
-    { id: "OP003", operatorName: "BESCOM", operatorCode: "BS", operatorType: "Electricity", minValue: 100, maxValue: 50000, comm: 1.0, commType: "sur", amtType: "fix", hsnCode: "HSN5678", accountRemark: "Karnataka" },
-    { id: "OP004", operatorName: "Tata Play", operatorCode: "TP", operatorType: "DTH", minValue: 50, maxValue: 10000, comm: 2.0, commType: "com", amtType: "per", hsnCode: "HSN1234", accountRemark: "" },
-  ],
-  paginator: { pageCount: 1, currentPage: 1 }
-};
-
-const DUMMY_SERVICES_FOR_TYPES = {
-  data: [
-    { id: "S001", serviceName: "Mobile Prepaid" },
-    { id: "S002", serviceName: "Electricity" },
-    { id: "S003", serviceName: "DTH" },
-  ]
-};
-
+import { useDispatch, useSelector } from "react-redux";
 const OperatorSetting = () => {
-  // const [services, setServices] = useState(initialServices);
-  const { operatorList: reduxOperatorList } = useSelector((state) => state.operators);
-  const { serviceList: reduxServiceList } = useSelector((state) => state.services);
-  const isLoading = false; // Force false for demo
+  const dispatch = useDispatch();
+  const { operatorList, loading: operatorsLoading } = useSelector((state) => state.operators);
+  const { serviceList, loading: servicesLoading } = useSelector((state) => state.services);
 
-  // Fallback to dummy data
-  const operatorList = reduxOperatorList?.data?.length > 0 ? reduxOperatorList : DUMMY_OPERATORS;
-  const serviceList = reduxServiceList?.data?.length > 0 ? reduxServiceList : DUMMY_SERVICES_FOR_TYPES;
+  const isLoading = operatorsLoading || servicesLoading;
 
-  // always extract the ARRAY safely
+  // Extract the arrays safely
   const services = Array.isArray(operatorList?.data) ? operatorList.data : [];
   const serviceData = Array.isArray(serviceList?.data) ? serviceList.data : [];
 
@@ -62,9 +39,8 @@ const OperatorSetting = () => {
   });
 
   useEffect(() => {
-    /* 
     dispatch(
-      listOperators({
+      listEmployeeOperators({
         query: selectedType !== "all" ? { operatorType: selectedType } : {},
         customSearch: searchQuery
           ? { operatorName: searchQuery, operatorCode: searchQuery }
@@ -76,49 +52,48 @@ const OperatorSetting = () => {
         },
       }),
     );
-    */
-  }, [ searchQuery, selectedType, currentPage]);
+  }, [dispatch, searchQuery, selectedType, currentPage]);
 
+  // Fetch services when modal is opened or when user wants to see the filter list
   useEffect(() => {
-    /* 
-    dispatch(
-      listServices({
-        query: {},
-        options: {
-          page: 1,
-          paginate: 100, // Fetch enough services
-          sort: { createdAt: 1 },
-        },
-      })
-    );
-    */
-  }, []);
+    if (isOpen && serviceData.length === 0) {
+      dispatch(
+        listEmployeeServices({
+          query: {},
+          options: {
+            page: 1,
+            paginate: 100,
+            sort: { createdAt: 1 },
+          },
+        })
+      );
+    }
+  }, [dispatch, isOpen, serviceData.length]);
+
+  const handleFetchServicesForFilter = () => {
+    if (serviceData.length === 0) {
+      dispatch(
+        listEmployeeServices({
+          query: {},
+          options: {
+            page: 1,
+            paginate: 100,
+            sort: { createdAt: 1 },
+          },
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedType]);
 
+  // Map operator types from the service list for the filter dropdown
   const operatorTypes = Array.from(
-    new Set(services.map((op) => op.operatorType).filter(Boolean)),
+    new Set(serviceData.map((s) => s.serviceName).filter(Boolean)),
   );
 
-  // // 🔍 Search filter
-  // const searchFilteredServices = services.filter(
-  //   (service) =>
-  //     service.operatorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     service.operatorCode?.toLowerCase().includes(searchQuery.toLowerCase()),
-  // );
-
-  // const typeFilteredServices =
-  //   selectedType === "all"
-  //     ? searchFilteredServices
-  //     : searchFilteredServices.filter(
-  //         (service) => service.operatorType === selectedType,
-  //       );
-
-  // const sortedServices = [...typeFilteredServices].sort((a, b) =>
-  //   (a.operatorName || "").localeCompare(b.operatorName || ""),
-  // );
   const displayedServices = services;
 
   const paginator = operatorList?.paginator || {};
@@ -141,7 +116,6 @@ const OperatorSetting = () => {
     }
 
     try {
-      /*
       if (editId) {
         const updatePayload = {
           operatorName: formData.operatorName,
@@ -169,7 +143,7 @@ const OperatorSetting = () => {
           isTakeCustomerNum: true,
         };
 
-        await dispatch(updateOperator(editId, updatePayload));
+        await dispatch(updateEmployeeOperator(editId, updatePayload));
       } else {
         // ✅ CREATE PAYLOAD
         const createPayload = {
@@ -196,52 +170,23 @@ const OperatorSetting = () => {
           isTakeCustomerNum: true,
         };
 
-        await dispatch(createOperator(createPayload));
+        await dispatch(createEmployeeOperator(createPayload));
       }
-      */
-      //   const createPayload = {
-      //     operatorName: formData.operatorName,
-      //     operatorCode: formData.operatorCode,
-      //     operatorType: formData.operatorType,
-      //     minValue: Number(formData.minValue),
-      //     maxValue: Number(formData.maxValue),
-      //     comm: Number(formData.comm),
-      //     commType: formData.commType,
-      //     amtType: formData.amtType,
-      //     hsnCode: formData.hsnCode,
-      //     accountRemark: formData.remarks,
-
-      //     // create-only fields
-      //     commSettingType: "percentage",
-      //     allowedChannel: "WEB,MOBILE",
-      //     businessModel: "B2B",
-      //     isAccountNumeric: true,
-      //     isBBPS: false,
-      //     isBillingAllowed: true,
-      //     exactness: "exact",
-      //     inSlab: true,
-      //     isTakeCustomerNum: true,
-      //   };
-
-      //   await dispatch(createOperator(createPayload));
-      // }
 
       // Refresh list
-      // dispatch(
-      //   listOperators({
-      //     query: selectedType !== "all" ? { operatorType: selectedType } : {},
-      //     customSearch: searchQuery
-      //       ? { operatorName: searchQuery, operatorCode: searchQuery }
-      //       : {},
-      //     options: {
-      //       page: currentPage,
-      //       paginate: 10,
-      //       sort: { createdAt: 1 },
-      //     },
-      //   })
-      // );
-       console.log("Mock Submit Operator:", formData);
-       alert(`Operator ${editId ? "updated" : "added"} successfully! (Demo Mode)`);
+      dispatch(
+        listEmployeeOperators({
+          query: selectedType !== "all" ? { operatorType: selectedType } : {},
+          customSearch: searchQuery
+            ? { operatorName: searchQuery, operatorCode: searchQuery }
+            : {},
+          options: {
+            page: currentPage,
+            paginate: 10,
+            sort: { createdAt: 1 },
+          },
+        })
+      );
 
       resetForm();
     } catch (error) {
@@ -312,19 +257,20 @@ const OperatorSetting = () => {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
+              onMouseDown={handleFetchServicesForFilter}
               className="h-[44px] border border-[#1B1717]/80 rounded-lg px-5 pr-10 text-sm font-[Gilroy-Medium] focus:outline-none appearance-none"
             >
               <option value="all">All</option>
 
-              {operatorTypes.map((type) => (
-                <option
-                  className="font-[Gilroy-Medium]"
-                  key={type}
-                  value={type}
-                >
-                  {type}
-                </option>
-              ))}
+              {operatorTypes.length > 0 ? (
+                operatorTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Loading types...</option>
+              )}
             </select>
 
             <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2" />

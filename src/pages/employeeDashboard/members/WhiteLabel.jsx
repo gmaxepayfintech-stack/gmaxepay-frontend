@@ -1,19 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { HiArrowLeft } from "react-icons/hi2";
 import { FaCloudUploadAlt } from "react-icons/fa";
+import { FiChevronDown } from "react-icons/fi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {
-  ipCheckStatus,
-  getCityByPincode,
-  getPincodeByCity,
-  panDataFetch,
-  createWhiteLabel,
-} from "../../../redux/action/whiteLabelAction";
-import { useDispatch, useSelector } from "react-redux";
-import Loader, { ButtonLoader } from "../../../widgets/layout/loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { FiChevronDown } from "react-icons/fi";
+import Loader, { ButtonLoader } from "../../../widgets/layout/loader";
+import {
+  employeeIpCheckStatus,
+  employeeGetPincodeByCity,
+  employeeGetCityByPincode,
+  employeePanDataFetch,
+  employeeCreateWhiteLabel,
+} from "../../../redux/action/whiteLabelAction";
+
 
 const WhiteLabel = ({ onBack }) => {
   const dispatch = useDispatch();
@@ -66,9 +67,9 @@ const WhiteLabel = ({ onBack }) => {
   );
   const panDataError = useSelector((state) => state?.error?.message);
 
-  // Clear previous data on mount so fields are empty - DISABLED for demo
+  // Clear previous data on mount so fields are empty
   useEffect(() => {
-    // dispatch({ type: "RESET_WHITELABEL_STATE" });
+    dispatch({ type: "RESET_WHITELABEL_STATE" });
   }, [dispatch]);
 
   const validationSchema = Yup.object({
@@ -142,22 +143,42 @@ const WhiteLabel = ({ onBack }) => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      // Simulate API delay
-      setIsImageUploading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsImageUploading(false);
+      const formData = new FormData();
 
-      showNotification({
-        type: "success",
-        message: "Whitelabel created successfully (Demo Mode)!",
-        isCritical: true,
-      });
-      formik.resetForm();
-      
-      // Navigate back or show list after short delay
-      setTimeout(() => {
-        if (onBack) onBack();
-      }, 1500);
+      formData.append("BussinessEntity", values.businessEntity);
+      formData.append("MobileNo", values.mobile);
+      formData.append("PanNumber", values.pan);
+      formData.append("PanName", values.name);
+      formData.append("email", values.email);
+      formData.append("address", values.address);
+      formData.append("city", values.city);
+      formData.append("postalCode", values.postalCode);
+      formData.append("state", values.state);
+      formData.append("companyName", values.companyName);
+      formData.append("customDomain", values.companyDomain);
+      formData.append("Remarks", values.remarks || "");
+      formData.append("verificationToken", verificationToken || "");
+      formData.append("companyGst", values.gstin || "");
+      formData.append("profileImage", values.profilePhoto);
+
+      const response = await dispatch(employeeCreateWhiteLabel(formData));
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "Whitelabel created successfully!",
+          isCritical: true,
+        });
+        formik.resetForm();
+        setTimeout(() => {
+          if (onBack) onBack();
+        }, 1500);
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to create whitelabel",
+          isCritical: true,
+        });
+      }
     },
   });
 
@@ -189,11 +210,7 @@ const WhiteLabel = ({ onBack }) => {
       postalCode !== lastFetchedPincode.current
     ) {
       lastFetchedPincode.current = postalCode;
-      // dispatch(getCityByPincode({ pincode: postalCode }));
-      
-      // Mock city fetch
-      setCityOptions(["Mumbai", "Pune", "Nagpur"]);
-      formik.setFieldValue("state", "Maharashtra");
+      dispatch(employeeGetCityByPincode({ pincode: postalCode }));
     }
   }, [formik.values.postalCode, activeInput, dispatch]);
 
@@ -201,10 +218,7 @@ const WhiteLabel = ({ onBack }) => {
   useEffect(() => {
     const { city } = formik.values;
     if (activeInput === "city" && city && city.length >= 3) {
-      // dispatch(getPincodeByCity({ city }));
-      
-      // Mock pincode fetch
-      setPincodeOptions(["400001", "400002", "400003"]);
+      dispatch(employeeGetPincodeByCity({ city }));
     }
   }, [formik.values.city, activeInput, dispatch]);
 
@@ -242,7 +256,7 @@ const WhiteLabel = ({ onBack }) => {
   useEffect(() => {
     const { city } = formik.values;
     if (activeInput === "city" && city && city.length >= 3) {
-      // dispatch(getPincodeByCity({ city }));
+      dispatch(employeeGetPincodeByCity({ city }));
     }
   }, [formik.values.city, dispatch]);
 
@@ -304,12 +318,20 @@ const WhiteLabel = ({ onBack }) => {
       });
       return;
     }
-    // Simulate IP Check success
-    showNotification({
-      type: "success",
-      message: "IP check completed successfully (Demo Mode)",
-      isCritical: true,
-    });
+    const response = await dispatch(employeeIpCheckStatus({ domain }));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response?.message || "IP check completed successfully",
+        isCritical: true,
+      });
+    } else {
+      showNotification({
+        type: "error",
+        message: response?.message || "Failed to check IP",
+        isCritical: true,
+      });
+    }
   };
 
   const handleFetchPan = async () => {
@@ -322,13 +344,21 @@ const WhiteLabel = ({ onBack }) => {
       });
       return;
     }
-    // Simulate PAN Fetch success
-    showNotification({
-      type: "success",
-      message: "PAN data fetched successfully (Demo Mode)",
-      isCritical: true,
-    });
-    formik.setFieldValue("name", "Demo Pan Holder");
+    const response = await dispatch(employeePanDataFetch({ pan }));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN data fetched successfully",
+        isCritical: true,
+      });
+    } else {
+      formik.setFieldValue("name", "");
+      showNotification({
+        type: "error",
+        message: response?.message || "Failed to fetch PAN data",
+        isCritical: true,
+      });
+    }
   };
 
   const panname = useSelector(

@@ -11,53 +11,9 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { bbpsHistory } from "../../../redux/action/walletAction";
+import { bbpsHistoryEmployee } from "../../../redux/action/walletAction";
 import * as XLSX from "xlsx";
 
-const DUMMY_BBPS_HISTORY = [
-    {
-        id: "1",
-        transactionId: "BBPS1234567890",
-        agentId: "AG001",
-        operator: "Airtel Digital TV",
-        billerName: "Airtel Digital TV",
-        billNumber: "1234567890",
-        mobileNumber: "9876543210",
-        amount: 250,
-        comm: 2.5,
-        paymentStatus: "Success",
-        createdAt: new Date().toISOString(),
-        user: { name: "John Doe" }
-    },
-    {
-        id: "2",
-        transactionId: "BBPS1234567891",
-        agentId: "AG002",
-        operator: "Reliance Energy",
-        billerName: "Reliance Energy",
-        billNumber: "0987654321",
-        mobileNumber: "9876543211",
-        amount: 1200,
-        comm: 12,
-        paymentStatus: "Pending",
-        createdAt: new Date().toISOString(),
-        user: { name: "Jane Smith" }
-    },
-    {
-        id: "3",
-        transactionId: "BBPS1234567892",
-        agentId: "AG003",
-        operator: "BSNL Landline",
-        billerName: "BSNL Landline",
-        billNumber: "1122334455",
-        mobileNumber: "9876543212",
-        amount: 450,
-        comm: 4.5,
-        paymentStatus: "Failed",
-        createdAt: new Date().toISOString(),
-        user: { name: "Bob Wilson" }
-    }
-];
 
 const BBPSReport = ({ onBack, type }) => {
     const dispatch = useDispatch();
@@ -71,12 +27,29 @@ const BBPSReport = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get BBPS history from Redux
-    const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.bbpsHistory?.data
+    // Corrected Redux selector key to match walletReducer.js
+    const bbpsEmployeeHistoryResponse = useSelector(
+        (state) => state?.wallet?.bbpsEmployeeHistory
     );
-    // const apiData = walletHistoryResponse || [];
-    const apiData = DUMMY_BBPS_HISTORY;
+    
+    // Robust array extraction that handles multiple nesting patterns
+    let apiData = [];
+    if (bbpsEmployeeHistoryResponse) {
+        if (Array.isArray(bbpsEmployeeHistoryResponse.data)) {
+            apiData = bbpsEmployeeHistoryResponse.data;
+        } else if (Array.isArray(bbpsEmployeeHistoryResponse.bbpsEmployeeHistory)) {
+            apiData = bbpsEmployeeHistoryResponse.bbpsEmployeeHistory;
+        } else if (Array.isArray(bbpsEmployeeHistoryResponse)) {
+            apiData = bbpsEmployeeHistoryResponse;
+        } else if (bbpsEmployeeHistoryResponse.data?.data && Array.isArray(bbpsEmployeeHistoryResponse.data.data)) {
+            apiData = bbpsEmployeeHistoryResponse.data.data;
+        }
+    }
+    
+    // Extract pagination data if available
+    const paginator = bbpsEmployeeHistoryResponse?.paginator || bbpsEmployeeHistoryResponse?.data?.paginator || {};
+    const apiTotalCount = bbpsEmployeeHistoryResponse?.total ?? bbpsEmployeeHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
+
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -99,9 +72,9 @@ const BBPSReport = ({ onBack, type }) => {
                     .replace(/\//g, "-");
             }
 
-            // Format amounts with currency symbol
-            const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
-            const formattedComm = item.comm ? `₹${item.comm}` : "₹0";
+            // Format amounts with currency symbol safely to two decimals
+            const formattedAmount = `₹${Number(item.amount || 0).toFixed(2)}`;
+            const formattedComm = `₹${Number(item.comm || 0).toFixed(2)}`;
 
             return {
                 id: item.id,
@@ -165,14 +138,8 @@ const BBPSReport = ({ onBack, type }) => {
             } : {}
         };
 
-        // dispatch(bbpsHistory(payload)).then((res) => {
-        //     if (res?.status === "SUCCESS") {
-        //         showNotification("BBPS history fetched successfully", "success");
-        //     } else {
-        //         showNotification(res?.message || "Failed to fetch BBPS history", "error");
-        //     }
-        // });
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery, statusFilter, showNotification]);
+        dispatch(bbpsHistoryEmployee(payload));
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery, statusFilter]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -289,15 +256,7 @@ const BBPSReport = ({ onBack, type }) => {
                                     customSearch: {}
                                 };
 
-                                // dispatch(bbpsHistory(payload)).then((res) => {
-                                //     if (res?.status === "SUCCESS") {
-                                //         showNotification("BBPS history refreshed successfully", "success");
-                                //     } else {
-                                //         showNotification(res?.message || "Failed to refresh BBPS history", "error");
-                                //     }
-                                // });
-                                showNotification("Data refreshed (Demo Mode)", "success");
-                                setIsReloading(false);
+                                dispatch(bbpsHistoryEmployee(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

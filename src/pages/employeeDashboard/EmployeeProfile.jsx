@@ -1,65 +1,28 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import { MapPin, FileText, Camera, ChevronDown, X, Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import {
-  getSlabVisibility,
-  assignSlabToCompany,
-} from "../../../redux/action/slabAction";
-import { getCompanyAdmin } from "../../../redux/action/whiteLabelAction";
-import { getWalletBalance } from "../../../redux/action/walletAction";
-import { useNotification } from "../../../context/NotificationContext";
-import {
-  employeeAddBankAdminDetails,
-  employeeDeleteAdminBank,
-  employeeGetAdminProfileDetails,
-  updateBankDetails,
-} from "../../../redux/action/userProfileAction";
-
-import PhoneIcon from "../../../../public/img/PhoneIcon.png";
-import EmailIcon from "../../../../public/img/Emailicon.png";
-import Gst from "../../../../public/img/Gst.png";
-import Pincode from "../../../../public/img/Pincode.png";
-import AgentCode from "../../../../public/img/AgentCode.png";
-import UserId from "../../../../public/img/UserId.png";
-import bgimage from "../../../../public/img/banner.svg";
+import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
+import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
+import { getCompanyWalletBalance } from "../../redux/action/walletAction";
+import { useNotification } from "../../context/NotificationContext";
+import { useCompany } from "../../context/CompanyContext";
+import PhoneIcon from "../../../public/img/PhoneIcon.png";
+import EmailIcon from "../../../public/img/Emailicon.png";
+import Gst from "../../../public/img/Gst.png";
+import Pincode from "../../../public/img/Pincode.png";
+import AgentCode from "../../../public/img/AgentCode.png";
+import UserId from "../../../public/img/UserId.png";
+import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
+import { employeeGetAdminDetails } from "../../redux/action/userProfileAction";
+import { employeeAddBankAdminDetails } from "../../redux/action/userProfileAction";
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_PROFILE_DATA = {
-  id: "ADMIN001",
-  name: "Demo User",
-  mobileNo: "9876543210",
-  email: "demo.user@gmaxepay.com",
-  state: "Maharashtra",
-  status: "Active",
-  agentCode: "GMAX001",
-  pinCode: "400001",
-  aadhaarNumber: "1234 5678 9012",
-  profileImage: null,
-  companyDetails: {
-    compnyGst: "27AAAAA0000A1Z5",
-    compnyPan: "ABCDE1234F",
-    companyId: "COMP001",
-  },
-  outletDetails: {
-    shopName: "Demo Fintech Solutions",
-    shopAddress: "123, Fintech Park, Mumbai",
-    shopImage: null,
-  },
-  bankDetails: [
-    {
-      id: 1,
-      bankName: "HDFC Bank",
-      accountNumber: "50100012345678",
-      ifscCode: "HDFC0001234",
-    },
-  ],
-};
-
-const ProfileDetails = ({ onBack = null }) => {
+const EmployeeProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState("membership");
   const [selectedScheme, setSelectedScheme] = useState("");
@@ -69,58 +32,57 @@ const ProfileDetails = ({ onBack = null }) => {
   const [isAddingBank, setIsAddingBank] = useState(false);
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
-  const [showEditModal, setShowEditModal] = useState(false); // Edit Modal State
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Delete Confirmation Modal State
-  const [selectedBank, setSelectedBank] = useState(null);
-  const [enablePayout, setEnablePayout] = useState(true); // Toggle State
-  const [enableWalletLoad, setEnableWalletLoad] = useState(false); // Toggle State
 
-  // Get company admin data from Redux
+  // Get company from context
+  const { company } = useCompany();
+  const companyId = company?.companyId || company?._id || company?.id;
+
+  // Get admin details from Redux (preferred)
+  const adminDetailsState = useSelector(
+    (state) => state?.userProfile?.adminDetailsResponse,
+  );
+  const userDetailsData = adminDetailsState?.adminDetailsResponse || null;
+
+  // Get company admin data from Redux (fallback)
   const companyAdminState = useSelector(
     (state) => state?.whitelabel?.companyAdmin,
   );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get admin profile details from Redux (response of getAdminProfileDetails)
-  const adminProfileState = useSelector(
-    (state) => state?.userProfile?.adminProfileResponse,
+  // Get loading state for admin details
+  const isUserDetailsLoading = useSelector(
+    (state) => state?.userProfile?.loading || false,
   );
 
-  // Extract the raw profile data from adminProfileState
-  const adminProfileData =
-    adminProfileState?.adminProfileResponse?.data ||
-    adminProfileState?.adminProfileResponse ||
-    adminProfileState?.data ||
-    adminProfileState ||
-    null;
+  // Use userDetailsData if available, otherwise fall back to companyAdminData
+  const profileData = userDetailsData || companyAdminData;
 
-  // Get slab visibility from Redux (membership slabs)
+  // Get slab visibility from Redux (with isSubscribed field)
   const slabList = useSelector((state) => state?.slab?.visibilityData || []);
   const visibilityLoading = useSelector(
     (state) => state?.slab?.visibilityLoading || false,
   );
-  const assignSlabLoading = useSelector(
-    (state) => state?.slab?.assignSlabLoading || false,
+  const upgradeLoading = useSelector(
+    (state) => state?.subscription?.upgradeLoading || false,
   );
-  const assignSlabSuccess = useSelector(
-    (state) => state?.slab?.assignSlabSuccess || false,
+  const upgradeSuccess = useSelector(
+    (state) => state?.subscription?.upgradeSuccess || false,
+  );
+  const upgradeError = useSelector(
+    (state) => state?.subscription?.upgradeError || null,
   );
 
   // Get wallet balance from Redux
-  const walletBalance = useSelector(
-    (state) => state?.wallet?.walletBalance || null,
+  const companyWalletBalance = useSelector(
+    (state) => state?.wallet?.companyWalletBalance || null,
   );
   const walletBalanceLoading = useSelector(
     (state) => state?.loading?.isLoading || false,
   );
 
-
-
-  // Extract data from companyAdminData if available, otherwise fall back to adminProfileData.
-  // Both responses share a similar structure (id, name, companyDetails, outletDetails, bankDetails, etc.)
-  // Use Dummy data fallback for demo
-  const data = companyAdminData || adminProfileData || DUMMY_PROFILE_DATA;
+  // Extract data from profileData (do this before early returns to maintain hook order)
+  const data = profileData || {};
   const companyDetails = data?.companyDetails || {};
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
@@ -142,72 +104,18 @@ const ProfileDetails = ({ onBack = null }) => {
     return "";
   };
 
-  // Get explicitly selected user role from Redux (set from list screens like CreateWhiteLabel)
-  const selectedUserRole = useSelector(
-    (state) => state?.userProfile?.selectedUserRole ?? null,
-  );
-
-  const getUserTypeLabel = () => {
-    // Prefer companyAdminData role, then adminProfileData as fallback
-    const source = companyAdminData || adminProfileData || {};
-
-    const rawRole =
-      selectedUserRole ??
-      source.userRole ??
-      source.role ??
-      source.userType ??
-      source.userRoleCode ??
-      source.userRoleNumber ??
-      source.userRoleId ??
-      source.roleId ??
-      "";
-
-    const roleCode = rawRole.toString().toUpperCase();
-
-    switch (roleCode) {
-      // Master Distributor
-      case "3":
-      case "MD":
-      case "MASTER_DISTRIBUTOR":
-        return "Master Distributor";
-
-      // Distributor
-      case "4":
-      case "DI":
-      case "DISTRIBUTOR":
-        return "Distributor";
-
-      // Retailer
-      case "5":
-      case "RE":
-      case "RETAILER":
-        return "Retailer";
-
-      // Whitelabel
-      case "2":
-      case "WL":
-      case "WHITELABEL":
-      case "WHITE_LABEL":
-      default:
-        return "Whitelabel";
+  // Fetch admin details and slab visibility on component mount (always fetch when page is showing)
+  useEffect(() => {
+    dispatch(employeeGetAdminDetails());
+    if (companyId) {
+      dispatch(getAllCompanySlabVisibility(companyId));
     }
-  };
+  }, [dispatch, companyId]);
 
   // Reset image error when data changes
   useEffect(() => {
     setImageError(false);
-  }, [companyAdminData, adminProfileData]);
-
-  // Ensure admin profile details are fetched when we only have company admin data
-  useEffect(() => {
-    if (!adminProfileData && companyAdminData) {
-      // Get userId from data.id
-      const userId = data?.id;
-      if (userId) {
-        dispatch(employeeGetAdminProfileDetails(userId));
-      }
-    }
-  }, [adminProfileData, companyAdminData, data?.id, dispatch]);
+  }, [profileData]);
 
   // Set default selected scheme to current slabId
   useEffect(() => {
@@ -216,32 +124,46 @@ const ProfileDetails = ({ onBack = null }) => {
     }
   }, [data?.slabId, selectedScheme]);
 
-  // Handle assign slab success
+  // Handle upgrade success
   useEffect(() => {
-    if (assignSlabSuccess) {
+    if (upgradeSuccess) {
       setShowConfirmModal(false);
-      // Refresh company admin data to get updated slabId
-      if (data?.id) {
-        dispatch(getCompanyAdmin(data.id));
-        // Also refresh admin profile details if available
-        if (adminProfileData) {
-          dispatch(employeeGetAdminProfileDetails(data.id));
-        }
+      // Refresh admin details to get updated data
+      dispatch(employeeGetAdminDetails());
+      // Refresh slab visibility
+      if (companyId) {
+        dispatch(getAllCompanySlabVisibility(companyId));
       }
     }
-  }, [assignSlabSuccess, data?.id, dispatch, adminProfileData]);
+  }, [upgradeSuccess, dispatch, companyId]);
 
-  // Fetch wallet balance when confirmation modal opens
+  // Fetch wallet balance when confirmation modal opens (only if not subscribed)
   useEffect(() => {
     if (showConfirmModal && selectedScheme) {
-      const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+      const selectedSlab = slabList.find(
+        (s) => String(s.id) === selectedScheme,
+      );
       const isSubscribed = selectedSlab?.isSubscribed || false;
       // Only fetch wallet balance if NOT subscribed (for upgrade)
       if (!isSubscribed) {
-        dispatch(getWalletBalance());
+        dispatch(getCompanyWalletBalance());
       }
     }
   }, [showConfirmModal, selectedScheme, slabList, dispatch]);
+
+  // Handle upgrade error from API
+  useEffect(() => {
+    if (upgradeError) {
+      // Show error notification
+      showNotification({
+        type: "error",
+        message: upgradeError,
+        duration: 5000,
+        isCritical: true,
+
+      });
+    }
+  }, [upgradeError, showNotification]);
 
   // Handle ESC key to close image modal
   useEffect(() => {
@@ -254,52 +176,14 @@ const ProfileDetails = ({ onBack = null }) => {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showImageModal]);
 
-  // Fetch slab visibility when company admin data or admin profile data is loaded
-  useEffect(() => {
-    if (companyAdminData || adminProfileData) {
-      // Get userId from data.id and companyId from companyDetails
-      const userId = data?.id;
-      const companyId = companyDetails?.companyId || data?.id;
-      if (userId && companyId) {
-        dispatch(getSlabVisibility(userId, companyId));
-      }
-    }
-  }, [companyAdminData, adminProfileData, companyDetails?.companyId, data?.id, dispatch]);
-
   // Skeleton loader component
   const SkeletonLoader = ({ className }) => (
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  const hasProfileData = !!(companyAdminData || adminProfileData);
+  // Show skeleton while loading user details or slab visibility
 
-  const handleDeleteBank = async () => {
-    if (!selectedBank?.id) return;
-
-    try {
-      await dispatch(employeeDeleteAdminBank(selectedBank.id));
-      if (data?.id) {
-        await dispatch(getCompanyAdmin(data.id));
-      }
-      showNotification({
-        type: "success",
-        message: "Bank account deleted successfully",
-        isCritical: true,
-      });
-    } catch (error) {
-      showNotification({
-        type: "error",
-        message: "Failed to delete bank account",
-        isCritical: true,
-      });
-    } finally {
-      setShowDeleteModal(false);
-      setSelectedBank(null);
-    }
-  };
-
-  // Show skeleton while loading or until we have either companyAdminData or adminProfileData
-  if (isLoading || !hasProfileData) {
+  if (isUserDetailsLoading || visibilityLoading || !profileData) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
@@ -377,7 +261,7 @@ const ProfileDetails = ({ onBack = null }) => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2 sm:mb-3">
           <div className="flex items-start gap-3 sm:gap-5">
             <button
-              onClick={onBack || (() => globalThis.history?.back())}
+              onClick={onBack || (() => navigate("/superDashboard/home"))}
               className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
             >
               <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
@@ -440,7 +324,7 @@ const ProfileDetails = ({ onBack = null }) => {
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
             <div className="flex-1">
               <h2 className="text-[16px] sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
-                {data?.name || "N/A"}
+                {companyDetails?.companyName || data?.name || "N/A"}
               </h2>
               <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-[8px] text-xs sm:text-sm text-[#1B1717]/80 font-['Gilroy-Medium']">
@@ -466,7 +350,7 @@ const ProfileDetails = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[Gilroy-Medium]">
-                  {getUserTypeLabel()}
+                  Admin
                 </span>
               </div>
             </div>
@@ -474,8 +358,8 @@ const ProfileDetails = ({ onBack = null }) => {
             {/* Active Status */}
             <div
               className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
-                ? "bg-red-500"
-                : "bg-[#008D1E]"
+                  ? "bg-red-500"
+                  : "bg-[#008D1E]"
                 }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
@@ -592,8 +476,8 @@ const ProfileDetails = ({ onBack = null }) => {
                 {/* Text */}
                 <span
                   className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
-                    ? "text-white"
-                    : "text-[#1B1717]/80 hover:text-[#039155]"
+                      ? "text-white"
+                      : "text-[#1B1717]/80 hover:text-[#039155]"
                     }`}
                 >
                   {label}
@@ -865,63 +749,66 @@ const ProfileDetails = ({ onBack = null }) => {
 
         {activeTab === "membership" && (
           <div className="space-y-6 sm:space-y-8">
-            {/* Membership Scheme Section - only for Whitelabel */}
-            {getUserTypeLabel() === "Whitelabel" && (
-              <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
-                <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
-                  Membership Scheme
-                </h3>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="relative flex-1 sm:max-w-xs">
-                    <select
-                      value={selectedScheme}
-                      onChange={(e) => setSelectedScheme(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
-                      disabled={assignSlabLoading || visibilityLoading}
-                    >
-                      <option value="">Select Slab</option>
-                      {slabList.map((slab) => {
-                        const amountDisplay =
-                          slab.slabAmount === "free" || slab.slabAmount === 0
-                            ? "Free"
-                            : `₹${slab.slabAmount}`;
-                        const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
-                        return (
-                          <option key={slab.id} value={slab.id}>
-                            {slab.slabName} ({amountDisplay}) - {subscriptionStatus}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (
-                        selectedScheme &&
-                        selectedScheme !== String(data?.slabId)
-                      ) {
-                        setShowConfirmModal(true);
-                      }
-                    }}
-                    disabled={
-                      !selectedScheme ||
-                      selectedScheme === String(data?.slabId) ||
-                      assignSlabLoading ||
-                      visibilityLoading
-                    }
-                    className="px-6 py-3 bg-[#039155] text-white rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+            {/* Membership Scheme Section */}
+            {/* <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
+                Membership Scheme
+              </h3>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="relative flex-1 sm:max-w-xs">
+                  <select
+                    value={selectedScheme}
+                    onChange={(e) => setSelectedScheme(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
+                    disabled={upgradeLoading || visibilityLoading}
                   >
-                    {(() => {
-                      if (assignSlabLoading) return "Processing...";
-                      const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
-                      const isSubscribed = selectedSlab?.isSubscribed || false;
-                      return isSubscribed ? "Change Slab" : "Upgrade";
-                    })()}
-                  </button>
+                    <option value="">Select Slab</option>
+                    {slabList.map((slab) => {
+                      const amountDisplay =
+                        slab.slabAmount === "free" || slab.slabAmount === 0
+                          ? "Free"
+                          : `₹${slab.slabAmount}`;
+                      const subscriptionStatus = slab.isSubscribed
+                        ? "Subscribed"
+                        : "Unsubscribed";
+                      return (
+                        <option key={slab.id} value={slab.id}>
+                          {slab.slabName} ({amountDisplay}) -{" "}
+                          {subscriptionStatus}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
+                <button
+                  onClick={() => {
+                    if (
+                      selectedScheme &&
+                      selectedScheme !== String(data?.slabId)
+                    ) {
+                      setShowConfirmModal(true);
+                    }
+                  }}
+                  disabled={
+                    !selectedScheme ||
+                    selectedScheme === String(data?.slabId) ||
+                    upgradeLoading ||
+                    visibilityLoading
+                  }
+                  className="px-6 py-3 bg-[#039155] text-white rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  {(() => {
+                    if (upgradeLoading) return "Processing...";
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed ? "Change Slab" : "Upgrade";
+                  })()}
+                </button>
               </div>
-            )}
+            </div> */}
 
             {/* Personal Details Section */}
             <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
@@ -1006,8 +893,8 @@ const ProfileDetails = ({ onBack = null }) => {
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
-                      ? "bg-red-500"
-                      : "bg-[#039155]"
+                        ? "bg-red-500"
+                        : "bg-[#039155]"
                       }`}
                   >
                     {data?.status || "Active"}
@@ -1031,24 +918,6 @@ const ProfileDetails = ({ onBack = null }) => {
                   <p className="text-xs text-gray-500 mb-1">Longitude</p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.longitude || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting To :</p>
-                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    {data?.reportingToManager || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting Contact :</p>
-                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    {data?.reportingToManagerMobile || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting Email :</p>
-                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    {data?.reportingToManagerEmail || "N/A"}
                   </p>
                 </div>
               </div>
@@ -1149,9 +1018,9 @@ const ProfileDetails = ({ onBack = null }) => {
                       if (!bankAccountNumber || !bankIfsc) {
                         showNotification({
                           type: "error",
-                          message:
-                            "Please enter account number and IFSC code.",
+                          message: "Please enter account number and IFSC code.",
                           isCritical: true,
+
                         });
                         return;
                       }
@@ -1163,13 +1032,13 @@ const ProfileDetails = ({ onBack = null }) => {
 
                       try {
                         await dispatch(employeeAddBankAdminDetails(payload));
-                        if (data?.id) {
-                          await dispatch(getCompanyAdmin(data.id));
-                        }
+                        await dispatch(employeeGetAdminDetails());
+
                         showNotification({
                           type: "success",
                           message: "Bank details added successfully.",
                           isCritical: true,
+
                         });
 
                         setIsAddingBank(false);
@@ -1182,6 +1051,7 @@ const ProfileDetails = ({ onBack = null }) => {
                             error?.message ||
                             "Failed to add bank details. Please try again.",
                           isCritical: true,
+
                         });
                       }
                     }}
@@ -1207,11 +1077,11 @@ const ProfileDetails = ({ onBack = null }) => {
                         </p>
                       </div>
 
-                      {/* Created On */}
+                      {/* City */}
                       <div className="flex flex-col w-1/5">
-                        <p className="text-xs text-gray-500">Beneficiary Name</p>
+                        <p className="text-xs text-gray-500">City</p>
                         <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
-                          {bank.beneficiaryName || "N/A"}
+                          {bank.city || "N/A"}
                         </p>
                       </div>
 
@@ -1246,36 +1116,6 @@ const ProfileDetails = ({ onBack = null }) => {
                           Active
                         </span>
                       </div>
-
-                      <div className="flex flex-col w-20">
-                        <p className="text-xs text-gray-500">Action</p>
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedBank(bank);
-                              setEnablePayout(bank.isPayout || false);
-                              setEnableWalletLoad(bank.isFundTransfer || false);
-                              setShowEditModal(true);
-                            }}
-                            className="text-gray-500 hover:text-[#039155] transition"
-                            title="Edit bank account"
-                          >
-                            <Edit size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedBank(bank);
-                              setShowDeleteModal(true);
-                            }}
-                            className="text-red-500 hover:text-red-700 transition"
-                            title="Delete bank account"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </div>
                     </div>
                   ))
                 ) : (
@@ -1297,9 +1137,13 @@ const ProfileDetails = ({ onBack = null }) => {
               <div className="mb-4">
                 <h3 className="text-xl font-[Gilroy-Semibold] text-gray-800">
                   {(() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
-                    return isSubscribed ? "Confirm Slab Change" : "Confirm Slab Upgrade";
+                    return isSubscribed
+                      ? "Confirm Slab Change"
+                      : "Confirm Slab Upgrade";
                   })()}
                 </h3>
               </div>
@@ -1312,19 +1156,25 @@ const ProfileDetails = ({ onBack = null }) => {
               <div className="mb-6">
                 {/* Wallet Balance Display - Only show if NOT subscribed */}
                 {(() => {
-                  const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                  const selectedSlab = slabList.find(
+                    (s) => String(s.id) === selectedScheme,
+                  );
                   const isSubscribed = selectedSlab?.isSubscribed || false;
 
                   // Only show wallet balance if NOT subscribed (for upgrade)
                   if (!isSubscribed) {
                     return (
                       <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Main Wallet Balance
+                        </p>
                         <p className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
-                          ) : walletBalance?.data?.mainWallet ? (
-                            `₹${walletBalance.data.mainWallet}`
+                          ) : companyWalletBalance?.data?.mainWallet ? (
+                            `₹${companyWalletBalance.data.mainWallet}`
+                          ) : companyWalletBalance?.data?.data?.mainWallet ? (
+                            `₹${companyWalletBalance.data.data.mainWallet}`
                           ) : (
                             <span className="text-gray-400">N/A</span>
                           )}
@@ -1337,7 +1187,9 @@ const ProfileDetails = ({ onBack = null }) => {
 
                 <p className="text-gray-700 mb-2">
                   {(() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
                     return isSubscribed
                       ? "Are you sure you want to change the membership scheme?"
@@ -1349,16 +1201,26 @@ const ProfileDetails = ({ onBack = null }) => {
                     New Slab:{" "}
                     <span className="font-[Gilroy-Semibold]">
                       {(() => {
-                        const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                        const selectedSlab = slabList.find(
+                          (s) => String(s.id) === selectedScheme,
+                        );
                         if (!selectedSlab) return "N/A";
                         const amountDisplay =
-                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0
+                          selectedSlab.slabAmount === "free" ||
+                            selectedSlab.slabAmount === 0
                             ? "Free"
                             : `₹${selectedSlab.slabAmount}`;
-                        const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                        const subscriptionStatus = selectedSlab.isSubscribed
+                          ? "Subscribed"
+                          : "Unsubscribed";
                         return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
                       })()}
                     </span>
+                  </p>
+                )}
+                {upgradeError && (
+                  <p className="text-sm text-red-600 mt-2 font-[Gilroy-Semibold] bg-red-50 p-2 rounded border border-red-200">
+                    {upgradeError}
                   </p>
                 )}
               </div>
@@ -1366,7 +1228,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 <button
                   onClick={() => setShowConfirmModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                  disabled={assignSlabLoading}
+                  disabled={upgradeLoading}
                 >
                   Cancel
                 </button>
@@ -1374,183 +1236,27 @@ const ProfileDetails = ({ onBack = null }) => {
                   onClick={async () => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
-                      const result = await dispatch(
-                        assignSlabToCompany(selectedScheme, companyId),
+                      await dispatch(
+                        upgradeOrChangeSlab(selectedScheme, companyId),
                       );
-                      showNotification({
-                        type: "success",
-                        message: "Plan upgraded successfully in demo mode!",
-                      });
-                      setShowConfirmModal(false);
+                      // Error message from API will be shown via useEffect watching upgradeError
                     }
                   }}
+                  disabled={upgradeLoading}
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  disabled={assignSlabLoading}
                 >
                   {(() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
-                    if (assignSlabLoading) {
+                    if (upgradeLoading) {
                       return isSubscribed ? "Changing..." : "Upgrading...";
                     }
                     return isSubscribed ? "Confirm Change" : "Confirm Upgrade";
                   })()}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Bank Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
-          <div className="bg-white rounded-[24px] shadow-xl w-full max-w-sm p-6 relative">
-
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-[Gilroy-SemiBold] text-[#1B1717]">
-                Use Account For
-              </h3>
-              <span className="bg-[#EBE9FE] text-[#6941C6] text-[10px] sm:text-xs px-2 py-1 rounded-md font-[Gilroy-Medium]">
-                Multi-Selected Enabled
-              </span>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              {/* Payout Option */}
-              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="5" width="20" height="14" rx="2" />
-                      <line x1="2" y1="10" x2="22" y2="10" />
-                    </svg>
-                  </div>
-                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
-                  <div>
-                    <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Payout</h4>
-                    <p className="text-xs text-gray-500">Use This Account For Payouts</p>
-                  </div>
-                </div>
-
-                {/* Toggle Switch */}
-                <button
-                  onClick={() => setEnablePayout(!enablePayout)}
-                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enablePayout ? 'bg-[#039155]' : 'bg-gray-200'}`}
-                >
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enablePayout ? 'translate-x-[26px]' : 'translate-x-1'}`} />
-                </button>
-              </div>
-
-              {/* Wallet Load Option */}
-              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-                    </svg>
-                  </div>
-                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
-                  <div>
-                    <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Wallet Load</h4>
-                    <p className="text-xs text-gray-500">Transfer Funds To Agent Wallet</p>
-                  </div>
-                </div>
-
-                {/* Toggle Switch */}
-                <button
-                  onClick={() => setEnableWalletLoad(!enableWalletLoad)}
-                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enableWalletLoad ? 'bg-[#039155]' : 'bg-gray-200'}`}
-                >
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enableWalletLoad ? 'translate-x-[26px]' : 'translate-x-1'}`} />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowEditModal(false);
-                  setSelectedBank(null);
-                }}
-                className="flex-1 py-3 border border-gray-300 rounded-xl text-sm font-[Gilroy-Medium] text-[#1B1717] hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                disabled={isLoading}
-                onClick={async () => {
-                  const payload = {
-                    isPayout: enablePayout,
-                    isFundTransfer: enableWalletLoad,
-                  };
-
-                  if (selectedBank?.id) {
-                    const response = await dispatch(updateBankDetails(payload, selectedBank.id));
-                    if (data?.id) {
-                      await dispatch(getCompanyAdmin(data.id));
-                    }
-                    if (response?.status === "SUCCESS") {
-                      showNotification({
-                        type: "success",
-                        message: response?.message || "Bank preferences updated",
-                        isCritical: true,
-                      });
-                    }
-                    showNotification({
-                      type: "success",
-                      message: "Bank preferences updated successfully!",
-                      isCritical: true,
-                    });
-                  }
-                  setShowEditModal(false);
-                  setSelectedBank(null);
-                }}
-                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47] flex items-center justify-center"
-              >
-                {isLoading ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> : "Save"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Bank Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
-            <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-3">
-              Delete Bank Account
-            </h3>
-
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to delete this bank account?
-              <br />
-              <span className="font-[Gilroy-Medium] text-gray-800">
-                Account No: {selectedBank?.accountNumber}
-              </span>
-            </p>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setSelectedBank(null);
-                }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleDeleteBank}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
-              >
-                Delete
-              </button>
             </div>
           </div>
         </div>
@@ -1584,12 +1290,16 @@ const ProfileDetails = ({ onBack = null }) => {
           </div>
         </div>
       )}
+
+
     </div>
   );
 };
 
-ProfileDetails.propTypes = {
+EmployeeProfile.propTypes = {
   onBack: PropTypes.func,
 };
 
-export default ProfileDetails;
+export default EmployeeProfile;
+
+

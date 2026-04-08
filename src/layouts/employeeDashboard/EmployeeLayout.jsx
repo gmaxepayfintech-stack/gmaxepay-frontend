@@ -4,7 +4,7 @@ import { useCompany } from "../../context/CompanyContext";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserProfile } from "../../redux/action/userProfileAction";
+import { employeeGetAdminDetails } from "../../redux/action/userProfileAction";
 import { useNotification } from "../../context/NotificationContext";
 import { logOut } from "../../redux/action/loginAction";
 import { getGreeting } from "../../utils/getGreeting";
@@ -39,10 +39,14 @@ const EmployeeLayout = ({ children }) => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
 
-  // Fetch user profile on component mount
+  // Fetch employee admin details on component mount
   useEffect(() => {
-    dispatch(getUserProfile());
+    dispatch(employeeGetAdminDetails());
   }, [dispatch]);
+
+  const profileDetails = useSelector(
+    (state) => state?.userProfile?.adminDetailsResponse?.adminDetailsResponse,
+  );
 
   useEffect(() => {
     setIsSidebarOpen(false);
@@ -392,7 +396,7 @@ const EmployeeLayout = ({ children }) => {
                         />
                       </div>
                       <p className="text-xs sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                        {name || email || "Employee"}
+                        {profileDetails?.name || name || email || "Support"}
                       </p>
                     </>
                   );
@@ -417,9 +421,9 @@ const EmployeeLayout = ({ children }) => {
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span
                 className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline max-w-[150px] md:max-w-[200px] xl:max-w-[250px] truncate"
-                title={`${profile?.name || ''} - Employee`}
+                title={`${profileDetails?.companyDetails?.companyName || profile?.name || ''} - Support`}
               >
-                {profile?.name || ''} - Employee
+                {profileDetails?.companyDetails?.companyName || profile?.name || ''} - Support
               </span>
               <button
                 onClick={toggleProfileDropdown}

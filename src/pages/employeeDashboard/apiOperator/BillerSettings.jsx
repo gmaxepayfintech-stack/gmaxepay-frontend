@@ -10,12 +10,12 @@ import {
 } from "lucide-react";
 import { useCompany } from "../../../context/CompanyContext";
 import {
-    getAllBBPSBillers,
-    searchBBPSBillers,
-    getCategoriesForDropdown,
-    getAllBBPSPaymentInfo,
-    createBBPSBiller,
-    updateBBPSBiller,
+    getEmployeeBBPSBillers,
+    searchEmployeeBBPSBillers,
+    getEmployeeCategoriesForDropdown,
+    getAllEmployeeBBPSPaymentInfo,
+    createEmployeeBBPSBiller,
+    updateEmployeeBBPSBiller,
 } from "../../../redux/action/bbpsAction";
 
 // Icon mapping for categories (same as BBPSSettings)
@@ -55,18 +55,6 @@ const categoryIconMap = {
     NPS: "/img/NPS.svg",
 };
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_BILLERS = [
-    { id: "B001", name: "Airtel Postpaid", billerId: "AIRTEL001", isActive: true, isDeleted: false, categoryId: "CAT001" },
-    { id: "B002", name: "BESCOM Bangalore", billerId: "BESCOM001", isActive: true, isDeleted: false, categoryId: "CAT002" },
-    { id: "B003", name: "Jio Fiber", billerId: "JIO001", isActive: false, isDeleted: false, categoryId: "CAT001" },
-];
-
-const DUMMY_CATEGORIES = [
-    { id: "CAT001", name: "Broadband Postpaid" },
-    { id: "CAT002", name: "Electricity" },
-    { id: "CAT003", name: "Water" },
-];
 
 // Default icon
 const DEFAULT_ICON = "/img/Broadband.svg";
@@ -647,10 +635,10 @@ const BillerSettings = () => {
         updateBillerSuccess,
     } = useSelector((state) => state.bbps);
 
-    const loading = false; // Force false for demo
-    const billers = reduxBillers?.length > 0 ? reduxBillers : DUMMY_BILLERS;
-    const categoriesForDropdown = reduxCategories?.length > 0 ? reduxCategories : DUMMY_CATEGORIES;
-    const billersTotalPages = reduxBillers?.length > 0 ? reduxTotalPages : 1;
+    const loading = reduxLoading;
+    const billers = reduxBillers || [];
+    const categoriesForDropdown = reduxCategories || [];
+    const billersTotalPages = reduxTotalPages || 1;
 
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -686,17 +674,14 @@ const BillerSettings = () => {
 
     // Fetch categories for dropdown on mount - DISABLED for demo
     useEffect(() => {
-        /*
         const companyId = getCompanyId();
-        if (companyId && categoriesForDropdown.length === 0) {
-            dispatch(getCategoriesForDropdown(companyId));
+        if (companyId) {
+            dispatch(getEmployeeCategoriesForDropdown(companyId));
         }
-        */
     }, [company, dispatch]);
 
     // Fetch billers when category, search, or page changes - DISABLED for demo
     useEffect(() => {
-        /*
         const companyId = getCompanyId();
         if (!companyId) return;
 
@@ -704,7 +689,7 @@ const BillerSettings = () => {
 
         if (debouncedSearchQuery.trim()) {
             dispatch(
-                searchBBPSBillers(
+                searchEmployeeBBPSBillers(
                     companyId,
                     debouncedSearchQuery,
                     categoryName,
@@ -714,10 +699,9 @@ const BillerSettings = () => {
             );
         } else {
             dispatch(
-                getAllBBPSBillers(companyId, categoryName, currentPage, cardsPerPage),
+                getEmployeeBBPSBillers(companyId, categoryName, currentPage, cardsPerPage),
             );
         }
-        */
     }, [debouncedSearchQuery, currentPage, selectedCategory, dispatch, company]);
 
     // Map billers to component format
@@ -790,7 +774,7 @@ const BillerSettings = () => {
         setLoadingChannels(true);
         try {
             // Fetch all payment info to get available channels
-            await dispatch(getAllBBPSPaymentInfo(companyId, 1, 100)); // Fetch all channels
+            await dispatch(getAllEmployeeBBPSPaymentInfo(companyId, 1, 100)); // Fetch all channels
         } catch (error) {
             console.error("Error fetching payment info:", error);
         } finally {
@@ -825,13 +809,8 @@ const BillerSettings = () => {
             initiatingChannel: formData.initChannel,
         };
 
-        /*
         setLastOperation("create");
-        await dispatch(createBBPSBiller(companyId, billerData));
-        */
-        console.log("Mock Add Biller:", billerData);
-        alert("Biller added successfully! (Demo Mode)");
-        setIsModalOpen(false);
+        await dispatch(createEmployeeBBPSBiller(companyId, billerData));
     };
 
     const handleEditBiller = async (formData) => {
@@ -859,14 +838,8 @@ const BillerSettings = () => {
             initiatingChannel: formData.initChannel,
         };
 
-        /*
         setLastOperation("update");
-        await dispatch(updateBBPSBiller(companyId, billerId, billerData));
-        */
-        console.log("Mock Edit Biller:", billerData);
-        alert("Biller updated successfully! (Demo Mode)");
-        setIsModalOpen(false);
-        setEditingBiller(null);
+        await dispatch(updateEmployeeBBPSBiller(companyId, billerId, billerData));
     };
 
     const handleEditClick = (biller) => {
@@ -902,15 +875,14 @@ const BillerSettings = () => {
             initiatingChannel: biller.initChannel || biller.initChannel,
         };
 
-        /*
-        await dispatch(updateBBPSBiller(companyId, billerId, billerData));
+        await dispatch(updateEmployeeBBPSBiller(companyId, billerId, billerData));
 
         // Refresh billers list after update (respect current search and filter state)
         const categoryNameForQuery =
             selectedCategory === "All" ? null : selectedCategory;
         if (debouncedSearchQuery.trim()) {
             dispatch(
-                searchBBPSBillers(
+                searchEmployeeBBPSBillers(
                     companyId,
                     debouncedSearchQuery,
                     categoryNameForQuery,
@@ -920,7 +892,7 @@ const BillerSettings = () => {
             );
         } else {
             dispatch(
-                getAllBBPSBillers(
+                getEmployeeBBPSBillers(
                     companyId,
                     categoryNameForQuery,
                     currentPage,
@@ -928,9 +900,6 @@ const BillerSettings = () => {
                 ),
             );
         }
-        */
-        console.log("Mock Toggle Active Biller:", { billerId, newActiveValue });
-        alert(`Biller active status updated to ${newActiveValue} (Demo Mode)`);
     };
 
     const handleCloseModal = () => {
@@ -954,7 +923,7 @@ const BillerSettings = () => {
                     selectedCategory === "All" ? null : selectedCategory;
                 // Refresh the billers list after successful create or update
                 dispatch(
-                    getAllBBPSBillers(companyId, categoryName, currentPage, cardsPerPage),
+                    getEmployeeBBPSBillers(companyId, categoryName, currentPage, cardsPerPage),
                 );
                 // Close modal and reset state
                 setIsModalOpen(false);
@@ -1013,8 +982,8 @@ const BillerSettings = () => {
                                         setIsDropdownOpen(false);
                                     }}
                                     className={`px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm ${selectedCategory === category
-                                            ? "bg-gray-100 font-[Gilroy-Medium]"
-                                            : "text-[#1B1717]"
+                                        ? "bg-gray-100 font-[Gilroy-Medium]"
+                                        : "text-[#1B1717]"
                                         }`}
                                 >
                                     {category}
@@ -1064,8 +1033,8 @@ const BillerSettings = () => {
                         onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                         disabled={currentPage === 1 || loading}
                         className={`px-3 py-2.5 border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${currentPage === 1 || loading
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
                             }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
@@ -1076,8 +1045,8 @@ const BillerSettings = () => {
                             onClick={() => setCurrentPage(page)}
                             disabled={loading}
                             className={`px-4 py-1.5 rounded font-[Gilroy-Medium] transition-colors ${currentPage === page
-                                    ? "bg-[#039155] text-white"
-                                    : "border border-gray-300 hover:bg-gray-50"
+                                ? "bg-[#039155] text-white"
+                                : "border border-gray-300 hover:bg-gray-50"
                                 } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                             {page}
@@ -1091,8 +1060,8 @@ const BillerSettings = () => {
                         }
                         disabled={currentPage === (billersTotalPages || 1) || loading}
                         className={`px-3 py-2.5 border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${currentPage === (billersTotalPages || 1) || loading
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
                             }`}
                     >
                         <ChevronRight className="w-4 h-4" />

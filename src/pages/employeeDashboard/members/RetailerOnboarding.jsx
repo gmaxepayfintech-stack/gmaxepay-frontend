@@ -14,41 +14,20 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
-  kycData as kycDataAction,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
-  getCompanyAdmin,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
 } from "../../../redux/action/whiteLabelAction";
-import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_ONBOARDING_RETAILERS = [
-  {
-    id: "RD001",
-    date: "2026-03-27",
-    userId: "RETAIL_PEND_001",
-    name: "Amit Kumar",
-    userRole: "Retailer",
-    mobileNo: "9500011122",
-    email: "amit.k@example.com",
-    parentName: "Vikram Seth",
-    parentRole: "Distributor",
-    company: "Kumar Kirana",
-    kycStatus: "Pending",
-    kycSteps: "2",
-    wallet: { mainWallet: 0, apes1Wallet: 0, apes2Wallet: 0 },
-    status: "Inactive",
-    lock: false,
-  },
-];
+import ProfileDetails from "./ProfileDetails";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -118,7 +97,6 @@ const RetailerOnboarding = ({
 
   // Fetch data from API when search term or page changes - DISABLED for demo
   useEffect(() => {
-    /*
     if (debouncedSearchTerm.trim()) {
       const payload = {
         query: {
@@ -135,9 +113,8 @@ const RetailerOnboarding = ({
           name: debouncedSearchTerm.trim(),
         },
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Use Redux data when search is active, otherwise use prop data
@@ -155,9 +132,7 @@ const RetailerOnboarding = ({
     finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
   const finalStartIndex = (currentPage - 1) * 5;
   const finalEndIndex = finalStartIndex + 5;
-  // Use Dummy data for testing/demo if prop data is empty
-  const displayTableData =
-    finalTableData.length > 0 ? finalTableData.slice(finalStartIndex, finalEndIndex) : DUMMY_ONBOARDING_RETAILERS;
+  const displayTableData = finalTableData.slice(finalStartIndex, finalEndIndex);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -179,7 +154,6 @@ const RetailerOnboarding = ({
 
   // Refresh KYC data when revert succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -192,17 +166,15 @@ const RetailerOnboarding = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Refresh table when kycStatusCheck succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (kycStatusCheckResponse?.status === "SUCCESS") {
       // Refresh table data by dispatching useList again
       if (debouncedSearchTerm.trim()) {
@@ -221,10 +193,9 @@ const RetailerOnboarding = ({
             name: debouncedSearchTerm.trim(),
           },
         };
-        dispatch(useListAction(payload));
+        dispatch(employeeUseList(payload));
       }
     }
-    */
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
@@ -247,7 +218,7 @@ const RetailerOnboarding = ({
           }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -570,10 +541,10 @@ const RetailerOnboarding = ({
                               dispatch(setSelectedUserRole(roleFromRow));
 
                               // Fetch core company admin details
-                              // dispatch(getCompanyAdmin(userId));
+                              // dispatch(employeeGetCompanyAdmin(userId));
 
                               // Additionally fetch admin profile details (slab visibility, etc.)
-                              // dispatch(getAdminProfileDetails(userId));
+                              dispatch(employeeGetAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
                             }
@@ -655,17 +626,7 @@ const RetailerOnboarding = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              // dispatch(kycDataAction(userId));
-                              setSelectedKycData({
-                                kycStatus: row.kycStatus || "Pending",
-                                kycSteps: row.kycSteps || "3",
-                                userDetails: {
-                                  userId: row.userId,
-                                  name: row.name,
-                                  mobileNo: row.mobileNo,
-                                  email: row.emailId
-                                }
-                              });
+                              dispatch(employeeKycData(userId));
                               setShowKycModal(true);
                             }
                           }}
@@ -689,14 +650,14 @@ const RetailerOnboarding = ({
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     // Toggling from inactive to active (ON)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
@@ -719,7 +680,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(employeeUseList(payload));
                                   }, 500);
                                 }
                               }}
@@ -764,8 +725,7 @@ const RetailerOnboarding = ({
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
-                                  // dispatch(kycUnlock(userId));
-                                  alert("Account access has been enabled successfully.");
+                                  dispatch(employeeKycUnlock(userId));
                                 }
                               }}
                               disabled={!isLocked}
@@ -792,8 +752,7 @@ const RetailerOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
-                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
+                                  dispatch(employeeRescendOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -811,8 +770,7 @@ const RetailerOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(deActiveOnboarding(userId));
-                                  alert(`Deactivation request sent for ${row.name || "user"}`);
+                                  dispatch(employeeDeActiveOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1020,11 +978,10 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              // Fetch core company admin details
-                              dispatch(getCompanyAdmin(userId));
+                              // dispatch(employeeGetCompanyAdmin(userId));
 
                               // Additionally fetch admin profile details (slab visibility, etc.)
-                              dispatch(getAdminProfileDetails(userId));
+                              dispatch(employeeGetAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
                             }
@@ -1105,7 +1062,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(kycDataAction(userId));
+                              dispatch(employeeKycData(userId));
                               setShowKycModal(true);
                             }
                           }}
@@ -1129,14 +1086,14 @@ const RetailerOnboarding = ({
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     // Toggling from inactive to active (ON)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
@@ -1159,7 +1116,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(employeeUseList(payload));
                                   }, 500);
                                 }
                               }}
@@ -1206,7 +1163,7 @@ const RetailerOnboarding = ({
                                   // Dispatch unlock action with the row ID
                                   // The useEffect hook will automatically refresh the table
                                   // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
+                                  dispatch(employeeKycUnlock(userId));
                                 }
                               }}
                               disabled={!isLocked}
@@ -1517,7 +1474,7 @@ const RetailerOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         aadhar: "true",
                                       }),
                                     );
@@ -1647,7 +1604,7 @@ const RetailerOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         pan: "true",
                                       }),
                                     );
@@ -1777,7 +1734,7 @@ const RetailerOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         shopImage: "true",
                                       }),
                                     );
@@ -1863,7 +1820,7 @@ const RetailerOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         bankVerification: "true",
                                       }),
                                     );

@@ -9,23 +9,11 @@ import {
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  listServices,
-  createService,
-  updateService,
+  listEmployeeServices,
+  createEmployeeService,
+  updateEmployeeService,
 } from "../../../redux/action/serviceActions";
-import { ButtonLoader } from "../../../widgets/layout/loader";
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_SERVICES = {
-  data: [
-    { id: "S001", serviceName: "Mobile Prepaid", isActive: true },
-    { id: "S002", serviceName: "Electricity", isActive: true },
-    { id: "S003", serviceName: "DTH", isActive: true },
-    { id: "S004", serviceName: "Water", isActive: false },
-    { id: "S005", serviceName: "Gas", isActive: true },
-  ],
-  paginator: { pageCount: 1, currentPage: 1 }
-};
 
 const ServiceSetting = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +21,7 @@ const ServiceSetting = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     id: "",
@@ -43,7 +32,6 @@ const ServiceSetting = () => {
   const handleSubmit = () => {
     if (!formData.servicename) return;
 
-    /*
     const payload = {
       serviceName: formData.servicename,
       isActive: formData.active,
@@ -51,14 +39,14 @@ const ServiceSetting = () => {
 
     const action =
       isEditMode && editingId
-        ? updateService(editingId, payload)
-        : createService(payload);
+        ? updateEmployeeService(editingId, payload)
+        : createEmployeeService(payload);
 
     dispatch(action).then(() => {
       setCurrentPage(1);
 
       dispatch(
-        listServices({
+        listEmployeeServices({
           query: {},
           customSearch: searchQuery ? { serviceName: searchQuery } : {},
           options: {
@@ -68,9 +56,6 @@ const ServiceSetting = () => {
         }),
       );
     });
-    */
-    console.log("Mock Submit Service:", formData);
-    alert(`Service ${isEditMode ? "updated" : "added"} successfully! (Demo Mode)`);
 
     setIsOpen(false);
     setIsEditMode(false);
@@ -97,10 +82,9 @@ const ServiceSetting = () => {
   //   setServices((prev) => prev.filter((service) => service.id !== id));
   // };
 
-  const serviceListFromRedux = useSelector((state) => state.services.serviceList);
-  const isLoading = false; // Force false for demo
+  const { serviceList: serviceListFromRedux, loading: isLoading } = useSelector((state) => state.services);
 
-  const serviceList = serviceListFromRedux?.data?.length > 0 ? serviceListFromRedux : DUMMY_SERVICES;
+  const serviceList = serviceListFromRedux || { data: [], paginator: { pageCount: 1, currentPage: 1 } };
 
   const services = serviceList?.data || [];
   const paginator = serviceList?.paginator || {};
@@ -114,9 +98,8 @@ const ServiceSetting = () => {
   // }, [dispatch, searchQuery]);
 
   useEffect(() => {
-    /* 
     dispatch(
-      listServices({
+      listEmployeeServices({
         query: {},
         customSearch: searchQuery ? { serviceName: searchQuery } : {},
         options: {
@@ -126,8 +109,7 @@ const ServiceSetting = () => {
         },
       }),
     );
-    */
-  }, [ searchQuery, currentPage]);
+  }, [searchQuery, currentPage, dispatch]);
 
   return (
     <div className="py-4 px-1">

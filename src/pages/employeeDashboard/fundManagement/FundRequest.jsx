@@ -3,15 +3,7 @@ import { useDispatch } from 'react-redux';
 import * as XLSX from "xlsx";
 import { RefreshCw } from 'lucide-react';
 import { ButtonLoader } from '../../../widgets/layout/loader.jsx';
-import { adminApproveRequest, adminGetRequest } from '../../../redux/action/fundAction';
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_FUND_REQUESTS = [
-  { id: 1, createdAt: "2026-03-25T10:00:00Z", requester: { name: "John Doe" }, bank: { bankName: "HDFC Bank", accountNumber: "1234567890" }, referenceNo: "REF001", transactionId: "TXN001", amount: 5000, paymentMode: "UPI", status: "PENDING", transactionDate: "2026-03-25T09:00:00Z" },
-  { id: 2, createdAt: "2026-03-26T11:30:00Z", requester: { name: "Jane Smith" }, bank: { bankName: "ICICI Bank", accountNumber: "0987654321" }, referenceNo: "REF002", transactionId: "TXN002", amount: 12000, paymentMode: "IMPS", status: "APPROVED", transactionDate: "2026-03-26T10:00:00Z" },
-  { id: 3, createdAt: "2026-03-27T14:15:00Z", requester: { name: "Bob Wilson" }, bank: { bankName: "SBI Bank", accountNumber: "5566778899" }, referenceNo: "REF003", transactionId: "TXN003", amount: 2500, paymentMode: "RTGS", status: "REJECTED", transactionDate: "2026-03-27T13:00:00Z" },
-  { id: 4, createdAt: "2026-03-28T09:45:00Z", requester: { name: "Alice Brown" }, bank: { bankName: "Kotak Bank", accountNumber: "1122334455" }, referenceNo: "REF004", transactionId: "TXN004", amount: 7500, paymentMode: "UPI", status: "PENDING", transactionDate: "2026-03-28T09:00:00Z" }
-];
+import { employeeGetRequest, employeeApproveRequest } from '../../../redux/action/fundAction';
 
 const FundRequest = () => {
   const dispatch = useDispatch();
@@ -52,10 +44,10 @@ const FundRequest = () => {
       // Build query object for date filters
       const query = {};
       if (fromDate) {
-        query.startDate = fromDate;
+        query.startDate = fromDate.replace(/-/g, "/");
       }
       if (toDate) {
-        query.endDate = toDate;
+        query.endDate = toDate.replace(/-/g, "/");
       }
 
       // Build payload
@@ -69,28 +61,42 @@ const FundRequest = () => {
         }
       };
 
-      /*
-      const result = await dispatch(adminGetRequest(payload));
+      const result = await dispatch(employeeGetRequest(payload));
 
-      if (result?.status === "SUCCESS" && result?.adminGetRequest) {
-        const dataArray = Array.isArray(result.adminGetRequest)
-          ? result.adminGetRequest
-          : result.adminGetRequest?.data || [];
+      if (result?.status === "SUCCESS") {
+        // Robust array extraction
+        let dataArray = [];
+        const responseData = result.employeeGetRequest;
+        
+        if (responseData) {
+          if (Array.isArray(responseData.data)) {
+            dataArray = responseData.data;
+          } else if (Array.isArray(responseData.employeeGetRequest)) {
+            dataArray = responseData.employeeGetRequest;
+          } else if (Array.isArray(responseData)) {
+            dataArray = responseData;
+          } else if (responseData.data?.data && Array.isArray(responseData.data.data)) {
+            dataArray = responseData.data.data;
+          }
+        }
+        
         setFundRequests(dataArray);
-        setTotalRecords(result.adminGetRequest?.totalRecords || dataArray.length);
+        const paginator = responseData?.paginator || responseData?.data?.paginator || {};
+        setTotalRecords(responseData?.total ?? responseData?.data?.total ?? paginator?.itemCount ?? dataArray.length);
+      } else {
+        setFundRequests([]);
+        setTotalRecords(0);
       }
-      */
-      // Use dummy data for demo
-      setFundRequests(DUMMY_FUND_REQUESTS);
-      setTotalRecords(DUMMY_FUND_REQUESTS.length);
     } catch (error) {
       console.error("Failed to fetch fund requests:", error);
+      setFundRequests([]);
+      setTotalRecords(0);
     } finally {
       setLoading(false);
       setIsReloading(false);
       isFetchingRef.current = false;
     }
-  }, [dispatch, searchTerm, fromDate, toDate, currentPage, itemsPerPage]);
+  }, [dispatch, searchTerm, fromDate, toDate]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -103,24 +109,18 @@ const FundRequest = () => {
   useEffect(() => {
     fetchFundRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, fromDate, toDate]);
+  }, [fromDate, toDate]);
 
   // Debounce search term
   useEffect(() => {
-    // Don't trigger if searchTerm is empty on initial mount
-    if (!searchTerm.trim()) {
-      return;
-    }
-
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
+    
+    // Only fetch if searchTerm has value or if it was cleared
     debounceTimerRef.current = setTimeout(() => {
-      if (currentPage === 1) {
-        fetchFundRequests();
-      } else {
-        setCurrentPage(1); // Reset to first page when searching
-      }
+      setCurrentPage(1);
+      fetchFundRequests();
     }, 500);
 
     return () => {
@@ -161,31 +161,24 @@ const FundRequest = () => {
       setSubmitting(true);
       const payload = {
         fundRequestId: selectedRequest.id.toString(),
-        action: "APPROVED",
+        status: "APPROVED", // Standard status key
         approvalRemarks: approvalRemarks || ""
       };
 
-      /*
-      const result = await dispatch(adminApproveRequest(payload));
+      const result = await dispatch(employeeApproveRequest(payload));
 
       if (result?.status === "SUCCESS") {
         // Close panel and refresh the list
         handleClosePanel();
         fetchFundRequests();
       }
-      */
-      // Mock success for demo
-      setTimeout(() => {
-        handleClosePanel();
-        alert("Fund request approved successfully (Demo Mode)");
-      }, 500);
     } catch (error) {
-      // Error is handled by Redux error reducer
       console.error("Failed to approve fund request:", error);
     } finally {
       setSubmitting(false);
     }
   };
+
 
   const handleExport = () => {
     if (fundRequests.length === 0) {

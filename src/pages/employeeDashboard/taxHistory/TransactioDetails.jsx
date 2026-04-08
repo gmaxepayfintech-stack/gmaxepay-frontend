@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { FileText } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import MainWalletStatement from "../reports/MainWalletStatement";
-import { getAepsTransactionDetails, getAeps2TransactionDetails } from "../../../redux/action/aepsAction";
+import { getAepsTransactionDetailsEmployee, getAeps2TransactionDetailsEmployee } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-
 const TransactioDetails = ({
   transactionId = null,
   onBack = null,
@@ -17,20 +16,20 @@ const TransactioDetails = ({
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
 
   const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
+    (state) => state?.aeps?.transactionDetailsEmployee,
   );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionData = propData?.data || propData || transactionDetailsResponse?.data || null;
 
   // Fetch transaction details when component mounts or transactionId changes
   useEffect(() => {
-    // if (transactionId) {
-    //   if (isAeps2) {
-    //     dispatch(getAeps2TransactionDetails(transactionId));
-    //   } else {
-    //     dispatch(getAepsTransactionDetails(transactionId));
-    //   }
-    // }
+    if (transactionId) {
+      if (isAeps2) {
+        dispatch(getAeps2TransactionDetailsEmployee(transactionId));
+      } else {
+        dispatch(getAepsTransactionDetailsEmployee(transactionId));
+      }
+    }
   }, [dispatch, transactionId, isAeps2]);
 
   // Helper function to get role name from role number

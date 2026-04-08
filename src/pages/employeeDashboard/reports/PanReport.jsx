@@ -9,8 +9,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { PanReportsEmployee } from "../../../redux/action/reportAction";
 import * as XLSX from "xlsx";
 
 const PanReport = ({ onBack }) => {
@@ -24,42 +24,12 @@ const PanReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
-  /*
+  // Get data from Redux — employee-specific state key
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.employeePanReport,
   );
   const apiData = rechargeReportResponse?.data || [];
-  const paginator = rechargeReportResponse?.paginator || {};
-  const totalCount = rechargeReportResponse?.total || 0;
-  */
-
-  // DUMMY DATA FOR PAN HISTORY
-  const apiData = [
-    {
-      id: "pan-1",
-      transactionId: "PAN1029384756",
-      orderid: "ORD442190",
-      user: { name: "Ramesh Sharma", userId: "AG00123", mobileNo: "9876543210" },
-      mobile_number: "9876543210",
-      action: "New PAN",
-      apiResponse: { amount: "107", message: "Success", txid: "TXN3321", url: "https://example.com/pan/1" },
-      status: "SUCCESS",
-      createdAt: "2024-03-13T10:00:00.000Z"
-    },
-    {
-      id: "pan-2",
-      transactionId: "PAN1029384757",
-      orderid: "ORD442191",
-      user: { name: "Suresh Patel", userId: "AG00100", mobileNo: "9988776655" },
-      mobile_number: "9988776655",
-      action: "Correction",
-      apiResponse: { amount: "107", message: "Pending", txid: "TXN3322", url: "https://example.com/pan/2" },
-      status: "PENDING",
-      createdAt: "2024-03-13T10:15:22.000Z"
-    }
-  ];
-  const totalCount = apiData.length;
+  const totalCount = rechargeReportResponse?.total || apiData.length;
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -94,38 +64,31 @@ const PanReport = ({ onBack }) => {
 
   // Fetch PAN service reports
   useEffect(() => {
-    /*
-    const query = {
-      // API expects serviceType: "Pan"
-      serviceType: "Pan1",
-    };
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+    if (!bothDatesSelected && !bothDatesNull) return;
 
-    // Add date filters only if both dates are selected
+    const query = { serviceType: "Pan1" };
     if (fromDate && toDate) {
-      // Format date as YYYY-MM-DD (backend will handle format)
       query.startDate = fromDate;
       query.endDate = toDate;
     }
 
-    // Get the appropriate search field based on input pattern
     const customSearch = debouncedSearchQuery.trim()
       ? getSearchField(debouncedSearchQuery)
       : {};
 
     const payload = {
-      query: query,
-      customSearch: customSearch,
+      query,
+      customSearch,
       options: {
         page: 1,
         paginate: 1000,
-        // As per API contract: sort by id desc
         sort: { id: -1 },
       },
     };
 
-    dispatch(rechargeReportsAdmin(payload));
-    */
-    console.log("PAN report fetching disabled in demo mode.");
+    dispatch(PanReportsEmployee(payload));
   }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -366,8 +329,7 @@ const PanReport = ({ onBack }) => {
                     sort: { id: -1 },
                   },
                 };
-
-                dispatch(rechargeReportsAdmin(payload));
+                dispatch(PanReportsEmployee(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}

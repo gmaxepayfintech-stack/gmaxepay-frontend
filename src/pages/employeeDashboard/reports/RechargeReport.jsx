@@ -9,8 +9,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { rechargeReportsEmployee } from "../../../redux/action/reportAction";
 import * as XLSX from "xlsx";
 
 const RechargeReport = ({ onBack }) => {
@@ -24,56 +24,26 @@ const RechargeReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
-  /*
+  // Get data from Redux — employee-specific state key
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.employeeTransaction,
   );
-  const apiData = rechargeReportResponse?.data || [];
-  const paginator = rechargeReportResponse?.paginator || {};
-  const totalCount = rechargeReportResponse?.total || 0;
-  */
-
-  // DUMMY DATA FOR RECHARGE HISTORY
-  const apiData = [
-    {
-      id: "rech-1",
-      transactionId: "RECH1029384756",
-      orderid: "ORD992180",
-      user: { name: "Ramesh Sharma", userId: "AG00123", mobileNo: "9876543210" },
-      mobileNumber: "9876543210",
-      apiResponse: { operatorName: "Jio Prepaid", txid: "TXN1121", opid: "OP0021", message: "Success" },
-      amount: 299,
-      retailerCom: 5.98,
-      status: "SUCCESS",
-      createdAt: "2024-03-13T10:00:00.000Z"
-    },
-    {
-      id: "rech-2",
-      transactionId: "RECH1029384757",
-      orderid: "ORD992181",
-      user: { name: "Suresh Patel", userId: "AG00100", mobileNo: "9988776655" },
-      mobileNumber: "9988776655",
-      apiResponse: { operatorName: "Airtel Prepaid", txid: "TXN1122", opid: "OP0022", message: "Pending" },
-      amount: 500,
-      retailerCom: 10.00,
-      status: "PENDING",
-      createdAt: "2024-03-13T10:15:22.000Z"
-    },
-    {
-      id: "rech-3",
-      transactionId: "RECH1029384758",
-      orderid: "ORD992182",
-      user: { name: "Manish Kumar", userId: "AG00105", mobileNo: "8877665544" },
-      mobileNumber: "8877665544",
-      apiResponse: { operatorName: "Vi Prepaid", txid: "TXN1123", opid: "OP0023", message: "Failure" },
-      amount: 199,
-      retailerCom: 3.98,
-      status: "FAILURE",
-      createdAt: "2024-03-13T11:05:10.000Z"
+  
+  // Safely extract the array data regardless of nesting level
+  let apiData = [];
+  if (rechargeReportResponse?.data) {
+    if (Array.isArray(rechargeReportResponse.data)) {
+      apiData = rechargeReportResponse.data;
+    } else if (rechargeReportResponse.data.data && Array.isArray(rechargeReportResponse.data.data)) {
+      apiData = rechargeReportResponse.data.data;
+    } else if (rechargeReportResponse.data.data?.data && Array.isArray(rechargeReportResponse.data.data.data)) {
+      apiData = rechargeReportResponse.data.data.data;
     }
-  ];
-  const totalCount = apiData.length;
+  } else if (Array.isArray(rechargeReportResponse)) {
+    apiData = rechargeReportResponse;
+  }
+
+  const totalCount = rechargeReportResponse?.total || apiData.length;
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -108,38 +78,31 @@ const RechargeReport = ({ onBack }) => {
 
   // Fetch recharge reports
   useEffect(() => {
-    /*
-    const query = {
-      // API expects serviceType: "MobileRecharge"
-      serviceType: "Mobile1Recharge",
-    };
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+    if (!bothDatesSelected && !bothDatesNull) return;
 
-    // Add date filters only if both dates are selected
+    const query = { serviceType: "Mobile1Recharge" };
     if (fromDate && toDate) {
-      // Format date as YYYY-MM-DD (backend will handle format)
       query.startDate = fromDate;
       query.endDate = toDate;
     }
 
-    // Get the appropriate search field based on input pattern
     const customSearch = debouncedSearchQuery.trim()
       ? getSearchField(debouncedSearchQuery)
       : {};
 
     const payload = {
-      query: query,
-      customSearch: customSearch,
+      query,
+      customSearch,
       options: {
         page: 1,
         paginate: 1000,
-        // As per API contract: sort by id desc
         sort: { id: -1 },
       },
     };
 
-    dispatch(rechargeReportsAdmin(payload));
-    */
-    console.log("Recharge report fetching disabled in demo mode.");
+    dispatch(rechargeReportsEmployee(payload));
   }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -378,7 +341,7 @@ const RechargeReport = ({ onBack }) => {
                   },
                 };
 
-                dispatch(rechargeReportsAdmin(payload));
+                dispatch(rechargeReportsEmployee(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -612,19 +575,19 @@ const RechargeReport = ({ onBack }) => {
 
                         {/* Amount - Right aligned */}
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
+                          ₹{Number(transaction.amount || 0).toFixed(2)}
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                           ₹
-                          {Number.parseFloat(transaction.drAmount || 0).toFixed(
+                          {Number(transaction.drAmount || 0).toFixed(
                             2,
                           )}
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                           ₹
-                          {Number.parseFloat(transaction.commission || 0).toFixed(
+                          {Number(transaction.commission || 0).toFixed(
                             2,
                           )}
                         </td>

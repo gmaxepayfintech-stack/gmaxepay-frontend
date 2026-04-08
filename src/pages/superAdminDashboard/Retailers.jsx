@@ -41,9 +41,9 @@ const Retailers = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  ); // Default to today's date
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -145,27 +145,51 @@ const Retailers = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+
+  // Fetch data from API when search term or dates change
+  useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
+    // Only fetch if there is a search term OR if dates are selected
+    // Note: If you want dates to trigger API call even without search term, you should remove this if condition
+    // or modify it to check for dates as well.
+    if (debouncedSearchTerm.trim() || bothDatesSelected) {
       const payload = {
         query: {
           userRole: 5, // Retailer role
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
           page: currentPage,
           paginate: 5,
         },
-        customSearch: {
+        customSearch: debouncedSearchTerm.trim() ? {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
-        },
+        } : {},
       };
 
       dispatch(useListAction(payload));
     }
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -232,33 +256,51 @@ const Retailers = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       // Refresh table data by dispatching useList again
-      if (debouncedSearchTerm.trim()) {
+      if (debouncedSearchTerm.trim() || bothDatesSelected) {
         const payload = {
           query: {
             userRole: 5, // Retailer role
+            ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
           },
           options: {
             sort: { id: -1 },
             page: currentPage,
             paginate: 5,
           },
-          customSearch: {
+          customSearch: debouncedSearchTerm.trim() ? {
             mobileNo: debouncedSearchTerm.trim(),
             name: debouncedSearchTerm.trim(),
-          },
+          } : {},
         };
         dispatch(useListAction(payload));
       }
     }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const payload = {
         query: {
           userRole: 5, // Retailer role
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -274,7 +316,7 @@ const Retailers = ({
       };
       dispatch(useListAction(payload));
     }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Export to Excel function
   const handleExportToExcel = () => {
@@ -428,20 +470,14 @@ const Retailers = ({
                 <input
                   type="date"
                   value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setFromDate(e.target.value)}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
 
                 <input
                   type="date"
                   value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setToDate(e.target.value)}
                   min={fromDate || undefined}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
@@ -886,7 +922,6 @@ const Retailers = ({
                   value={fromDate}
                   onChange={(e) => {
                     setFromDate(e.target.value);
-                    setCurrentPage(1);
                   }}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
@@ -896,7 +931,6 @@ const Retailers = ({
                   value={toDate}
                   onChange={(e) => {
                     setToDate(e.target.value);
-                    setCurrentPage(1);
                   }}
                   min={fromDate || undefined}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"

@@ -25,60 +25,28 @@ import Retailers from "./Retailers";
 import RetailerOnboarding from "./RetailerOnboarding";
 import ProfileDetails from "./ProfileDetails";
 import {
-  useList,
-  kycData,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
 } from "../../../redux/action/whiteLabelAction";
 import { getSlabList } from "../../../redux/action/slabAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { motion } from "framer-motion";
 import {
-  getAdminProfileDetails,
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
-import { useLocation, useSearchParams } from "react-router-dom";
-import Employee from "./employee";
 
-// Stable empty array reference to prevent unnecessary re-renders
+
+import { useLocation, useSearchParams } from "react-router-dom";
+
 const EMPTY_ARRAY = [];
 
-const generateTableData = (type, count = 12) => {
-  let userRole = "WL";
-  if (type === "Distributor") {
-    userRole = "D";
-  } else if (type === "Retailers") {
-    userRole = "R";
-  }
-
-  let parentRole = "Enterprise Partner";
-  if (type === "Distributor") {
-    parentRole = "Distributor";
-  } else if (type === "Retailers") {
-    parentRole = "Retailer";
-  }
-
-  const baseData = {
-    srNo: "01",
-    date: "13-10-25",
-    userAgentCode: "SECPY26007",
-    userName: "Rudra",
-    userRole: userRole,
-    mobile: "9350547710",
-    email: "Rudra@Gmail.Com",
-    parentName: "GMAXEPAY",
-    parentRole: parentRole,
-    companyName: "GMAXEPAY",
-  };
-
-  return Array.from({ length: count }, (_, index) => ({
-    ...baseData,
-    srNo: String(index + 1).padStart(2, "0"),
-  }));
-};
 
 const CreateWhiteLabel = () => {
   const dispatch = useDispatch();
@@ -248,16 +216,8 @@ const CreateWhiteLabel = () => {
       customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
     };
 
-    // setIsTableLoading(true);
-    // dispatch(useList(payload));
-    
-    // Simulate loading for demo
     setIsTableLoading(true);
-    const timer = setTimeout(() => {
-      setIsTableLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    dispatch(employeeUseList(payload));
   }, [
     activeNav,
     currentPage,
@@ -270,9 +230,8 @@ const CreateWhiteLabel = () => {
 
   // Refresh table when kycStatusCheck succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
+      // Refresh table data by dispatching employeeUseList again
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
@@ -293,9 +252,8 @@ const CreateWhiteLabel = () => {
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
       setIsTableLoading(true);
-      dispatch(useList(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [
     kycStatusCheckResponse,
     activeNav,
@@ -307,7 +265,6 @@ const CreateWhiteLabel = () => {
 
   // Refresh table when kycUnlock succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (kycLockStatusResponse?.status === "SUCCESS") {
       const userRole = getRoleNumber(activeNav);
       const query = {
@@ -329,9 +286,8 @@ const CreateWhiteLabel = () => {
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
       setIsTableLoading(true);
-      dispatch(useList(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [
     kycLockStatusResponse,
     activeNav,
@@ -380,7 +336,6 @@ const CreateWhiteLabel = () => {
 
   // Refresh KYC data when revert succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -393,12 +348,11 @@ const CreateWhiteLabel = () => {
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycData(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
@@ -743,15 +697,9 @@ const CreateWhiteLabel = () => {
       transformedData = transformApiData(responseForTable.data);
     }
 
-    // Fallback to dummy data for demo
+    // No data fallback (empty list)
     if (transformedData.length === 0) {
-      const dummyRaw = generateTableData(activeNav);
-      transformedData = dummyRaw.map((item, index) => ({
-        ...item,
-        id: `DUMMY_${index + 1}`,
-        kycStatus: "Completed",
-        status: "Active",
-      }));
+      return EMPTY_ARRAY;
     }
 
     const startIndex = (currentPage - 1) * 10;
@@ -834,7 +782,6 @@ const CreateWhiteLabel = () => {
                 "Master Distributor",
                 "Distributor",
                 "Retailers",
-                "Employee",
               ].map((item) => (
                 <button
                   key={item}
@@ -877,28 +824,28 @@ const CreateWhiteLabel = () => {
         </div>
 
         {/* Top Buttons */}
-        {activeNav !== "Employee" && (
-          <div className="flex flex-wrap gap-3 mb-6">
-            <button
-              onClick={() => setShowOnboardingList(false)}
-              className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${showOnboardingList
+        <div className="flex flex-wrap gap-3 mb-6">
+          <button
+            onClick={() => setShowOnboardingList(false)}
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${
+              showOnboardingList
                 ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 : "bg-[#039155] text-white"
-                }`}
-            >
-              All List
-            </button>
-            <button
-              onClick={() => setShowOnboardingList(true)}
-              className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${showOnboardingList
+            }`}
+          >
+            All List
+          </button>
+          <button
+            onClick={() => setShowOnboardingList(true)}
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${
+              showOnboardingList
                 ? "bg-[#039155] text-white shadow-md"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-            >
-              Onboarding Process
-            </button>
-          </div>
-        )}
+            }`}
+          >
+            Onboarding Process
+          </button>
+        </div>
 
         {(() => {
           const apiData = getApiDataForComponents();
@@ -951,15 +898,6 @@ const CreateWhiteLabel = () => {
               />
             );
           }
-          if (activeNav === "Employee") {
-            return (
-              <Employee
-                embedded={true}
-                tableData={apiData}
-                isLoading={isTableLoading}
-              />
-            );
-          }
           return (
             <div className="flex flex-col min-h-[calc(100vh-300px)]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
@@ -970,7 +908,6 @@ const CreateWhiteLabel = () => {
                     if (activeNav === "Master Distributor")
                       return "Master Distribution";
                     if (activeNav === "Distributor") return "Distributor";
-                    if (activeNav === "Employee") return "Employee";
                     return "Retailers";
                   })()}
                 </h2>
@@ -1129,7 +1066,7 @@ const CreateWhiteLabel = () => {
                                   dispatch(setSelectedUserRole(roleFromRow));
 
                                   // Call admin profile details API with just userId (no payload)
-                                  // dispatch(getAdminProfileDetails(userId));
+                                  dispatch(employeeGetAdminProfileDetails(userId));
                                   setShowProfileDetails(true);
                                 }
                               }}
@@ -1243,19 +1180,8 @@ const CreateWhiteLabel = () => {
                                 if (userId) {
                                   setSelectedUserId(userId);
                                   setIsKycModalLoading(true);
-                                  // dispatch(kycData(userId));
-                                  
-                                  // Mock loading logic
-                                  setTimeout(() => {
-                                    setIsKycModalLoading(false);
-                                    setSelectedKycData({
-                                      kycStatus: "FULL_KYC",
-                                      kycSteps: "3",
-                                      personal: { name: row.name || "Demo User" },
-                                      documents: { pan: "Verified", aadhar: "Verified" }
-                                    });
-                                    setShowKycModal(true);
-                                  }, 800);
+                                  dispatch(employeeKycData(userId));
+                                  setShowKycModal(true);
                                 }
                               }}
                               className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1278,14 +1204,14 @@ const CreateWhiteLabel = () => {
                                       if (isActive) {
                                         // Toggling from active to inactive (OFF)
                                         dispatch(
-                                          kycStatusCheck(userId, {
+                                          employeeKycStatusCheck(userId, {
                                             isActive: "false",
                                           }),
                                         );
                                       } else {
                                         // Toggling from inactive to active (ON)
                                         dispatch(
-                                          kycStatusCheck(userId, {
+                                          employeeKycStatusCheck(userId, {
                                             isActive: "true",
                                           }),
                                         );
@@ -1387,8 +1313,7 @@ const CreateWhiteLabel = () => {
                                       // Dispatch unlock action with the row ID
                                       // The useEffect hook will automatically refresh the table
                                       // when kycLockStatusResponse status becomes "SUCCESS"
-                                      // dispatch(kycUnlock(userId));
-                                      alert("Account access has been enabled successfully.");
+                                      dispatch(employeeKycUnlock(userId));
                                     }
                                   }}
                                   disabled={!isLocked}
@@ -1417,8 +1342,7 @@ const CreateWhiteLabel = () => {
                                 <button
                                   onClick={() => {
                                     if (userId) {
-                                      // dispatch(rescendOnboarding(userId));
-                                      alert(`Onboarding re-sent to ${row.name || "user"}`);
+                                      dispatch(employeeRescendOnboarding(userId));
                                     }
                                   }}
                                   className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1436,7 +1360,7 @@ const CreateWhiteLabel = () => {
                                 <button
                                   onClick={() => {
                                     if (userId) {
-                                      dispatch(deActiveOnboarding(userId));
+                                      dispatch(employeeDeActiveOnboarding(userId));
                                     }
                                   }}
                                   className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"

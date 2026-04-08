@@ -28,6 +28,18 @@ import {
   SET_SELECTED_USER_ROLE,
   UPDATE_BANK_USER_SUCCESS,
   UPDATE_BANK_USER_FAILURE,
+  EMPLOYEE_ADMIN_ROLES_PERMISSION_SUCCESS,
+  EMPLOYEE_ADMIN_ROLES_PERMISSION_FAILURE,
+  EMPLOYEE_UPDATE_ROLES_PERMISSION_SUCESS,
+  EMPLOYEE_UPDATE_ROLES_PERMISSION_FAILURE,
+  EMPLOYEE_ADD_BANK_ADMIN_SUCCESS,
+  EMPLOYEE_ADD_BANK_ADMIN_FAILURE,
+  EMPLOYEE_GET_ADMIN_DETAILS_SUCCESS,
+  EMPLOYEE_GET_ADMIN_DETAILS_FAILURE,
+  EMPLOYEE_GET_ADMIN_PROFILE_SUCCESS,
+  EMPLOYEE_GET_ADMIN_PROFILE_FAILURE,
+  EMPLOYEE_DELETE_BANK_ADMIN_SUCCESS,
+  EMPLOYEE_DELETE_BANK_ADMIN_FAILURE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -645,5 +657,259 @@ export const updateBankDetailsUser = (payload, id) => async (dispatch) => {
     });
   } finally {
     dispatch({ type: LOADING_END });
+  }
+};
+
+// =======================
+// EMPLOYEE ACTIONS
+// =======================
+
+export const employeeGetPermission = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.get(
+      `${API_ROUTE}/api/v1/employee/rolesAndPermissions/roles/${id}/permissions`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const {
+      data: adminRolesPermission,
+      message,
+      status,
+    } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_ADMIN_ROLES_PERMISSION_SUCCESS,
+        payload: { adminRolesPermission, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_ADMIN_ROLES_PERMISSION_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_ADMIN_ROLES_PERMISSION_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeUpdateRolesPermission = (body) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.put(
+      `${API_ROUTE}/api/v1/employee/rolesAndPermissions/roles/permissions`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const { data: updateRoles, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_UPDATE_ROLES_PERMISSION_SUCESS,
+        payload: { updateRoles, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_UPDATE_ROLES_PERMISSION_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_UPDATE_ROLES_PERMISSION_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeAddBankAdminDetails = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/bank/addBank`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const { data: bankAdminResponse, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_ADD_BANK_ADMIN_SUCCESS,
+        payload: { bankAdminResponse, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_ADD_BANK_ADMIN_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_ADD_BANK_ADMIN_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeGetAdminDetails = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/getProfile`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const {
+      data: adminDetailsResponse,
+      message,
+      status,
+    } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_ADMIN_DETAILS_SUCCESS,
+        payload: { adminDetailsResponse, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_ADMIN_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_ADMIN_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeGetAdminProfileDetails = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/profile/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const {
+      data: adminProfileResponse,
+      message,
+      status,
+    } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_ADMIN_PROFILE_SUCCESS,
+        payload: { adminProfileResponse, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_ADMIN_PROFILE_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_ADMIN_PROFILE_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeDeleteAdminBank = (bankId) => async (dispatch) => {
+  try {
+    const token = secureLocalStorage.getItem("userToken");
+
+    const res = await axios.post(
+      `${API_ROUTE}/api/v1/employee/bank/delete/${bankId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (res.data?.status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_DELETE_BANK_ADMIN_SUCCESS,
+        payload: bankId,
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_DELETE_BANK_ADMIN_FAILURE,
+        payload: res.data?.message || "Delete failed",
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_DELETE_BANK_ADMIN_FAILURE,
+      payload: error.message,
+    });
   }
 };

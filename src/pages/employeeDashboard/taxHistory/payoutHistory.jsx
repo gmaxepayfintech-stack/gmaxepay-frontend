@@ -10,68 +10,10 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { getPayoutHistory } from "../../../redux/action/payoutAction";
+import { employeePayoutHistory } from "../../../redux/action/payoutAction";
 import * as XLSX from "xlsx";
 
-const DUMMY_PAYOUT_HISTORY = [
-  {
-    id: "1",
-    transactionID: "PAY1234567890",
-    refId: "USER001",
-    mobile: "9876543210",
-    accountNumber: "123456789012",
-    ifscCode: "SBIN0001234",
-    bankName: "State Bank of India",
-    payoutType: "IMPS",
-    beneficiaryName: "John Doe",
-    amount: 5000,
-    status: "SUCCESS",
-    type: "PAYOUT",
-    walletType: "MAIN",
-    apiResponse: { aepsType: "AEPS1" },
-    openingBalance: 10000,
-    closingBalance: 5000,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    transactionID: "PAY1234567891",
-    refId: "USER002",
-    mobile: "9876543211",
-    accountNumber: "098765432109",
-    ifscCode: "HDFC0005678",
-    bankName: "HDFC Bank",
-    payoutType: "NEFT",
-    beneficiaryName: "Jane Smith",
-    amount: 2500,
-    status: "PENDING",
-    type: "PAYOUT",
-    walletType: "MAIN",
-    apiResponse: { aepsType: "AEPS2" },
-    openingBalance: 7500,
-    closingBalance: 5000,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    transactionID: "PAY1234567892",
-    refId: "USER003",
-    mobile: "9876543212",
-    accountNumber: "112233445566",
-    ifscCode: "ICIC0001122",
-    bankName: "ICICI Bank",
-    payoutType: "IMPS",
-    beneficiaryName: "Bob Wilson",
-    amount: 1000,
-    status: "FAILED",
-    type: "PAYOUT",
-    walletType: "MAIN",
-    apiResponse: { aepsType: "AEPS1" },
-    openingBalance: 6000,
-    closingBalance: 5000,
-    createdAt: new Date().toISOString(),
-  }
-];
+
 
 const PayoutHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -84,12 +26,12 @@ const PayoutHistory = ({ onBack, type }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get payout history from Redux
+  // Get payout history from Redux — employee-specific state key
   const payoutHistoryResponse = useSelector(
-    (state) => state?.payout?.payoutHistory,
+    (state) => state?.payout?.payoutHistoryEmployee,
   );
-  // const apiData = payoutHistoryResponse?.data || [];
-  const apiData = DUMMY_PAYOUT_HISTORY;
+  const apiData = payoutHistoryResponse?.data || [];
+  const totalCount = payoutHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -194,7 +136,7 @@ const PayoutHistory = ({ onBack, type }) => {
       },
     };
 
-    // dispatch(getPayoutHistory(payload));
+    dispatch(employeePayoutHistory(payload));
   }, [dispatch, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -227,8 +169,8 @@ const PayoutHistory = ({ onBack, type }) => {
   });
 
   // CLIENT-SIDE Pagination
-  const totalCount = filteredTransactions.length;
-  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
+  const filteredCount = filteredTransactions.length;
+  const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -333,9 +275,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   },
                 };
 
-                // dispatch(getPayoutHistory(payload));
-                alert("Data refreshed (Demo Mode)");
-                setIsReloading(false);
+                dispatch(employeePayoutHistory(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -497,7 +437,7 @@ const PayoutHistory = ({ onBack, type }) => {
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.id}
+                            {srNo}
                           </span>
                         </td>
 

@@ -9,7 +9,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
+import { rechargeReportsEmployee } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import * as XLSX from "xlsx";
 
@@ -24,56 +24,26 @@ const DTHReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
-  /*
+  // Get data from Redux — employee-specific state key
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.employeeTransaction,
   );
-  const apiData = rechargeReportResponse?.data || [];
-  const paginator = rechargeReportResponse?.paginator || {};
-  const totalCount = rechargeReportResponse?.total || 0;
-  */
-
-  // DUMMY DATA FOR DTH HISTORY
-  const apiData = [
-    {
-      id: "dth-1",
-      transactionId: "DTH1029384756",
-      orderid: "ORD882190",
-      user: { name: "Ramesh Sharma", userId: "AG00123", mobileNo: "9876543210" },
-      dthNumber: "1234567890",
-      apiResponse: { operatorName: "Tata Sky", txid: "TXN5521", opid: "OP9921", message: "Success" },
-      amount: 500,
-      retailerCom: 10.00,
-      status: "SUCCESS",
-      createdAt: "2024-03-13T10:00:00.000Z"
-    },
-    {
-      id: "dth-2",
-      transactionId: "DTH1029384757",
-      orderid: "ORD882191",
-      user: { name: "Suresh Patel", userId: "AG00100", mobileNo: "9988776655" },
-      dthNumber: "0987654321",
-      apiResponse: { operatorName: "Airtel Digital TV", txid: "TXN5522", opid: "OP9922", message: "Pending" },
-      amount: 1000,
-      retailerCom: 20.00,
-      status: "PENDING",
-      createdAt: "2024-03-13T10:15:22.000Z"
-    },
-    {
-      id: "dth-3",
-      transactionId: "DTH1029384758",
-      orderid: "ORD882192",
-      user: { name: "Manish Kumar", userId: "AG00105", mobileNo: "8877665544" },
-      dthNumber: "1122334455",
-      apiResponse: { operatorName: "Dish TV", txid: "TXN5523", opid: "OP9923", message: "Failure" },
-      amount: 250,
-      retailerCom: 5.00,
-      status: "FAILURE",
-      createdAt: "2024-03-13T11:05:10.000Z"
+  
+  // Safely extract the array data regardless of nesting level
+  let apiData = [];
+  if (rechargeReportResponse?.data) {
+    if (Array.isArray(rechargeReportResponse.data)) {
+      apiData = rechargeReportResponse.data;
+    } else if (rechargeReportResponse.data.data && Array.isArray(rechargeReportResponse.data.data)) {
+      apiData = rechargeReportResponse.data.data;
+    } else if (rechargeReportResponse.data.data?.data && Array.isArray(rechargeReportResponse.data.data.data)) {
+      apiData = rechargeReportResponse.data.data.data;
     }
-  ];
-  const totalCount = apiData.length;
+  } else if (Array.isArray(rechargeReportResponse)) {
+    apiData = rechargeReportResponse;
+  }
+
+  const totalCount = rechargeReportResponse?.total || apiData.length;
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -108,38 +78,24 @@ const DTHReport = ({ onBack }) => {
 
   // Fetch DTH recharge reports
   useEffect(() => {
-    /*
-    const query = {
-      // API expects serviceType: "DTHRecharge"
-      serviceType: "DTH1Recharge",
-    };
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+    if (!bothDatesSelected && !bothDatesNull) return;
 
-    // Add date filters only if both dates are selected
+    const query = { serviceType: "DTH1Recharge" };
     if (fromDate && toDate) {
-      // Format date as YYYY-MM-DD (backend will handle format)
       query.startDate = fromDate;
       query.endDate = toDate;
     }
-
-    // Get the appropriate search field based on input pattern
     const customSearch = debouncedSearchQuery.trim()
       ? getSearchField(debouncedSearchQuery)
       : {};
-
     const payload = {
-      query: query,
-      customSearch: customSearch,
-      options: {
-        page: 1,
-        paginate: 1000,
-        // As per API contract: sort by id desc
-        sort: { id: -1 },
-      },
+      query,
+      customSearch,
+      options: { page: 1, paginate: 1000, sort: { id: -1 } },
     };
-
-    dispatch(rechargeReportsAdmin(payload));
-    */
-    console.log("DTH report fetching disabled in demo mode.");
+    dispatch(rechargeReportsEmployee(payload));
   }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -395,7 +351,7 @@ const DTHReport = ({ onBack }) => {
                   },
                 };
 
-                dispatch(rechargeReportsAdmin(payload));
+                dispatch(rechargeReportsEmployee(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -612,19 +568,13 @@ const DTHReport = ({ onBack }) => {
                           {transaction.circle}
                         </td>
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
+                          ₹{Number(transaction.amount || 0).toFixed(2)}
                         </td>
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          ₹
-                          {Number.parseFloat(transaction.drAmount || 0).toFixed(
-                            2,
-                          )}
+                          ₹{Number(transaction.drAmount || 0).toFixed(2)}
                         </td>
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          ₹
-                          {Number.parseFloat(transaction.commission || 0).toFixed(
-                            2,
-                          )}
+                          ₹{Number(transaction.commission || 0).toFixed(2)}
                         </td>
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                           <span

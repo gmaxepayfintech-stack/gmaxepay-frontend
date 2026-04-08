@@ -14,111 +14,23 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
-import {
-  useList as useListAction,
-  kycData as kycDataAction,
-  kycStatusData,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
-} from "../../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
+} from "../../../redux/action/whiteLabelAction";
+import {
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
+import ProfileDetails from "./ProfileDetails";
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_RETAILERS = [
-  {
-    id: 1,
-    date: "2026-03-15",
-    userId: "RET001",
-    name: "Rajesh Kumar",
-    userRole: "Retailer",
-    mobileNo: "9876543210",
-    email: "rajesh.k@example.com",
-    parentName: "Amit Sharma",
-    parentRole: "Distributor",
-    company: "Rajesh Telecom",
-    kycStatus: "Completed",
-    kycSteps: "3",
-    wallet: { mainWallet: 5000, apes1Wallet: 1200, apes2Wallet: 800 },
-    status: "Active",
-    lock: false,
-  },
-  {
-    id: 2,
-    date: "2026-03-14",
-    userId: "RET002",
-    name: "Suresh Raina",
-    userRole: "Retailer",
-    mobileNo: "9123456789",
-    email: "suresh.r@example.com",
-    parentName: "Vijay Kumar",
-    parentRole: "Distributor",
-    company: "Raina Enterprises",
-    kycStatus: "Pending",
-    kycSteps: "1",
-    wallet: { mainWallet: 2500, apes1Wallet: 500, apes2Wallet: 200 },
-    status: "Inactive",
-    lock: true,
-  },
-  {
-    id: 3,
-    date: "2026-03-13",
-    userId: "RET003",
-    name: "Anjali Gupta",
-    userRole: "Retailer",
-    mobileNo: "9988776655",
-    email: "anjali.g@example.com",
-    parentName: "Amit Sharma",
-    parentRole: "Distributor",
-    company: "Gupta Store",
-    kycStatus: "Full_KYC",
-    kycSteps: "3",
-    wallet: { mainWallet: 12000, apes1Wallet: 3000, apes2Wallet: 1500 },
-    status: "Active",
-    lock: false,
-  },
-  {
-    id: 4,
-    date: "2026-03-12",
-    userId: "RET004",
-    name: "Mohit Verma",
-    userRole: "Retailer",
-    mobileNo: "9456123789",
-    email: "mohit.v@example.com",
-    parentName: "Vijay Kumar",
-    parentRole: "Distributor",
-    company: "Mohit Services",
-    kycStatus: "Rejected",
-    kycSteps: "2",
-    wallet: { mainWallet: 0, apes1Wallet: 0, apes2Wallet: 0 },
-    status: "Inactive",
-    lock: false,
-  },
-  {
-    id: 5,
-    date: "2026-03-11",
-    userId: "RET005",
-    name: "Pooja Hegde",
-    userRole: "Retailer",
-    mobileNo: "9000100020",
-    email: "pooja.h@example.com",
-    parentName: "Sanjay Singh",
-    parentRole: "Master Distributor",
-    company: "Hegde Solutions",
-    kycStatus: "Completed",
-    kycSteps: "3",
-    wallet: { mainWallet: 8500, apes1Wallet: 2000, apes2Wallet: 1100 },
-    status: "Active",
-    lock: false,
-  },
-];
 
 const Retailers = ({
   embedded = false,
@@ -179,26 +91,8 @@ const Retailers = ({
   // Get KYC details from Redux state - WATCH the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   
-  // Simulation of KYC data for demo
-  const DUMMY_KYC_DETAILS = {
-    personal: {
-      firstName: "Rajesh",
-      lastName: "Kumar",
-      dob: "1990-05-15",
-      gender: "Male"
-    },
-    documents: {
-      pan: { number: "ABCDE1234F", status: "Verified" },
-      aadhaar: { number: "123456789012", status: "Verified" }
-    },
-    address: {
-      state: "Maharashtra",
-      city: "Mumbai",
-      pincode: "400001"
-    }
-  };
 
-  const kycRetrieved = DUMMY_KYC_DETAILS;
+  const kycRetrieved = kycDetailsState?.data || null;
 
   // Get lockCheck from Redux state
   const lockCheck = useSelector((state) => state?.whitelabel?.kycStatusClick);
@@ -214,9 +108,11 @@ const Retailers = ({
     }
   }, [lockCheck, lastClickedRowId]);
 
-  // Use Dummy data for testing/demo
-  const allTableData = DUMMY_RETAILERS;
-  const isLoading = false; // Always show data for now
+  // Use API data or prop data
+  const allTableData = debouncedSearchTerm.trim() && responseForTable.length > 0 
+    ? responseForTable 
+    : propTableData;
+  const isLoading = propIsLoading;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -251,7 +147,6 @@ const Retailers = ({
 
   // Fetch data from API when search term changes - DISABLED for demo
   useEffect(() => {
-    /*
     if (debouncedSearchTerm.trim()) {
       const payload = {
         query: {
@@ -268,9 +163,8 @@ const Retailers = ({
         },
       };
 
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
@@ -295,7 +189,6 @@ const Retailers = ({
 
   // Refresh KYC data when revert succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -308,12 +201,11 @@ const Retailers = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
@@ -339,7 +231,6 @@ const Retailers = ({
 
   // Refresh table when kycStatusCheck succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (kycStatusCheckResponse?.status === "SUCCESS") {
       // Refresh table data by dispatching useList again
       if (debouncedSearchTerm.trim()) {
@@ -357,10 +248,9 @@ const Retailers = ({
             name: debouncedSearchTerm.trim(),
           },
         };
-        dispatch(useListAction(payload));
+        dispatch(employeeUseList(payload));
       }
     }
-    */
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
@@ -382,7 +272,7 @@ const Retailers = ({
           }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -681,10 +571,10 @@ const Retailers = ({
                                 row.userRole ||
                                 row.originalItem?.userRole ||
                                 "R"; // Retailer
-                              // dispatch(setSelectedUserRole(roleFromRow));
+                              dispatch(setSelectedUserRole(roleFromRow));
 
                               // Use only admin profile details API (same as CreateWhiteLabel)
-                              // dispatch(getAdminProfileDetails(userId));
+                              dispatch(employeeGetAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
                             }
@@ -767,14 +657,10 @@ const Retailers = ({
                             if (userId) {
                               setSelectedUserId(userId);
                               setIsKycModalLoading(true);
-                              // dispatch(kycDataAction(userId));
+                              dispatch(employeeKycData(userId));
 
-                              // Mock loading delay
-                              setTimeout(() => {
-                                setIsKycModalLoading(false);
-                                setSelectedKycData(DUMMY_KYC_DETAILS);
-                                setShowKycModal(true);
-                              }, 800);
+                              setIsKycModalLoading(false);
+                              setShowKycModal(true);
                             }
                           }}
                           className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -797,14 +683,14 @@ const Retailers = ({
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     // Toggling from inactive to active (ON)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
@@ -826,7 +712,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(employeeUseList(payload));
                                   }, 500);
                                 }
                               }}
@@ -874,7 +760,7 @@ const Retailers = ({
                                   // Dispatch unlock action with the row ID
                                   // The useEffect hook will automatically refresh the table
                                   // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
+                                  dispatch(employeeKycUnlock(userId));
                                 }
                               }}
                               disabled={!isLocked}
@@ -901,8 +787,7 @@ const Retailers = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
-                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
+                                  dispatch(employeeRescendOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -920,7 +805,7 @@ const Retailers = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
+                                  dispatch(employeeDeActiveOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1140,7 +1025,7 @@ const Retailers = ({
                             if (userId) {
                               // Use only admin profile details API (same as CreateWhiteLabel)
                               const original = row.originalItem || {};
-                              dispatch(getAdminProfileDetails(userId));
+                              dispatch(employeeGetAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
                             }
@@ -1222,7 +1107,7 @@ const Retailers = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              dispatch(kycDataAction(userId));
+                              dispatch(employeeKycData(userId));
                               setShowKycModal(true);
                             }
                           }}
@@ -1247,14 +1132,14 @@ const Retailers = ({
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     // Toggling from inactive to active (ON)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
@@ -1305,7 +1190,7 @@ const Retailers = ({
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID - MOCKED
-                                  // dispatch(kycUnlock(userId));
+                                  dispatch(employeeKycUnlock(userId));
                                   alert("Account access has been enabled successfully.");
                                 }
                               }}
@@ -1333,8 +1218,7 @@ const Retailers = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
-                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
+                                  dispatch(employeeRescendOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1352,8 +1236,7 @@ const Retailers = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(deActiveOnboarding(userId));
-                                  alert(`Deactivation request sent for ${row.name || "user"}`);
+                                  dispatch(employeeDeActiveOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1657,7 +1540,7 @@ const Retailers = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         aadhar: "true",
                                       }),
                                     );
@@ -1787,7 +1670,7 @@ const Retailers = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         pan: "true",
                                       }),
                                     );
@@ -1917,7 +1800,7 @@ const Retailers = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         shopImage: "true",
                                       }),
                                     );
@@ -2003,7 +1886,7 @@ const Retailers = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         bankVerification: "true",
                                       }),
                                     );

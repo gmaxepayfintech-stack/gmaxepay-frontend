@@ -49,6 +49,14 @@ import {
   CREATE_EMPLOYEE_FAILURE,
   RESND_LOGIN_ACCESS_SUCCESS,
   RESND_LOGIN_ACCESS_FAILURE,
+  EMPLOYEE_LIST_SUCCESS,
+  EMPLOYEE_LIST_FAILURE,
+  EMPLOYEE_GET_WHITELABEL_LIST_FAILURE,
+  EMPLOYEE_GET_WHITELABEL_LIST_SUCCESS,
+  EMPLOYEE_GET_CITY_BY_PINCODE_SUCCESS,
+  EMPLOYEE_GET_CITY_BY_PINCODE_FAILURE,
+  EMPLOYEE_FETCH_KYC_DETAILS_FAILURE,
+  EMPLOYEE_FETCH_KYC_DETAILS_SUCCESS,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -290,6 +298,48 @@ export const useList = (values) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_WHITELABEL_LIST_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/list`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: employeeList, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_LIST_SUCCESS,
+        payload: { employeeList, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_LIST_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_LIST_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
@@ -1116,6 +1166,631 @@ export const ResendEmployeeLoginAccess = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: RESND_LOGIN_ACCESS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// =======================
+// EMPLOYEE ACTIONS
+// =======================
+
+export const employeeIpCheckStatus = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/ip-check`,
+      values,
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: ipResponse, status, success, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_IP_CHECK_SUCCESS,
+        payload: { ipResponse, success, message },
+      });
+      return { status: "SUCCESS", message: message || "IP Check successful", data: ipResponse };
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_IP_CHECK_FAILURE,
+        payload: response?.data?.message ?? commonError,
+      });
+      return { status: "FAILURE", message: response?.data?.message || commonError };
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_IP_CHECK_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeGetCityByPincode = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/get-city-by-pincode`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: citybyPincode, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_CITY_BY_PINCODE_SUCCESS,
+        payload: { citybyPincode, status, message },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_CITY_BY_PINCODE_FAILURE,
+        payload: response?.data?.message ?? commonError,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_CITY_BY_PINCODE_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeGetPincodeByCity = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/get-pincode-by-city`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: pincodeByCity, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_PINCODE_BY_CITY_SUCCESS,
+        payload: { pincodeByCity, status, message },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_PINCODE_BY_CITY_FAILURE,
+        payload: response?.data?.message ?? commonError,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_PINCODE_BY_CITY_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeePanDataFetch = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/pan-verification`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: panData, message: outerMessage } = response?.data ?? {};
+    const status = response?.data?.data?.status;
+    const innerMessage = response?.data?.data?.message || response?.data?.data?.error;
+
+    if (status === "Success") {
+      dispatch({
+        type: EMPLOYEE_GET_PANDATA_FETCH_SUCCESS,
+        payload: { panData, message: innerMessage || outerMessage, status },
+      });
+      return { status: "SUCCESS", message: innerMessage || outerMessage || "PAN fetched successfully", data: panData };
+    } else if (status === "Failure") {
+      dispatch({
+        type: EMPLOYEE_GET_PANDATA_FETCH_FAILURE,
+        payload: { message: innerMessage || "Failed to verify PAN", status, errorData: response?.data },
+      });
+      return { status: "FAILURE", message: innerMessage || "Invalid PAN Number" };
+    }
+    return { status: "FAILURE", message: "Unknown response status" };
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_PANDATA_FETCH_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeCreateWhiteLabel = (formData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/create-company`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: createResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_WHITELABEL_CREATE_SUCCESS,
+        payload: { createResponse, status, message },
+      });
+      return { status: "SUCCESS", message: message || "Whitelabel created successfully" };
+    } else {
+      dispatch({
+        type: EMPLOYEE_WHITELABEL_CREATE_FAILURE,
+        payload: response?.data?.message ?? commonError,
+      });
+      return { status: "FAILURE", message: response?.data?.message || commonError };
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_WHITELABEL_CREATE_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeUseList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/list`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: whitelabelList, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_WHITELABEL_LIST_SUCCESS,
+        payload: { whitelabelList, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_WHITELABEL_LIST_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_WHITELABEL_LIST_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeKycData = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/kyc/complete/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_FETCH_KYC_DETAILS_SUCCESS,
+        payload: { data, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_FETCH_KYC_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_FETCH_KYC_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeKycStatusData = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycStatusClick, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_KYCSTATUS_SUCCESS,
+        payload: { kycStatusClick, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_KYCSTATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_GET_KYCSTATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeKycStatusCheck = (id, body = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.put(
+      `${API_ROUTE}/api/v1/employee/user/${id}`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycStatusCheck, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_UPDATE_KYCSTATUS_SUCCESS,
+        payload: { kycStatusCheck, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_UPDATE_KYCSTATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_UPDATE_KYCSTATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeKycUnlock = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/unlock/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycUnlock, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_KYC_LOCK_STATUS_SUCCESS,
+        payload: { kycUnlock, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_KYC_LOCK_STATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_KYC_LOCK_STATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeKycRevert = (id, body = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/kyc/revert/${id}`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycRevert, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_REVERT_KYC_DETAILS_SUCCESS,
+        payload: { kycRevert, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_REVERT_KYC_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_REVERT_KYC_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeRescendOnboarding = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/${id}/resend-onboarding-link`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: resendOnboardingLink, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_RESEND_ONBOARDING_LINK_SUCCESS,
+        payload: { resendOnboardingLink, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_RESEND_ONBOARDING_LINK_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_RESEND_ONBOARDING_LINK_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeDeActiveOnboarding = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/company/${authToken}/deactivate-onboarding-link`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: deactivateOnboardingLink, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_SUCCESS,
+        payload: { deactivateOnboardingLink, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeCreateEmployee = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/employee/create`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: EmployeeAdd, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_CREATE_EMPLOYEE_SUCCESS,
+        payload: { EmployeeAdd, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_CREATE_EMPLOYEE_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_CREATE_EMPLOYEE_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeResendEmployeeLoginAccess = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/employee/resend/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: resendAccess, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_RESND_LOGIN_ACCESS_SUCCESS,
+        payload: { resendAccess, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_RESND_LOGIN_ACCESS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_RESND_LOGIN_ACCESS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",

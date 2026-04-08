@@ -1,4 +1,5 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS, AEPS_TRANSACTION_DETAILS_USER_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS, AEPS_TRANSACTION_DETAILS_USER_SUCCESS, AEPS_CW_RECONCILIATION_SUCCESS, AEPS_CW_HISTORY_EMPLOYEE_SUCCESS, AEPS_TRANSACTION_DETAILS_EMPLOYEE_SUCCESS } from "../actionType/aepsActionType";
+import { AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS } from "../actionType/aepsThreeActionType";
 
 const initialState = {
     loading: false,
@@ -27,6 +28,8 @@ const initialState = {
     transactionDetailsCompanyError: null,
     transactionDetailsUser: null,
     transactionDetailsUserError: null,
+    aepsCwReconciliation: null,
+    aepsCwReconciliationError: null,
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -120,6 +123,17 @@ const aepsReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
             }
 
+        case AEPS_CW_RECONCILIATION_SUCCESS:
+            return {
+                ...state,
+                aepsCwReconciliation: action?.payload,
+                aepsCwReconciliationError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+
         case AEPS_CW_HISTORY_FAILURE:
             return {
                 ...state,
@@ -129,6 +143,17 @@ const aepsReducer = (state = initialState, action) => {
                 error: action?.payload?.message || action?.payload,
                 success: null,
                 message: action?.payload?.message || action?.payload,
+            }
+
+        case AEPS_CW_HISTORY_EMPLOYEE_SUCCESS:
+            return {
+                ...state,
+                aepsCwHistoryEmployee: action?.payload,
+                aepsCwHistoryEmployeeError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
             }
 
         case AEPS_TRANSACTION_DETAILS_SUCCESS:
@@ -172,6 +197,16 @@ const aepsReducer = (state = initialState, action) => {
                 success: null,
                 message: action?.payload?.message || action?.payload,
             }
+        case AEPS_TRANSACTION_DETAILS_EMPLOYEE_SUCCESS:
+            return {
+                ...state,
+                transactionDetailsEmployee: action?.payload,
+                transactionDetailsEmployeeError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
         case AEPS_BANK_OTP_SUCCESS:
             return {
                 ...state,
@@ -210,23 +245,23 @@ const aepsReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
             }
         case AEPS_RESENT_BANK_LIST_SUCCESS:
-            return{
+            return {
                 ...state,
                 error: null,
-                loading:false,
+                loading: false,
                 success: action?.payload?.status,
                 message: action?.payload?.message,
                 resentBankList: action?.payload,
             }
-            case AEPS_CW_HISTORY_USER_SUCCESS:
-                return{
-                    ...state,
-                    aepsCwHistoryUser: action?.payload,
-                    error: null,
-                    loading: false,
-                    success: action?.payload?.status,
-                    message: action?.payload?.message,
-                }
+        case AEPS_CW_HISTORY_USER_SUCCESS:
+            return {
+                ...state,
+                aepsCwHistoryUser: action?.payload,
+                error: null,
+                loading: false,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
         default:
             return state;
     }

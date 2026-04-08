@@ -102,17 +102,16 @@ const CreateWhiteLabel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
   const [isTableLoading, setIsTableLoading] = useState(true); // Start with true to show loader on initial load
 
   // Track previous response to detect when data actually arrives
   const prevResponseRef = useRef(undefined);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
 
-  // Set toDate to today's date in YYYY-MM-DD format
-  const [toDate, setToDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  // Initialize toDate to empty string so user explicitly chooses it
+  const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -201,6 +200,17 @@ const CreateWhiteLabel = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
   // Map navigation to userRole numbers
   const getRoleNumber = (nav) => {
     switch (nav) {
@@ -221,12 +231,21 @@ const CreateWhiteLabel = () => {
 
   // Fetch data from API based on role and kycStatus
   useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     const userRole = getRoleNumber(activeNav);
 
     // Build query object - only include kycStatus when onboarding process is active
     const query = {
       userRole: userRole,
       ...(showOnboardingList && { kycStatus: "pending" }),
+      ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
     };
 
     // Build customSearch object - include mobileNo and name only
@@ -255,19 +274,28 @@ const CreateWhiteLabel = () => {
     currentPage,
     showOnboardingList,
     debouncedSearchTerm,
-    fromDate,
-    toDate,
+    debouncedFromDate,
+    debouncedToDate,
     dispatch,
   ]);
 
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       // Refresh table data by dispatching useList again
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
         ...(showOnboardingList && { kycStatus: "pending" }),
+        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       };
       const customSearch = {};
       if (debouncedSearchTerm.trim()) {
@@ -292,16 +320,27 @@ const CreateWhiteLabel = () => {
     currentPage,
     showOnboardingList,
     debouncedSearchTerm,
+    debouncedFromDate,
+    debouncedToDate,
     dispatch,
   ]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
         ...(showOnboardingList && { kycStatus: "pending" }),
+        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       };
       const customSearch = {};
       if (debouncedSearchTerm.trim()) {
@@ -326,6 +365,8 @@ const CreateWhiteLabel = () => {
     currentPage,
     showOnboardingList,
     debouncedSearchTerm,
+    debouncedFromDate,
+    debouncedToDate,
     dispatch,
   ]);
 
@@ -959,7 +1000,6 @@ const CreateWhiteLabel = () => {
                         value={fromDate}
                         onChange={(e) => {
                           setFromDate(e.target.value);
-                          setCurrentPage(1); // Reset to first page when date changes
                         }}
                         className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                       />
@@ -971,7 +1011,6 @@ const CreateWhiteLabel = () => {
                         value={toDate}
                         onChange={(e) => {
                           setToDate(e.target.value);
-                          setCurrentPage(1); // Reset to first page when date changes
                         }}
                         min={fromDate || undefined}
                         className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
@@ -1265,6 +1304,7 @@ const CreateWhiteLabel = () => {
                                           ...(showOnboardingList && {
                                             kycStatus: "pending",
                                           }),
+                                          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
                                         };
                                         const customSearch = {};
                                         if (debouncedSearchTerm.trim()) {

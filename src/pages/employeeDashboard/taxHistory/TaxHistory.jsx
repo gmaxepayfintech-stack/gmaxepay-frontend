@@ -28,9 +28,9 @@ const TaxHistory = () => {
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
   const showAepsHistory =
-    viewHistory === "aeps-cw-history" ||
-    viewHistory === "aeps-ms-history" ||
-    viewHistory === "aeps-be-history" ||
+    viewHistory === "aeps1-cw-history" ||
+    viewHistory === "aeps1-ms-history" ||
+    viewHistory === "aeps1-be-history" ||
     viewHistory === "aeps2-cw-history" ||
     viewHistory === "aeps2-ms-history" ||
     viewHistory === "aeps2-be-history";
@@ -59,7 +59,6 @@ const TaxHistory = () => {
     "Verification History",
   ];
 
-  // Each card is tagged with a category matching one of the tabs,
   // so we can segregate the cards per tab.
   const transactionCards = [
     // Banking
@@ -68,7 +67,7 @@ const TaxHistory = () => {
       title: "AEPS 1 CW History",
       subtitle: "Cash History",
       available: true,
-      viewKey: "aeps-cw-history",
+      viewKey: "aeps1-cw-history",
       category: "Banking",
     },
     {
@@ -84,7 +83,7 @@ const TaxHistory = () => {
       title: "AEPS 1 MS History",
       subtitle: "Mini Statement",
       available: true,
-      viewKey: "aeps-ms-history",
+      viewKey: "aeps1-ms-history",
       category: "Banking",
     },
     {
@@ -116,7 +115,7 @@ const TaxHistory = () => {
       title: "AEPS 1 BE History",
       subtitle: "AEPS 1 BE History",
       available: true,
-      viewKey: "aeps-be-history",
+      viewKey: "aeps1-be-history",
       category: "Banking",
     },
     {

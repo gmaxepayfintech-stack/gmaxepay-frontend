@@ -12,95 +12,15 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import TransactioDetails from "./TransactioDetails";
 import {
-  getAepsCwHistory,
-  getAepsTransactionDetails,
+  getAepsTransactionDetailsEmployee,
+  getAeps2TransactionDetailsEmployee,
 } from "../../../redux/action/aepsAction";
+import { getAeps2CwHistoryEmployee } from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { getAeps2CwHistory } from "../../../redux/action/aepsTwoAction";
-import { getAeps2TransactionDetails } from "../../../redux/action/aepsAction";
 import * as XLSX from "xlsx";
+import { getAepsCwHistoryEmployee } from "../../../redux/action/aepsAction";
 
-const DUMMY_AEPS_HISTORY = [
-  {
-    id: "1",
-    refId: "EMP001",
-    name: "John Doe",
-    userRole: 5,
-    mobileNumber: "9876543210",
-    aadhaarLastFour: "1234",
-    companyName: "AEPS Service",
-    merchantLoginId: "MER001",
-    bankName: "State Bank of India",
-    transactionId: "CW1234567890",
-    merchantReferenceId: "REF12345",
-    bankRRN: "123456789012",
-    amount: 1000,
-    status: "SUCCESS",
-    peripheral: "FINGER",
-    createdAt: new Date().toISOString(),
-    superadminComm: 10,
-    whitelabelComm: 5,
-    masterDistributorCom: 3,
-    distributorCom: 2,
-    retailerCom: 10,
-    // Fields for detail view fallback
-    userDetails: { name: "John Doe", userId: "EMP001", mobileNo: "9876543210", userRole: 5 },
-    reportingUserDetails: { companyName: "AEPS Service", parentName: "Admin User", parentRole: 1, parentUserId: "ADM001" },
-    transactionDetails: { bankName: "State Bank of India", aadharNumber: "123456781234", amount: 1000, commission: 10, ministatement: [] }
-  },
-  {
-    id: "2",
-    refId: "EMP002",
-    name: "Jane Smith",
-    userRole: 5,
-    mobileNumber: "9876543211",
-    aadhaarLastFour: "5678",
-    companyName: "AEPS Service",
-    merchantLoginId: "MER002",
-    bankName: "HDFC Bank",
-    transactionId: "CW1234567891",
-    merchantReferenceId: "REF12346",
-    bankRRN: "123456789013",
-    amount: 500,
-    status: "FAILED",
-    peripheral: "IRIS",
-    createdAt: new Date().toISOString(),
-    superadminComm: 5,
-    whitelabelComm: 2,
-    masterDistributorCom: 1,
-    distributorCom: 1,
-    retailerCom: 5,
-    // Fields for detail view fallback
-    userDetails: { name: "Jane Smith", userId: "EMP002", mobileNo: "9876543211", userRole: 5 },
-    reportingUserDetails: { companyName: "AEPS Service", parentName: "Admin User", parentRole: 1, parentUserId: "ADM001" },
-    transactionDetails: { bankName: "HDFC Bank", aadharNumber: "876543215678", amount: 500, commission: 5, ministatement: [] }
-  },
-  {
-    id: "3",
-    refId: "EMP003",
-    name: "Bob Wilson",
-    userRole: 4,
-    mobileNumber: "9876543212",
-    aadhaarLastFour: "9012",
-    companyName: "AEPS Service",
-    merchantLoginId: "MER003",
-    bankName: "ICICI Bank",
-    transactionId: "CW1234567892",
-    merchantReferenceId: "REF12347",
-    bankRRN: "123456789014",
-    amount: 2000,
-    status: "PENDING",
-    peripheral: "FINGER",
-    createdAt: new Date().toISOString(),
-    superadminComm: 20,
-    whitelabelComm: 10,
-    masterDistributorCom: 5,
-    distributorCom: 5,
-    retailerCom: 20,
-  }
-];
-
-const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
+const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -122,24 +42,36 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
     type === "aeps2-ms-history" ||
     type === "aeps2-be-history";
 
-  // Get data from Redux (AEPS1 or AEPS2 based on type)
-  const aeps1HistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistory,
+  // Get data from Redux — employee-specific state keys
+  const aepsHistoryResponse = useSelector((state) =>
+    isAeps2
+      ? state?.aepsTwo?.aeps2CwHistoryEmployee
+      : state?.aeps?.aepsCwHistoryEmployee
   );
-  const aeps2HistoryResponse = useSelector(
-    (state) => state?.aepsTwo?.aeps2CwHistory,
-  );
-  const aepsHistoryResponse = isAeps2
-    ? aeps2HistoryResponse
-    : aeps1HistoryResponse;
-  // const apiData = aepsHistoryResponse?.data || [];
-  const apiData = DUMMY_AEPS_HISTORY;
-  const paginator = aepsHistoryResponse?.paginator || {};
-  // const totalCount = aepsHistoryResponse?.total || 0;
-  const totalCount = DUMMY_AEPS_HISTORY.length;
+  
+  // Robust array extraction that handles multiple nesting patterns
+  let apiData = [];
+  if (aepsHistoryResponse) {
+    if (Array.isArray(aepsHistoryResponse.data)) {
+      apiData = aepsHistoryResponse.data;
+    } else if (isAeps2 && Array.isArray(aepsHistoryResponse.aeps2CwHistoryEmployee)) {
+      apiData = aepsHistoryResponse.aeps2CwHistoryEmployee;
+    } else if (!isAeps2 && Array.isArray(aepsHistoryResponse.aepsCwHistoryEmployee)) {
+      apiData = aepsHistoryResponse.aepsCwHistoryEmployee;
+    } else if (Array.isArray(aepsHistoryResponse)) {
+      apiData = aepsHistoryResponse;
+    } else if (aepsHistoryResponse.data?.data && Array.isArray(aepsHistoryResponse.data.data)) {
+      apiData = aepsHistoryResponse.data.data;
+    }
+  }
+
+
+  const paginator = aepsHistoryResponse?.paginator || aepsHistoryResponse?.data?.paginator || aepsHistoryResponse?.data?.data?.paginator || {};
+  const totalCount = aepsHistoryResponse?.total || aepsHistoryResponse?.data?.total || aepsHistoryResponse?.data?.data?.total || 0;
+  
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
+  const transactionDetailsResponse = useSelector((state) =>
+    state?.aeps?.transactionDetailsEmployee
   );
 
   // Transform API response data to table format
@@ -167,11 +99,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
 
       // --- Amount ---
       const amountValue = isAeps1New ? (item.transactionAmount || 0) : (item.amount || 0);
-      let formattedAmount = `₹${amountValue}`;
+      let formattedAmount = `₹${Number(amountValue || 0).toFixed(2)}`;
 
       const txnType = item.transactionType || transactionType;
       if (txnType === "BE" || txnType === "MS") {
-        formattedAmount = "₹0";
+        formattedAmount = "₹0.00";
       }
 
       // --- Status ---
@@ -198,7 +130,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
       const userDetails = item.userDetails || {};
       const userName = item.name || userDetails.name || "N/A";
       const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
-      const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
+      const aadhaar = item.aadhaarLastFour || item.consumerNumber || item.consumerAadhaarNumber || "N/A";
+      const profileImg = item.profileImage || userDetails.profileImage || null;
+      const roleId = item.userRole || userDetails.userRole;
 
       // --- Commissions (Super Admin shows all) ---
       const saComm = item.superadminComm || 0;
@@ -212,16 +146,18 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
         id: item.id,
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
+        profileImage: profileImg,
         userRole:
-          item.userRole === 5 ? "Retailer" :
-          item.userRole === 4 ? "Distributor" :
-          item.userRole === 3 ? "Master Distributor" :
-          item.userRole === 2 ? "White Label" :
-          item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
+          roleId === 5 ? "Retailer" :
+            roleId === 4 ? "Distributor" :
+              roleId === 3 ? "Master Distributor" :
+                roleId === 2 ? "White Label" :
+                  roleId === 1 ? "Super Admin" : `Role ${roleId || "N/A"}`,
         mobileNo: mobileNo,
         consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
         companyName: item.companyName || item.operator || "N/A",
+        companyLogo: item.companyLogo || null,
         merchantLoginId: item.merchantLoginId || item.subMerchantCode || "N/A",
         bankName: item.bankName || "N/A",
         taxId: item.transactionId || "N/A",
@@ -286,8 +222,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
 
   // Determine AEPS transaction type (CW, MS, BE) based on view type
   const transactionType = (() => {
-    if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
-    if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
+    if (type === "aeps1-ms-history" || type === "aeps2-ms-history") return "MS";
+    if (type === "aeps1-be-history" || type === "aeps2-be-history") return "BE";
     return "CW"; // default
   })();
 
@@ -338,13 +274,13 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
       },
     };
 
-    // if (isAeps2) {
-    //   dispatch(getAeps2CwHistory(payload));
-    // } else {
-    //   dispatch(getAepsCwHistory(payload));
-    // }
+    if (isAeps2) {
+      dispatch(getAeps2CwHistoryEmployee(payload));
+    } else {
+      dispatch(getAepsCwHistoryEmployee(payload));
+    }
   }, [
-    // dispatch,
+    dispatch,
     debouncedSearchQuery,
     fromDate,
     toDate,
@@ -388,7 +324,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
   // Export to Excel function
   const handleExportToExcel = () => {
     if (!filteredTransactions || filteredTransactions.length === 0) {
-      showNotification("No data available to export", "error");
+      // showNotification("No data available to export", "error");
       return;
     }
 
@@ -416,22 +352,6 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
     XLSX.writeFile(workbook, fileName);
   };
 
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
-
   // Handle profile click - hit API for both AEPS1 and AEPS2
   const handleProfileClick = (transaction) => {
     if (!transaction) return;
@@ -442,17 +362,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
     setIsLoadingTransactionDetails(true);
     setSelectedTransactionId(transactionId);
 
-    // if (isAeps2) {
-    //   dispatch(getAeps2TransactionDetails(transactionId));
-    // } else {
-    //   dispatch(getAepsTransactionDetails(transactionId));
-    // }
-    
-    // Simulate API delay for transaction details
-    setTimeout(() => {
-      setIsLoadingTransactionDetails(false);
-      setShowTransactionDetails(true);
-    }, 500);
+    if (isAeps2) {
+      dispatch(getAeps2TransactionDetailsEmployee(transactionId));
+    } else {
+      dispatch(getAepsTransactionDetailsEmployee(transactionId));
+    }
   };
 
   // Watch for transaction details to be loaded (both AEPS1 & AEPS2 now via API)
@@ -470,15 +384,12 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
 
   // If TransactionDetails should be shown, render it
   if (showTransactionDetails) {
-    // Use dummy transaction details for demo
-    const mockTransactionData = transactionDetailsResponse || (DUMMY_AEPS_HISTORY.find(t => t.id === selectedTransactionId) || DUMMY_AEPS_HISTORY[0]);
-
-    if (!mockTransactionData) return null;
+    if (!transactionDetailsResponse) return null;
 
     return (
       <TransactioDetails
         transactionId={selectedTransactionId}
-        transactionData={mockTransactionData}
+        transactionData={transactionDetailsResponse}
         isAeps2={isAeps2}
         onBack={() => {
           setShowTransactionDetails(false);
@@ -554,11 +465,10 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
                 };
 
                 if (isAeps2) {
-                  // dispatch(getAeps2CwHistory(payload)); // DISABLED for demo
+                  dispatch(getAeps2CwHistoryEmployee(payload));
                 } else {
-                  // dispatch(getAepsCwHistory(payload)); // DISABLED for demo
+                  dispatch(getAepsCwHistoryEmployee(payload));
                 }
-                alert("Data refreshed (Demo Mode)");
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}

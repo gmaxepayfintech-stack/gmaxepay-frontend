@@ -11,6 +11,8 @@ import BBPSSettings from "../../pages/employeeDashboard/apiOperator/BBPSSettings
 import SchemeMaster from "../../pages/employeeDashboard/resources/SchemeMaster";
 import TaxHistory from "../../pages/employeeDashboard/taxHistory/TaxHistory";
 import FundRequest from "../../pages/employeeDashboard/fundManagement/FundRequest";
+import EmployeeProfile from "../../pages/employeeDashboard/EmployeeProfile";
+
 
 const EmployeeDashboard = () => {
     return (
@@ -18,6 +20,7 @@ const EmployeeDashboard = () => {
             <Routes>
                 <Route path="/" element={<EmployeeDash />} />
                 <Route path="/home" element={<EmployeeDash />} />
+                <Route path="/profile" element={<EmployeeProfile />} />
                 <Route path="/members/user" element={<CreateWhiteLabel />} />
                 <Route path="/members/list" element={<Members />} />
                 <Route path="/members/rolemanagement" element={<Rolemanagement />} />
@@ -25,7 +28,7 @@ const EmployeeDashboard = () => {
                 <Route
                     path="/api-operator/service-settings"
                     element={<ServiceSetting />}
-                    />
+                />
                 <Route
                     path="/api-operator/operator-settings"
                     element={<OperatorSetting />}
