@@ -6,10 +6,10 @@ import OperatorCard from "./OperatorCard";
 import BillerSettings from "./BillerSettings";
 import PaymentSettings from "./PaymentSettings";
 import {
-  getAllBBPSCategories,
-  searchBBPSCategories,
-  createBBPSCategory,
-  updateBBPSCategory,
+  getEmployeeBBPSCategories,
+  searchEmployeeBBPSCategories,
+  createEmployeeBBPSCategory,
+  updateEmployeeBBPSCategory,
 } from "../../../redux/action/bbpsAction";
 import { motion } from "framer-motion";
 
@@ -49,15 +49,6 @@ const categoryIconMap = {
   "EV Recharge": "/img/EVRecharge.svg",
   NPS: "/img/NPS.svg",
 };
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_BBPS_CATEGORIES = [
-  { id: "CAT001", name: "Electricity", custConvFee: 0, flatFee: 0, percentFee: 0, gstRate: 0, isCCF1Category: true, isActive: true, isDeleted: false },
-  { id: "CAT002", name: "Mobile Prepaid", custConvFee: 0, flatFee: 0, percentFee: 0, gstRate: 0, isCCF1Category: false, isActive: true, isDeleted: false },
-  { id: "CAT003", name: "DTH", custConvFee: 0, flatFee: 0, percentFee: 0, gstRate: 0, isCCF1Category: false, isActive: true, isDeleted: false },
-  { id: "CAT004", name: "Water", custConvFee: 0, flatFee: 0, percentFee: 0, gstRate: 0, isCCF1Category: false, isActive: false, isDeleted: false },
-  { id: "CAT005", name: "Gas", custConvFee: 0, flatFee: 0, percentFee: 0, gstRate: 0, isCCF1Category: true, isActive: true, isDeleted: false },
-];
 
 // Default icon if category not found
 const DEFAULT_ICON = "/img/Electricity.svg";
@@ -454,8 +445,8 @@ const BBPSSettings = () => {
     createCategorySuccess,
   } = useSelector((state) => state.bbps);
 
-  const loading = false; // Force false for demo
-  const categories = reduxCategories?.length > 0 ? reduxCategories : DUMMY_BBPS_CATEGORIES;
+  const loading = reduxLoading;
+  const categories = reduxCategories;
 
   const [activeTab, setActiveTab] = useState("operators"); // 'operators', 'biller', 'payment'
   const [searchQuery, setSearchQuery] = useState("");
@@ -486,15 +477,14 @@ const BBPSSettings = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch categories - handles initial load, search, and pagination - DISABLED for demo
+  // Fetch categories - handles initial load, search, and pagination
   useEffect(() => {
-    /*
     const companyId = getCompanyId();
     if (!companyId || activeTab !== "operators") return;
 
     if (debouncedSearchQuery.trim()) {
       dispatch(
-        searchBBPSCategories(
+        searchEmployeeBBPSCategories(
           companyId,
           debouncedSearchQuery,
           currentPage,
@@ -502,13 +492,12 @@ const BBPSSettings = () => {
         ),
       );
     } else {
-      dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
+      dispatch(getEmployeeBBPSCategories(companyId, currentPage, cardsPerPage));
     }
-    */
   }, [debouncedSearchQuery, currentPage, dispatch, company, activeTab]);
 
   // Map categories to operator format
-  const mappedOperators = categories.map(mapCategoryToOperator);
+  const mappedOperators = Array.isArray(categories) ? categories.map(mapCategoryToOperator) : [];
 
   // Calculate which 3 page numbers to show
   const getVisiblePages = () => {
@@ -529,27 +518,20 @@ const BBPSSettings = () => {
   const visiblePages = getVisiblePages();
 
   const handleAddOperator = async (formData) => {
-    // const companyId = getCompanyId();
-    // if (companyId) {
-    //   setLastOperation("create");
-    //   await dispatch(createBBPSCategory(companyId, formData));
-    // }
-    console.log("Mock Add Operator:", formData);
-    alert("Operator added successfully! (Demo Mode)");
-    setIsModalOpen(false);
+    const companyId = getCompanyId();
+    if (companyId) {
+      setLastOperation("create");
+      await dispatch(createEmployeeBBPSCategory(companyId, formData));
+    }
   };
 
   const handleEditOperator = async (formData) => {
-    // const companyId = getCompanyId();
-    // const categoryId = editingOperator?._id || editingOperator?.id;
-    // if (companyId && categoryId) {
-    //   setLastOperation("update");
-    //   await dispatch(updateBBPSCategory(companyId, categoryId, formData));
-    // }
-    console.log("Mock Edit Operator:", formData);
-    alert("Operator updated successfully! (Demo Mode)");
-    setIsModalOpen(false);
-    setEditingOperator(null);
+    const companyId = getCompanyId();
+    const categoryId = editingOperator?._id || editingOperator?.id;
+    if (companyId && categoryId) {
+      setLastOperation("update");
+      await dispatch(updateEmployeeBBPSCategory(companyId, categoryId, formData));
+    }
   };
 
   // Close modal and refresh list when operation succeeds
@@ -557,14 +539,14 @@ const BBPSSettings = () => {
     if (createCategorySuccess && !loading && isModalOpen && lastOperation) {
       const companyId = getCompanyId();
       if (companyId) {
-        // If update operation, always call getAllBBPSCategories
+        // If update operation, always call getEmployeeBBPSCategories
         if (lastOperation === "update") {
-          dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
+          dispatch(getEmployeeBBPSCategories(companyId, currentPage, cardsPerPage));
         } else {
           // For create operation, respect search state
           if (debouncedSearchQuery.trim()) {
             dispatch(
-              searchBBPSCategories(
+              searchEmployeeBBPSCategories(
                 companyId,
                 debouncedSearchQuery,
                 currentPage,
@@ -573,7 +555,7 @@ const BBPSSettings = () => {
             );
           } else {
             dispatch(
-              getAllBBPSCategories(companyId, currentPage, cardsPerPage),
+              getEmployeeBBPSCategories(companyId, currentPage, cardsPerPage),
             );
           }
         }
@@ -618,11 +600,9 @@ const BBPSSettings = () => {
         field === "deleted" ? newValue : operator.toggles?.deleted || false,
     };
 
-    // await dispatch(updateBBPSCategory(companyId, categoryId, updateData));
+    await dispatch(updateEmployeeBBPSCategory(companyId, categoryId, updateData));
     // Refresh the list after toggle update
-    // dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
-    console.log("Mock Toggle Change:", { field, newValue });
-    alert(`${field} updated to ${newValue} (Demo Mode)`);
+    dispatch(getEmployeeBBPSCategories(companyId, currentPage, cardsPerPage));
   };
 
   const handleEditClick = (operator) => {
