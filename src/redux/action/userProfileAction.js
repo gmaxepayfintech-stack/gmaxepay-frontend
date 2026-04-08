@@ -845,7 +845,7 @@ export const employeeGetAdminProfileDetails = (id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/profile/${id}`,
+      `${API_ROUTE}/api/v1/employee/user/profile/${id}`,
       {},
       {
         headers: {
