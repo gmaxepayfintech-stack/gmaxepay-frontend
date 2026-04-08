@@ -672,7 +672,7 @@ const BillerSettings = () => {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    // Fetch categories for dropdown on mount - DISABLED for demo
+    // Fetch categories for dropdown on mount
     useEffect(() => {
         const companyId = getCompanyId();
         if (companyId) {
@@ -680,7 +680,7 @@ const BillerSettings = () => {
         }
     }, [company, dispatch]);
 
-    // Fetch billers when category, search, or page changes - DISABLED for demo
+    // Fetch billers when category, search, or page changes
     useEffect(() => {
         const companyId = getCompanyId();
         if (!companyId) return;

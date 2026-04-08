@@ -337,7 +337,7 @@ const PaymentSettings = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch payment info - handles initial load, search, and pagination - DISABLED for demo
+  // Fetch payment info - handles initial load, search, and pagination
   useEffect(() => {
     const companyId = getCompanyId();
     if (!companyId) return;
