@@ -30,6 +30,9 @@ import {
   getAdminProfileDetails,
   setSelectedUserRole,
 } from "../../redux/action/userProfileAction";
+import { checkAdminAepsStatus } from "../../redux/action/whiteLabelAction";
+import { useNotification } from "../../context/NotificationContext";
+
 
 const Retailers = ({
   embedded = false,
@@ -55,6 +58,45 @@ const Retailers = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+
+  const { showNotification } = useNotification();
+  const adminAepsStatusResponse = useSelector(
+    (state) => state?.whitelabel?.adminAepsStatus
+  );
+
+  // Refresh table when AEPS status check succeeds
+  useEffect(() => {
+    if (adminAepsStatusResponse?.status === "SUCCESS") {
+      showNotification(
+        adminAepsStatusResponse?.message || "AEPS Status updated successfully",
+        "success"
+      );
+      
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+      
+      const payload = {
+        query: {
+          userRole: 5,
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        },
+        options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+        customSearch: debouncedSearchTerm.trim() ? {
+          mobileNo: debouncedSearchTerm.trim(),
+          name: debouncedSearchTerm.trim(),
+        } : {},
+      };
+      dispatch(useListAction(payload));
+    } else if (adminAepsStatusResponse?.status === "FAILURE") {
+      showNotification(
+        adminAepsStatusResponse?.message || "Failed to update AEPS status",
+        "error"
+      );
+    }
+  }, [adminAepsStatusResponse, showNotification, dispatch, currentPage, debouncedSearchTerm, debouncedFromDate, debouncedToDate]);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -548,6 +590,9 @@ const Retailers = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -579,10 +624,10 @@ const Retailers = ({
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={13} />
+                  <TableBodyLoader colSpan={14} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -670,6 +715,28 @@ const Retailers = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row, "mainWallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkAdminAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row, "apes1Wallet")}
@@ -1003,6 +1070,9 @@ const Retailers = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -1034,10 +1104,10 @@ const Retailers = ({
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={13} />
+                  <TableBodyLoader colSpan={14} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -1118,6 +1188,28 @@ const Retailers = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row, "mainWallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkAdminAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row, "apes1Wallet")}
