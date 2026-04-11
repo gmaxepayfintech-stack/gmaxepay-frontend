@@ -23,10 +23,12 @@ import {
   getCompanyAdmin,
   kycDataCompany,
   kycRevertCompany,
+  checkCompanyAepsStatus,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataCompanyUser } from "../../redux/action/roleAction";
+import { useNotification } from "../../context/NotificationContext";
 
 const Retailers = ({
   embedded = false,
@@ -54,6 +56,7 @@ const Retailers = ({
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
+  const { success: notifySuccess, error: notifyError } = useNotification();
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -79,6 +82,11 @@ const Retailers = ({
   // Get kycLockStatus success state to refresh table after unlock
   const kycLockStatusResponse = useSelector(
     (state) => state?.whitelabel?.kycLockStatus,
+  );
+
+  // Get AEPS status check response
+  const companyAepsStatus = useSelector(
+    (state) => state?.whitelabel?.companyAepsStatus,
   );
 
   // Get data from Redux when search is active, otherwise use prop data
@@ -270,6 +278,33 @@ const Retailers = ({
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+
+  // Refresh table and show notification when companyAepsStatus succeeds
+  useEffect(() => {
+    if (companyAepsStatus?.status === "SUCCESS") {
+      notifySuccess(companyAepsStatus.message || "AEPS status updated successfully");
+      
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+          : {},
+      };
+      dispatch(roleDataCompanyUser(payload));
+    } else if (companyAepsStatus?.status === "FAILURE") {
+      notifyError(companyAepsStatus.message || "Failed to check AEPS status");
+    }
+  }, [companyAepsStatus, dispatch, currentPage, debouncedSearchTerm, notifySuccess, notifyError]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
@@ -562,6 +597,9 @@ const Retailers = ({
                     Token Expire
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -569,10 +607,10 @@ const Retailers = ({
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={13} />
+                  <TableBodyLoader colSpan={23} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={23} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -837,6 +875,26 @@ const Retailers = ({
                         })()}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          return (
+                            <button
+                              onClick={() => {
+                                if (row.id) {
+                                  dispatch(checkCompanyAepsStatus(row.id));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
+                                ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                : "hover:bg-indigo-50"
+                                }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -1014,6 +1072,9 @@ const Retailers = ({
                     Token Expire
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -1021,10 +1082,10 @@ const Retailers = ({
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={13} />
+                  <TableBodyLoader colSpan={23} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={23} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -1283,6 +1344,26 @@ const Retailers = ({
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
                             >
                               Send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          return (
+                            <button
+                              onClick={() => {
+                                if (row.id) {
+                                  dispatch(checkCompanyAepsStatus(row.id));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
+                                ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                : "hover:bg-indigo-50"
+                                }`}
+                            >
+                              Check Status
                             </button>
                           );
                         })()}

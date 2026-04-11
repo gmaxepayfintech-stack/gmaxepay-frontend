@@ -57,6 +57,10 @@ import {
   EMPLOYEE_GET_CITY_BY_PINCODE_FAILURE,
   EMPLOYEE_FETCH_KYC_DETAILS_FAILURE,
   EMPLOYEE_FETCH_KYC_DETAILS_SUCCESS,
+  COMPANY_AEPS_STATUS_SUCCESS,
+  COMPANY_AEPS_STATUS_FAILURE,
+  EMPLOYEE_AEPS_STATUS_SUCCESS,
+  EMPLOYEE_AEPS_STATUS_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1791,6 +1795,90 @@ export const employeeResendEmployeeLoginAccess = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: EMPLOYEE_RESND_LOGIN_ACCESS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const checkCompanyAepsStatus = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/user/aeps-status/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: companyAepsStatus, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: COMPANY_AEPS_STATUS_SUCCESS,
+        payload: { companyAepsStatus, message, status },
+      });
+    } else {
+      dispatch({
+        type: COMPANY_AEPS_STATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: COMPANY_AEPS_STATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const checkEmployeeAepsStatus = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/user/aeps-status/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: employeeAepsStatus, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_AEPS_STATUS_SUCCESS,
+        payload: { employeeAepsStatus, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_AEPS_STATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_AEPS_STATUS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
