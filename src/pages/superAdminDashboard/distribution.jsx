@@ -77,10 +77,11 @@ const Distribution = ({
   // Refresh table when AEPS status check succeeds
   useEffect(() => {
     if (adminAepsStatusResponse?.status === "SUCCESS") {
-      showNotification(
-        adminAepsStatusResponse?.message || "AEPS Status updated successfully",
-        "success"
-      );
+      showNotification({
+        message: adminAepsStatusResponse?.message || "AEPS Status updated successfully",
+        type: "success",
+        isCritical: true
+      });
       
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const bothDatesNull = !debouncedFromDate && !debouncedToDate;
@@ -101,10 +102,11 @@ const Distribution = ({
       };
       dispatch(useListAction(payload));
     } else if (adminAepsStatusResponse?.status === "FAILURE") {
-      showNotification(
-        adminAepsStatusResponse?.message || "Failed to update AEPS status",
-        "error"
-      );
+      showNotification({
+        message: adminAepsStatusResponse?.message || "Failed to update AEPS status",
+        type: "error",
+        isCritical: true
+      });
     }
   }, [adminAepsStatusResponse, showNotification, dispatch, currentPage, debouncedSearchTerm, debouncedFromDate, debouncedToDate]);
 

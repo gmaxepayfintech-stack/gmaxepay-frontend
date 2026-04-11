@@ -40,7 +40,7 @@ const Retailers = ({
   isLoading: propIsLoading = false,
 }) => {
   const dispatch = useDispatch();
-  const { success: notifySuccess, error: notifyError } = useNotification();
+  const { success: notifySuccess, error: notifyError, showNotification } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -93,9 +93,11 @@ const Retailers = ({
 
   useEffect(() => {
     if (employeeAepsStatus?.status === "SUCCESS") {
-      notifySuccess(
-        employeeAepsStatus.message || "AEPS status updated successfully"
-      );
+      showNotification({
+        message: employeeAepsStatus.message || "AEPS status updated successfully",
+        type: "success",
+        isCritical: true
+      });
       // Refresh table data
       if (debouncedSearchTerm.trim()) {
         const payload = {
@@ -115,9 +117,13 @@ const Retailers = ({
         dispatch(employeeUseList(payload));
       }
     } else if (employeeAepsStatus?.status === "FAILURE") {
-      notifyError(employeeAepsStatus.message || "Failed to check AEPS status");
+      showNotification({
+        message: employeeAepsStatus.message || "Failed to check AEPS status",
+        type: "error",
+        isCritical: true
+      });
     }
-  }, [employeeAepsStatus, debouncedSearchTerm, currentPage, dispatch, notifySuccess, notifyError]);
+  }, [employeeAepsStatus, debouncedSearchTerm, currentPage, dispatch, showNotification]);
 
   // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
