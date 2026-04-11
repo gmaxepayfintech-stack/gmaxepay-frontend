@@ -28,6 +28,8 @@ import {
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
 import ProfileDetails from "./ProfileDetails";
+import { checkEmployeeAepsStatus } from "../../../redux/action/whiteLabelAction";
+import { useNotification } from "../../../context/NotificationContext";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -69,6 +71,43 @@ const RetailerOnboarding = ({
   const kycLockStatusResponse = useSelector(
     (state) => state?.whitelabel?.kycLockStatus,
   );
+
+  const { showNotification } = useNotification();
+  const employeeAepsStatusResponse = useSelector(
+    (state) => state?.whitelabel?.employeeAepsStatus
+  );
+
+  // Refresh table when AEPS status check succeeds
+  useEffect(() => {
+    if (employeeAepsStatusResponse?.status === "SUCCESS") {
+      showNotification(
+        employeeAepsStatusResponse?.message || "AEPS Status updated successfully",
+        "success"
+      );
+      if (debouncedSearchTerm.trim()) {
+        const payload = {
+          query: { userRole: 5, kycStatus: "pending" },
+          options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+          customSearch: {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          },
+        };
+        dispatch(employeeUseList(payload));
+      } else {
+         const payload = {
+          query: { userRole: 5, kycStatus: "pending" },
+          options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+        };
+        dispatch(employeeUseList(payload));
+      }
+    } else if (employeeAepsStatusResponse?.status === "FAILURE") {
+      showNotification(
+        employeeAepsStatusResponse?.message || "Failed to update AEPS status",
+        "error"
+      );
+    }
+  }, [employeeAepsStatusResponse, showNotification, dispatch, currentPage, debouncedSearchTerm]);
 
   // Use prop data from API - no dummy data
   const allTableData =
@@ -481,6 +520,9 @@ const RetailerOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -513,7 +555,7 @@ const RetailerOnboarding = ({
               <tbody className="text-center">
                 {!displayTableData || displayTableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -603,6 +645,28 @@ const RetailerOnboarding = ({
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
                         {getWalletValue(row, "mainWallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkEmployeeAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
                         {getWalletValue(row, "apes1Wallet")}
@@ -932,6 +996,9 @@ const RetailerOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -958,7 +1025,7 @@ const RetailerOnboarding = ({
               <tbody>
                 {!displayTableData || displayTableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -1040,6 +1107,28 @@ const RetailerOnboarding = ({
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
                         {getWalletValue(row.wallet, "mainWallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkEmployeeAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
                         {getWalletValue(row.wallet, "apes1Wallet")}

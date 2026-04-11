@@ -61,6 +61,8 @@ import {
   COMPANY_AEPS_STATUS_FAILURE,
   EMPLOYEE_AEPS_STATUS_SUCCESS,
   EMPLOYEE_AEPS_STATUS_FAILURE,
+  ADMIN_AEPS_STATUS_SUCCESS,
+  ADMIN_AEPS_STATUS_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1879,6 +1881,48 @@ export const checkEmployeeAepsStatus = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: EMPLOYEE_AEPS_STATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const checkAdminAepsStatus = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/aeps-status/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: adminAepsStatus, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADMIN_AEPS_STATUS_SUCCESS,
+        payload: { adminAepsStatus, message, status },
+      });
+    } else {
+      dispatch({
+        type: ADMIN_AEPS_STATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: ADMIN_AEPS_STATUS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
