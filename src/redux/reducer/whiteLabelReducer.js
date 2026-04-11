@@ -77,6 +77,9 @@ import {
   EMPLOYEE_FETCH_KYC_DETAILS_USER_FAILURE,
   EMPLOYEE_REVERT_USER_KYC_DETAILS_SUCCESS,
   EMPLOYEE_REVERT_USER_KYC_DETAILS_FAILURE,
+  COMPANY_AEPS_STATUS_SUCCESS,
+  EMPLOYEE_AEPS_STATUS_SUCCESS,
+  ADMIN_AEPS_STATUS_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -180,14 +183,14 @@ const whiteLabelReducer = (state = initialState, action) => {
         message: action.payload.message,
       }
 
-      case EMPLOYEE_LIST_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          employeeList: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
+    case EMPLOYEE_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        employeeList: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
     case CREATE_EMPLOYEE_SUCCESS:
       return {
         ...state,
@@ -430,6 +433,30 @@ const whiteLabelReducer = (state = initialState, action) => {
         Success: action.payload.status,
         message: action.payload.message,
       }
+    case COMPANY_AEPS_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        companyAepsStatus: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case EMPLOYEE_AEPS_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        employeeAepsStatus: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+      case ADMIN_AEPS_STATUS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          adminAepsStatus: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
     case EMPLOYEE_FETCH_KYC_DETAILS_SUCCESS:
       return {
         ...state,

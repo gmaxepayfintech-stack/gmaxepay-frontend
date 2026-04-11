@@ -32,6 +32,8 @@ import {
   getAdminProfileDetails,
   setSelectedUserRole,
 } from "../../redux/action/userProfileAction";
+import { checkAdminAepsStatus } from "../../redux/action/whiteLabelAction";
+import { useNotification } from "../../context/NotificationContext";
 
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (
@@ -66,6 +68,45 @@ const Distribution = ({
   const [toDate, setToDate] = useState("");
   const [debouncedToDate, setDebouncedToDate] = useState("");
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+
+  const { showNotification } = useNotification();
+  const adminAepsStatusResponse = useSelector(
+    (state) => state?.whitelabel?.adminAepsStatus
+  );
+
+  // Refresh table when AEPS status check succeeds
+  useEffect(() => {
+    if (adminAepsStatusResponse?.status === "SUCCESS") {
+      showNotification(
+        adminAepsStatusResponse?.message || "AEPS Status updated successfully",
+        "success"
+      );
+      
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+      
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        },
+        options: { sort: { id: -1 }, page: currentPage, paginate: 10 },
+        customSearch: debouncedSearchTerm.trim() ? {
+          mobileNo: debouncedSearchTerm.trim(),
+          name: debouncedSearchTerm.trim(),
+        } : {},
+      };
+      dispatch(useListAction(payload));
+    } else if (adminAepsStatusResponse?.status === "FAILURE") {
+      showNotification(
+        adminAepsStatusResponse?.message || "Failed to update AEPS status",
+        "error"
+      );
+    }
+  }, [adminAepsStatusResponse, showNotification, dispatch, currentPage, debouncedSearchTerm, debouncedFromDate, debouncedToDate]);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -432,6 +473,9 @@ const Distribution = ({
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
@@ -467,10 +511,10 @@ const Distribution = ({
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={13} />
+                  <TableBodyLoader colSpan={14} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={21} className="py-12 text-center">
+                    <td colSpan={22} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -561,6 +605,28 @@ const Distribution = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.mainWallet || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkAdminAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.aeps1Wallet || "0"}
@@ -843,6 +909,9 @@ const Distribution = ({
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
@@ -873,7 +942,7 @@ const Distribution = ({
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {!tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -969,6 +1038,28 @@ const Distribution = ({
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.mainWallet || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkAdminAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       {/* AEPS1 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">

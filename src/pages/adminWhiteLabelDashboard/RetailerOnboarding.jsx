@@ -21,9 +21,11 @@ import {
   getCompanyAdmin,
   kycDataCompany,
   kycRevertCompany,
+  checkCompanyAepsStatus,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataCompanyUser } from "../../redux/action/roleAction";
+import { useNotification } from "../../context/NotificationContext";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -45,6 +47,7 @@ const RetailerOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
+  const { success: notifySuccess, error: notifyError } = useNotification();
 
   const kycModalRef = useRef(null);
 
@@ -65,6 +68,11 @@ const RetailerOnboarding = ({
   // Get kycLockStatus success state to refresh table after unlock
   const kycLockStatusResponse = useSelector(
     (state) => state?.whitelabel?.kycLockStatus,
+  );
+
+  // Get AEPS status check response
+  const companyAepsStatus = useSelector(
+    (state) => state?.whitelabel?.companyAepsStatus,
   );
 
   // Use prop data from API - no dummy data
@@ -227,6 +235,34 @@ const RetailerOnboarding = ({
       dispatch(roleDataCompanyUser(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+
+  // Refresh table and show notification when companyAepsStatus succeeds
+  useEffect(() => {
+    if (companyAepsStatus?.status === "SUCCESS") {
+      notifySuccess(companyAepsStatus.message || "AEPS status updated successfully");
+      
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          kycStatus: "pending",
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+          : {},
+      };
+      dispatch(roleDataCompanyUser(payload));
+    } else if (companyAepsStatus?.status === "FAILURE") {
+      notifyError(companyAepsStatus.message || "Failed to check AEPS status");
+    }
+  }, [companyAepsStatus, dispatch, currentPage, debouncedSearchTerm, notifySuccess, notifyError]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -509,6 +545,9 @@ const RetailerOnboarding = ({
                     Token Expire
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -517,7 +556,7 @@ const RetailerOnboarding = ({
               <tbody className="text-center">
                 {!displayTableData || displayTableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={23} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -778,6 +817,26 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                        {(() => {
+                          return (
+                            <button
+                              onClick={() => {
+                                if (row.id) {
+                                  dispatch(checkCompanyAepsStatus(row.id));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
+                                ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                : "hover:bg-indigo-50"
+                                }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -947,6 +1006,9 @@ const RetailerOnboarding = ({
                     Lock Status
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -955,7 +1017,7 @@ const RetailerOnboarding = ({
               <tbody>
                 {!displayTableData || displayTableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -1130,46 +1192,25 @@ const RetailerOnboarding = ({
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
-                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
-                          const lockValue =
-                            row?.lock !== undefined && row?.lock !== null
-                              ? row.lock
-                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
-                                ? row.originalItem.lock
-                                : row?.isLocked !== undefined && row?.isLocked !== null
-                                  ? row.isLocked
-                                  : row?.lockStatus;
-                          // More robust check for lock status
-                          const isLocked =
-                            lockValue !== undefined &&
-                            lockValue !== null &&
-                            (lockValue === true ||
-                              lockValue === "true" ||
-                              lockValue === 1 ||
-                              String(lockValue).toLowerCase() === "true");
+// ...
+                        })()}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        {(() => {
                           return (
                             <button
                               onClick={() => {
-                                // Only trigger API when button is in "Locked" state
-                                if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  // The useEffect hook will automatically refresh the table
-                                  // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
+                                if (row.id) {
+                                  dispatch(checkCompanyAepsStatus(row.id));
                                 }
                               }}
-                              disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
+                                ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                : "hover:bg-indigo-50"
                                 }`}
-                              title={
-                                isLocked
-                                  ? "Click to enable access for this account"
-                                  : "Account access is enabled"
-                              }
                             >
-                              {isLocked ? "Enable Access" : "Access Enabled"}
+                              Check Status
                             </button>
                           );
                         })()}

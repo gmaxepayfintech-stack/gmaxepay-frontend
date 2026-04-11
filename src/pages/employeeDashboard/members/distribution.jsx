@@ -33,6 +33,8 @@ import {
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
 import ProfileDetails from "./ProfileDetails";
+import { checkEmployeeAepsStatus } from "../../../redux/action/whiteLabelAction";
+import { useNotification } from "../../../context/NotificationContext";
 
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (
@@ -68,6 +70,44 @@ const Distribution = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  const { showNotification } = useNotification();
+  const employeeAepsStatusResponse = useSelector(
+    (state) => state?.whitelabel?.employeeAepsStatus
+  );
+
+  // Refresh table when AEPS status check succeeds
+  useEffect(() => {
+    if (employeeAepsStatusResponse?.status === "SUCCESS") {
+      showNotification(
+        employeeAepsStatusResponse?.message || "AEPS Status updated successfully",
+        "success"
+      );
+      if (debouncedSearchTerm.trim()) {
+        const payload = {
+          query: { userRole: 4 },
+          options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+          customSearch: {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          },
+        };
+        dispatch(employeeUseList(payload));
+      } else {
+         const payload = {
+          query: { userRole: 4 },
+          options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+        };
+        dispatch(employeeUseList(payload));
+      }
+    } else if (employeeAepsStatusResponse?.status === "FAILURE") {
+      showNotification(
+        employeeAepsStatusResponse?.message || "Failed to update AEPS status",
+        "error"
+      );
+    }
+  }, [employeeAepsStatusResponse, showNotification, dispatch, currentPage, debouncedSearchTerm]);
+
 
   // Get KYC details from Redux state - WATCH the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -345,6 +385,9 @@ const Distribution = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS 1 Status
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -379,10 +422,10 @@ const Distribution = ({
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={13} />
+                  <TableBodyLoader colSpan={14} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={21} className="py-12 text-center">
+                    <td colSpan={22} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -472,6 +515,28 @@ const Distribution = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.mainWallet || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(checkEmployeeAepsStatus(userId));
+                                }
+                              }}
+                              disabled={row.aepsOnboardingStatus === true}
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                                row.aepsOnboardingStatus === true
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
+                              }`}
+                            >
+                              Check Status
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.aeps1Wallet || "0"}
@@ -794,7 +859,7 @@ const Distribution = ({
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {!tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={20} className="py-12 text-center">
+                    <td colSpan={21} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
