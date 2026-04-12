@@ -38,6 +38,8 @@ const Retailers = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  serverTotalPages = 0,
+  onPageChange = null,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -170,14 +172,15 @@ const Retailers = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // Calculate total pages based on total count (5 records per page)
-  // If there's at least 1 record, show at least 1 page, otherwise show 0
-  const totalPages = totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
+  // When embedded, use server-provided totalPages; otherwise compute locally (5/page)
+  const totalPages = embedded && serverTotalPages > 0
+    ? serverTotalPages
+    : totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
 
-  // Slice data to show only 5 records per page
-  const startIndex = (currentPage - 1) * 5;
-  const endIndex = startIndex + 5;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // When embedded, show all rows (already server-paginated); otherwise slice locally
+  const tableData = embedded
+    ? allTableData
+    : allTableData.slice((currentPage - 1) * 5, currentPage * 5);
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {
@@ -933,8 +936,11 @@ const Retailers = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1 || totalPages === 0}
+              onClick={() => {
+                const newPage = Math.max(1, currentPage - 1);
+                setCurrentPage(newPage);
+                if (embedded && onPageChange) onPageChange(newPage);
+              }}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
                 ? "text-gray-400 cursor-not-allowed bg-gray-100"
                 : "text-gray-500 hover:bg-gray-100"
@@ -947,7 +953,10 @@ const Retailers = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => {
+                      setCurrentPage(page);
+                      if (embedded && onPageChange) onPageChange(page);
+                    }}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                       ? "bg-green-600 text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -963,9 +972,11 @@ const Retailers = ({
               </span>
             )}
             <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
+              onClick={() => {
+                const newPage = Math.min(totalPages, currentPage + 1);
+                setCurrentPage(newPage);
+                if (embedded && onPageChange) onPageChange(newPage);
+              }}
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
                 ? "text-gray-400 cursor-not-allowed bg-gray-100"

@@ -704,6 +704,11 @@ const CreateWhiteLabel = () => {
             "9350547710",
           ),
           email: safeString(item.email, "Rudraj@Gmail.Com"),
+          // Retailers component reads row.company for Company Name column
+          company: safeString(
+            item.company || item.companyName || item.company?.name,
+            "N/A",
+          ),
         };
       }
 
@@ -940,7 +945,7 @@ const CreateWhiteLabel = () => {
             return <RetailerOnboarding embedded={true} tableData={apiData} />;
           }
           if (showOnboardingList && activeNav === "Whitelabel") {
-            return <AdminWhitelabelList embedded={true} tableData={apiData} />;
+            return <AdminWhitelabelList embedded={true} tableData={apiData} serverTotalPages={totalPages} onPageChange={(page) => setCurrentPage(page)} />;
           }
 
           // All List Views - Always pass API data, even if empty
@@ -950,6 +955,8 @@ const CreateWhiteLabel = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                serverTotalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
               />
             );
           }
@@ -959,6 +966,8 @@ const CreateWhiteLabel = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                serverTotalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
               />
             );
           }
@@ -968,6 +977,8 @@ const CreateWhiteLabel = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                serverTotalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
               />
             );
           }

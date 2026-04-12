@@ -34,6 +34,8 @@ const MasterDistribution = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  serverTotalPages = 0,
+  onPageChange = null,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -98,14 +100,15 @@ const MasterDistribution = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // Calculate total pages based on total count (10 records per page)
-  // If there's at least 1 record, show at least 1 page, otherwise show 0
-  const totalPages = totalCount > 0 ? Math.ceil(totalCount / 10) : 0;
+  // When embedded, use server-provided totalPages; otherwise compute locally (10/page)
+  const totalPages = embedded && serverTotalPages > 0
+    ? serverTotalPages
+    : totalCount > 0 ? Math.ceil(totalCount / 10) : 0;
 
-  // Slice data to show only 10 records per page
-  const startIndex = (currentPage - 1) * 10;
-  const endIndex = startIndex + 10;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // When embedded, show all rows (already server-paginated); otherwise slice locally
+  const tableData = embedded
+    ? allTableData
+    : allTableData.slice((currentPage - 1) * 10, currentPage * 10);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -741,7 +744,11 @@ const MasterDistribution = ({
           {totalPages > 0 && (
             <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
               <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => {
+                  const newPage = Math.max(1, currentPage - 1);
+                  setCurrentPage(newPage);
+                  if (embedded && onPageChange) onPageChange(newPage);
+                }}
                 disabled={currentPage === 1}
                 className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1
                   ? "text-gray-300 cursor-not-allowed"
@@ -754,7 +761,10 @@ const MasterDistribution = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => {
+                      setCurrentPage(page);
+                      if (embedded && onPageChange) onPageChange(page);
+                    }}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                       ? "bg-green-600 text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -765,9 +775,11 @@ const MasterDistribution = ({
                 ),
               )}
               <button
-                onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
-                }
+                onClick={() => {
+                  const newPage = Math.min(totalPages, currentPage + 1);
+                  setCurrentPage(newPage);
+                  if (embedded && onPageChange) onPageChange(newPage);
+                }}
                 disabled={currentPage === totalPages}
                 className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages
                   ? "text-gray-300 cursor-not-allowed"

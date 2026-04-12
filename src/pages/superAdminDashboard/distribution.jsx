@@ -50,6 +50,8 @@ const Distribution = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  serverTotalPages = 0,
+  onPageChange = null,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,13 +156,15 @@ const Distribution = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // Calculate total pages based on total count (10 records per page)
-  const totalPages = Math.ceil(totalCount / 10) || 1;
+  // When embedded, use server-provided totalPages; otherwise compute locally (10/page)
+  const totalPages = embedded && serverTotalPages > 0
+    ? serverTotalPages
+    : Math.ceil(totalCount / 10) || 1;
 
-  // Slice data to show only 10 records per page
-  const startIndex = (currentPage - 1) * 10;
-  const endIndex = startIndex + 10;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // When embedded, show all rows (already server-paginated); otherwise slice locally
+  const tableData = embedded
+    ? allTableData
+    : allTableData.slice((currentPage - 1) * 10, currentPage * 10);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -785,7 +789,11 @@ const Distribution = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-6 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => {
+                const newPage = Math.max(1, currentPage - 1);
+                setCurrentPage(newPage);
+                if (embedded && onPageChange) onPageChange(newPage);
+              }}
               disabled={currentPage === 1}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
                 ? "text-gray-400 cursor-not-allowed"
@@ -797,7 +805,10 @@ const Distribution = ({
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => {
+                  setCurrentPage(page);
+                  if (embedded && onPageChange) onPageChange(page);
+                }}
                 className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
                   ? "bg-green-600 text-white"
                   : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -807,9 +818,11 @@ const Distribution = ({
               </button>
             ))}
             <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
+              onClick={() => {
+                const newPage = Math.min(totalPages, currentPage + 1);
+                setCurrentPage(newPage);
+                if (embedded && onPageChange) onPageChange(newPage);
+              }}
               disabled={currentPage === totalPages}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages
                 ? "text-gray-400 cursor-not-allowed"
