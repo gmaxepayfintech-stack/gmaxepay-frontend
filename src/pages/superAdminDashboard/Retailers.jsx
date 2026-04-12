@@ -1107,6 +1107,9 @@ const Retailers = ({
                     Onboarding
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">

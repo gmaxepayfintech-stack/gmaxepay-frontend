@@ -576,6 +576,9 @@ const RetailerOnboarding = ({
                     Onboarding
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -877,6 +880,9 @@ const RetailerOnboarding = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                        {formatDate(row.onboardingTokenExpiresAt)}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
                         {formatDate(row.date)}
