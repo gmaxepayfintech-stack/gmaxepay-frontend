@@ -290,10 +290,13 @@ export const useList = (values) => async (dispatch) => {
 
     const { data: whitelabelList, total, paginator, message, status } = response?.data ?? {};
 
-    if (status === "SUCCESS") {
+    // This API returns no `status` field — success is determined by data being an array
+    const isSuccess = Array.isArray(whitelabelList) || status === "SUCCESS";
+
+    if (isSuccess) {
       dispatch({
         type: GET_WHITELABEL_LIST_SUCCESS,
-        payload: { whitelabelList, total, paginator, message, status },
+        payload: { whitelabelList: whitelabelList || [], total, paginator, message, status: "SUCCESS" },
       });
     } else {
       dispatch({
