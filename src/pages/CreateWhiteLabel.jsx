@@ -616,7 +616,7 @@ const CreateWhiteLabel = () => {
 
       const baseData = {
         id: safeString(item.id, "N/A"),
-        srNo: String((currentPage - 1) * 10 + index + 1).padStart(2, "0"),
+        srNo: String((currentPage - 1) * 6 + index + 1).padStart(2, "0"),
         date: formattedDate,
         userId: safeString(item.userId, "N/A"),
         userAgentCode: safeString(
@@ -745,8 +745,8 @@ const CreateWhiteLabel = () => {
         transformedData = transformApiData(responseForTable.data);
       }
     }
-    const startIndex = (currentPage - 1) * 10;
-    const endIndex = startIndex + 10;
+    const startIndex = (currentPage - 1) * 6;
+    const endIndex = startIndex + 6;
     return transformedData.slice(startIndex, endIndex);
   };
 

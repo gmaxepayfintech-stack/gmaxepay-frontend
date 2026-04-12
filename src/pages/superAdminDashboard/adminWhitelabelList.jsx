@@ -103,7 +103,7 @@ const AdminWhitelabelList = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // When embedded, use server-provided totalPages; otherwise compute locally (10/page)
+  // When embedded, use server-provided totalPages; otherwise compute locally (6/page)
   const totalPages = embedded && serverTotalPages > 0
     ? serverTotalPages
     : Math.ceil(totalCount / 6) || 1;
@@ -111,7 +111,7 @@ const AdminWhitelabelList = ({
   // When embedded, show all rows (already server-paginated); otherwise slice locally
   const tableData = embedded
     ? allTableData
-    : allTableData.slice((currentPage - 1) * 10, currentPage * 10);
+    : allTableData.slice((currentPage - 1) * 6, currentPage * 6);
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {

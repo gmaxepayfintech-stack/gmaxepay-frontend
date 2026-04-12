@@ -87,7 +87,7 @@ const DistrubtionOnboarding = ({
           ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
           ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
-        options: { sort: { id: -1 }, page: currentPage, paginate: 10 },
+        options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
         customSearch: {},
       };
       dispatch(useListAction(payload));
@@ -136,7 +136,7 @@ const DistrubtionOnboarding = ({
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (10 records per page)
-  const totalPages = Math.ceil(totalCount / 10) || 1;
+  const totalPages = Math.ceil(totalCount / 6) || 1;
 
   // Slice data to show only 10 records per page
   const startIndex = (currentPage - 1) * 10;
@@ -238,7 +238,7 @@ const DistrubtionOnboarding = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 10,
+        paginate: 6,
       },
       customSearch: {},
     };
@@ -266,7 +266,7 @@ const DistrubtionOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: {},
       };
@@ -294,7 +294,7 @@ const DistrubtionOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: {},
       };

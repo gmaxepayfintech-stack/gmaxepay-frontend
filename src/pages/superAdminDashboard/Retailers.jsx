@@ -172,7 +172,7 @@ const Retailers = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // When embedded, use server-provided totalPages; otherwise compute locally (5/page)
+  // When embedded, use server-provided totalPages; otherwise compute locally (6/page)
   const totalPages = embedded && serverTotalPages > 0
     ? serverTotalPages
     : totalCount > 0 ? Math.ceil(totalCount / 6) : 0;
@@ -180,7 +180,7 @@ const Retailers = ({
   // When embedded, show all rows (already server-paginated); otherwise slice locally
   const tableData = embedded
     ? allTableData
-    : allTableData.slice((currentPage - 1) * 5, currentPage * 5);
+    : allTableData.slice((currentPage - 1) * 6, currentPage * 6);
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {

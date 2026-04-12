@@ -83,7 +83,7 @@ const MasterDistributionOnboarding = ({
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (5 records per page)
-  const totalPages = Math.ceil(totalCount / 5) || 1;
+  const totalPages = Math.ceil(totalCount / 6) || 1;
 
   // Slice data to show only 5 records per page
   const startIndex = (currentPage - 1) * 5;
@@ -138,7 +138,7 @@ const MasterDistributionOnboarding = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 5,
+        paginate: 6,
       },
       customSearch: {},
     };
@@ -166,7 +166,7 @@ const MasterDistributionOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: {},
       };
@@ -194,7 +194,7 @@ const MasterDistributionOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: {},
       };
