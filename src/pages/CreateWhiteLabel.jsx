@@ -378,17 +378,14 @@ const CreateWhiteLabel = () => {
 
   // Set loading state based on Redux loading and data availability
   useEffect(() => {
-    // If Redux is loading, show loader
     if (reduxLoading) {
       setIsTableLoading(true);
       return;
     }
 
-    // If Redux loading has ended, check if we have data (even if empty array)
-    // This means the API call completed
-    if (!reduxLoading && responseForTableRaw !== undefined) {
-      // Data has arrived (could be empty array), hide loader
-      setIsTableLoading(false);
+    // When Redux finishes loading (success OR failure), always hide the loader
+    setIsTableLoading(false);
+    if (responseForTableRaw !== undefined) {
       prevResponseRef.current = responseForTableRaw;
     }
   }, [reduxLoading, responseForTableRaw]);
