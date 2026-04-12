@@ -653,6 +653,9 @@ const AdminWhitelabelList = ({
                     })()}
                   </td>
                   <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
+                    {row.onboardingTokenExpiresAt ? new Date(row.onboardingTokenExpiresAt).toLocaleDateString("en-GB").replaceAll("/", "-") : "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                     {row.date || "N/A"}
                   </td>
                 </tr>

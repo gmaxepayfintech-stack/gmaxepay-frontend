@@ -475,6 +475,9 @@ const DistrubtionOnboarding = ({
                       Onboarding
                     </th>
                     <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                      Deactivation
+                    </th>
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Token Expire
                     </th>
                     <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -750,6 +753,9 @@ const DistrubtionOnboarding = ({
                               </button>
                             );
                           })()}
+                        </td>
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
+                          {row.onboardingTokenExpiresAt ? new Date(row.onboardingTokenExpiresAt).toLocaleDateString("en-GB").replaceAll("/", "-") : "N/A"}
                         </td>
                         {/* Date */}
                         <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">

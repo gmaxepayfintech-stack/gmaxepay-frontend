@@ -631,6 +631,7 @@ const CreateWhiteLabel = () => {
           item.mobileNo || item.mobile || item.phone,
           "N/A",
         ),
+        email: safeString(item.email, "N/A"),
         emailId: safeString(item.email, "N/A"),
         slabName: safeString(item.slab, "N/A"),
         parentName: safeString(
@@ -640,6 +641,10 @@ const CreateWhiteLabel = () => {
         parentRole: safeString(
           item.parentRole || item.parent?.role,
           "Enterprise Partner",
+        ),
+        company: safeString(
+          item.company || item.companyName || item.company?.name,
+          "N/A",
         ),
         companyName: safeString(
           item.company || item.companyName || item.company?.name,
@@ -653,6 +658,8 @@ const CreateWhiteLabel = () => {
         remainingDays: calculateRemainingDays(),
         kycDetails: item.kycDetails || null,
         approved: item.approved === undefined ? true : item.approved,
+        onboardingTokenExpiresAt: item.onboardingTokenExpiresAt,
+        aepsOnboardingStatus: item.aepsOnboardingStatus,
         originalItem: item,
       };
 
