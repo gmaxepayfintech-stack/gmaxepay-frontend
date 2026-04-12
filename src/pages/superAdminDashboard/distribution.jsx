@@ -96,7 +96,7 @@ const Distribution = ({
           userRole: 4, // Distributor role
           ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
-        options: { sort: { id: -1 }, page: currentPage, paginate: 10 },
+        options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
         customSearch: debouncedSearchTerm.trim() ? {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
@@ -156,15 +156,15 @@ const Distribution = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // When embedded, use server-provided totalPages; otherwise compute locally (10/page)
+  // When embedded, use server-provided totalPages; otherwise compute locally (6/page)
   const totalPages = embedded && serverTotalPages > 0
     ? serverTotalPages
-    : Math.ceil(totalCount / 10) || 1;
+    : Math.ceil(totalCount / 6) || 1;
 
   // When embedded, show all rows (already server-paginated); otherwise slice locally
   const tableData = embedded
     ? allTableData
-    : allTableData.slice((currentPage - 1) * 10, currentPage * 10);
+    : allTableData.slice((currentPage - 1) * 6, currentPage * 6);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -246,7 +246,7 @@ const Distribution = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 10,
+        paginate: 6,
       },
       customSearch: debouncedSearchTerm.trim()
         ? {
@@ -278,7 +278,7 @@ const Distribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
@@ -310,7 +310,7 @@ const Distribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {

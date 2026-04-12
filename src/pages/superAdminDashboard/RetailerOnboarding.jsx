@@ -79,7 +79,7 @@ const RetailerOnboarding = ({
           kycStatus: "pending",
           ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
-        options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+        options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
         customSearch: debouncedSearchTerm.trim() ? {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
@@ -170,7 +170,7 @@ const RetailerOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: {
           ...(debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {}),
@@ -258,7 +258,7 @@ const RetailerOnboarding = ({
           options: {
             sort: { id: -1 },
             page: currentPage,
-            paginate: 5,
+            paginate: 6,
           },
           customSearch: {
              ...(debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {}),
@@ -289,7 +289,7 @@ const RetailerOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
@@ -770,7 +770,7 @@ const RetailerOnboarding = ({
                                       options: {
                                         sort: { id: -1 },
                                         page: currentPage,
-                                        paginate: 5,
+                                        paginate: 6,
                                       },
                                       customSearch: {
                                         ...(debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {}),
@@ -1233,7 +1233,7 @@ const RetailerOnboarding = ({
                                       options: {
                                         sort: { id: -1 },
                                         page: currentPage,
-                                        paginate: 5,
+                                        paginate: 6,
                                       },
                                       customSearch: {
                                         mobileNo: debouncedSearchTerm.trim(),

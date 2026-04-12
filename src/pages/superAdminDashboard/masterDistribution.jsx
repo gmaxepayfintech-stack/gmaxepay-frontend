@@ -100,15 +100,15 @@ const MasterDistribution = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // When embedded, use server-provided totalPages; otherwise compute locally (10/page)
+  // When embedded, use server-provided totalPages; otherwise compute locally (6/page)
   const totalPages = embedded && serverTotalPages > 0
     ? serverTotalPages
-    : totalCount > 0 ? Math.ceil(totalCount / 10) : 0;
+    : totalCount > 0 ? Math.ceil(totalCount / 6) : 0;
 
   // When embedded, show all rows (already server-paginated); otherwise slice locally
   const tableData = embedded
     ? allTableData
-    : allTableData.slice((currentPage - 1) * 10, currentPage * 10);
+    : allTableData.slice((currentPage - 1) * 6, currentPage * 6);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -160,7 +160,7 @@ const MasterDistribution = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 10,
+        paginate: 6,
       },
       customSearch: debouncedSearchTerm.trim()
         ? {
@@ -230,7 +230,7 @@ const MasterDistribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
@@ -262,7 +262,7 @@ const MasterDistribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
