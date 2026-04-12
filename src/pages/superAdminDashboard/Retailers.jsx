@@ -86,7 +86,7 @@ const Retailers = ({
           userRole: 5,
           ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
-        options: { sort: { id: -1 }, page: currentPage, paginate: 5 },
+        options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
         customSearch: debouncedSearchTerm.trim() ? {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
@@ -175,7 +175,7 @@ const Retailers = ({
   // When embedded, use server-provided totalPages; otherwise compute locally (5/page)
   const totalPages = embedded && serverTotalPages > 0
     ? serverTotalPages
-    : totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
+    : totalCount > 0 ? Math.ceil(totalCount / 6) : 0;
 
   // When embedded, show all rows (already server-paginated); otherwise slice locally
   const tableData = embedded
@@ -226,7 +226,7 @@ const Retailers = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim() ? {
           mobileNo: debouncedSearchTerm.trim(),
@@ -321,7 +321,7 @@ const Retailers = ({
           options: {
             sort: { id: -1 },
             page: currentPage,
-            paginate: 5,
+            paginate: 6,
           },
           customSearch: debouncedSearchTerm.trim() ? {
             mobileNo: debouncedSearchTerm.trim(),
@@ -352,7 +352,7 @@ const Retailers = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
@@ -812,7 +812,7 @@ const Retailers = ({
                                       options: {
                                         sort: { id: -1 },
                                         page: currentPage,
-                                        paginate: 5,
+                                        paginate: 6,
                                       },
                                       customSearch: {
                                         mobileNo: debouncedSearchTerm.trim(),
@@ -1292,7 +1292,7 @@ const Retailers = ({
                                       options: {
                                         sort: { id: -1 },
                                         page: currentPage,
-                                        paginate: 5,
+                                        paginate: 6,
                                       },
                                       customSearch: {
                                         mobileNo: debouncedSearchTerm.trim(),

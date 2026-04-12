@@ -46,40 +46,6 @@ import Employee from "./superAdminDashboard/employee";
 // Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
 
-const generateTableData = (type, count = 12) => {
-  let userRole = "WL";
-  if (type === "Distributor") {
-    userRole = "D";
-  } else if (type === "Retailers") {
-    userRole = "R";
-  }
-
-  let parentRole = "Enterprise Partner";
-  if (type === "Distributor") {
-    parentRole = "Distributor";
-  } else if (type === "Retailers") {
-    parentRole = "Retailer";
-  }
-
-  const baseData = {
-    srNo: "01",
-    date: "13-10-25",
-    userAgentCode: "SECPY26007",
-    userName: "Rudra",
-    userRole: userRole,
-    mobile: "9350547710",
-    email: "Rudra@Gmail.Com",
-    parentName: "GMAXEPAY",
-    parentRole: parentRole,
-    companyName: "GMAXEPAY",
-  };
-
-  return Array.from({ length: count }, (_, index) => ({
-    ...baseData,
-    srNo: String(index + 1).padStart(2, "0"),
-  }));
-};
-
 const CreateWhiteLabel = () => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -162,7 +128,7 @@ const CreateWhiteLabel = () => {
     const pageCount = response?.paginator?.pageCount;
     const total = response?.total || response?.totalCount || response?.whitelabelList?.length || 0;
     if (pageCount && pageCount > 0) return pageCount;
-    return Math.ceil(total / 10) || 1;
+    return Math.ceil(total / 6) || 1;
   });
 
   // Get kycStatusCheck success state to refresh table after update
@@ -268,7 +234,7 @@ const CreateWhiteLabel = () => {
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 10,
+        paginate: 6,
       },
       customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
     };
@@ -313,7 +279,7 @@ const CreateWhiteLabel = () => {
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
@@ -358,7 +324,7 @@ const CreateWhiteLabel = () => {
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
@@ -1332,7 +1298,7 @@ const CreateWhiteLabel = () => {
                                           options: {
                                             sort: { id: -1 },
                                             page: currentPage,
-                                            paginate: 10,
+                                            paginate: 6,
                                           },
                                           customSearch:
                                             Object.keys(customSearch).length > 0
