@@ -150,11 +150,19 @@ const CreateWhiteLabel = () => {
   const totalCount = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     return (
-      response?.totalCount ||
       response?.total ||
+      response?.totalCount ||
       response?.whitelabelList?.length ||
       0
     );
+  });
+
+  const totalPages = useSelector((state) => {
+    const response = state?.whitelabel?.whitelabelList;
+    const pageCount = response?.paginator?.pageCount;
+    const total = response?.total || response?.totalCount || response?.whitelabelList?.length || 0;
+    if (pageCount && pageCount > 0) return pageCount;
+    return Math.ceil(total / 10) || 1;
   });
 
   // Get kycStatusCheck success state to refresh table after update
@@ -172,8 +180,6 @@ const CreateWhiteLabel = () => {
     (state) => state?.whitelabel?.kycLockStatus,
   );
 
-  // Calculate total pages based on total count (10 records per page)
-  const totalPages = Math.ceil(totalCount / 10) || 1;
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);

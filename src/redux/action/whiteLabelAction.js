@@ -288,12 +288,12 @@ export const useList = (values) => async (dispatch) => {
       }
     );
 
-    const { data: whitelabelList, message, status } = response?.data ?? {};
+    const { data: whitelabelList, total, paginator, message, status } = response?.data ?? {};
 
     if (status === "SUCCESS") {
       dispatch({
         type: GET_WHITELABEL_LIST_SUCCESS,
-        payload: { whitelabelList, message, status },
+        payload: { whitelabelList, total, paginator, message, status },
       });
     } else {
       dispatch({

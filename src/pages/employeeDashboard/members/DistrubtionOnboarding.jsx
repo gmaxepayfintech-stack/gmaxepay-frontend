@@ -83,10 +83,11 @@ const DistrubtionOnboarding = ({
   // Refresh table when AEPS status check succeeds
   useEffect(() => {
     if (employeeAepsStatusResponse?.status === "SUCCESS") {
-      showNotification(
-        employeeAepsStatusResponse?.message || "AEPS Status updated successfully",
-        "success"
-      );
+      showNotification({
+        message: employeeAepsStatusResponse?.message || "AEPS Status updated successfully",
+        type: "success",
+        isCritical: true
+      });
       
       const bothDatesSelected = fromDate && toDate;
       const bothDatesNull = !fromDate && !toDate;
@@ -105,10 +106,11 @@ const DistrubtionOnboarding = ({
       };
       dispatch(employeeUseList(payload));
     } else if (employeeAepsStatusResponse?.status === "FAILURE") {
-      showNotification(
-        employeeAepsStatusResponse?.message || "Failed to update AEPS status",
-        "error"
-      );
+      showNotification({
+        message: employeeAepsStatusResponse?.message || "Failed to update AEPS status",
+        type: "error",
+        isCritical: true
+      });
     }
   }, [employeeAepsStatusResponse, showNotification, dispatch, currentPage, selectedKyc, fromDate, toDate]);
 
