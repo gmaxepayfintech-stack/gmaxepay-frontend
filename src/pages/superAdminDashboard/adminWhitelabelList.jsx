@@ -37,6 +37,8 @@ import {
 const AdminWhitelabelList = ({
   embedded = false,
   tableData: propTableData = [],
+  serverTotalPages = 0,
+  onPageChange = null,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,14 +103,15 @@ const AdminWhitelabelList = ({
       ? totalCountFromRedux
       : allTableData.length;
 
-  // Calculate total pages based on total count (10 records per page)
-  const totalPages = Math.ceil(totalCount / 10) || 1;
+  // When embedded, use server-provided totalPages; otherwise compute locally (10/page)
+  const totalPages = embedded && serverTotalPages > 0
+    ? serverTotalPages
+    : Math.ceil(totalCount / 10) || 1;
 
-  // Slice data to show only 10 records per page
-  // Note: API should already be paginated, but we ensure client-side pagination as well
-  const startIndex = (currentPage - 1) * 10;
-  const endIndex = startIndex + 10;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // When embedded, show all rows (already server-paginated); otherwise slice locally
+  const tableData = embedded
+    ? allTableData
+    : allTableData.slice((currentPage - 1) * 10, currentPage * 10);
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {
@@ -914,7 +917,11 @@ const AdminWhitelabelList = ({
       {/* Pagination */}
       <div className="flex items-center justify-center mt-auto pt-6 pb-4 gap-2">
         <button
-          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          onClick={() => {
+            const newPage = Math.max(1, currentPage - 1);
+            setCurrentPage(newPage);
+            if (embedded && onPageChange) onPageChange(newPage);
+          }}
           disabled={currentPage === 1 || totalPages === 0}
           className={`p-2 rounded-lg border transition ${currentPage === 1 || totalPages === 0
             ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
@@ -928,7 +935,10 @@ const AdminWhitelabelList = ({
           Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              onClick={() => setCurrentPage(page)}
+              onClick={() => {
+                setCurrentPage(page);
+                if (embedded && onPageChange) onPageChange(page);
+              }}
               className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${currentPage === page
                 ? "bg-[#039155] text-white"
                 : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
@@ -944,9 +954,11 @@ const AdminWhitelabelList = ({
         )}
 
         <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-          }
+          onClick={() => {
+            const newPage = Math.min(totalPages, currentPage + 1);
+            setCurrentPage(newPage);
+            if (embedded && onPageChange) onPageChange(newPage);
+          }}
           disabled={currentPage === totalPages || totalPages === 0}
           className={`p-2 rounded-lg border transition ${currentPage === totalPages || totalPages === 0
             ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
