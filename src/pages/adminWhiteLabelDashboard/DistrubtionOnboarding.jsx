@@ -93,7 +93,7 @@ const DistrubtionOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 5,
         },
         customSearch: {},
       };
@@ -102,6 +102,25 @@ const DistrubtionOnboarding = ({
       notifyError(companyAepsStatus.message || "Failed to check AEPS status");
     }
   }, [companyAepsStatus, currentPage, dispatch, notifySuccess, notifyError]);
+
+  // Main data fetcher for standalone mode
+  useEffect(() => {
+    if (embedded) return;
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role
+        ...(selectedKyc && { kycStatus: selectedKyc }),
+        ...(fromDate && toDate && { date: { $gte: fromDate, $lte: toDate } }),
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataCompanyUser(payload));
+  }, [selectedKyc, fromDate, toDate, currentPage, dispatch, embedded]);
 
   // Use prop data from API - no dummy data
   // Handle both nested (array of companies with users) and flat (array of users) structures
@@ -116,24 +135,14 @@ const DistrubtionOnboarding = ({
     return propTableData;
   }, [propTableData]);
 
-  // Get total count from Redux state (if available) or use current data length
-  const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
-  });
+  const isFullPage = allTableData.length >= 5;
+  const totalPages = embedded 
+    ? (Math.ceil(allTableData.length / 5) || 1)
+    : (currentPage + (isFullPage ? 1 : 0));
 
-  // Use Redux total count if available, otherwise use current data length
-  const totalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
-
-  // Calculate total pages based on total count (10 records per page)
-  const totalPages = Math.ceil(totalCount / 10) || 1;
-
-  // Slice data to show only 10 records per page
-  const startIndex = (currentPage - 1) * 10;
-  const endIndex = startIndex + 10;
+  // Slice data locally only if embedded, otherwise show server items directly
+  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
+  const endIndex = startIndex + 5;
   const tableData = allTableData.slice(startIndex, endIndex);
 
   // Update selectedKycData when Redux state changes

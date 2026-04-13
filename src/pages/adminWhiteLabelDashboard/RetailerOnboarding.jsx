@@ -48,6 +48,8 @@ const RetailerOnboarding = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
   const { success: notifySuccess, error: notifyError } = useNotification();
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
 
   const kycModalRef = useRef(null);
 
@@ -106,12 +108,31 @@ const RetailerOnboarding = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API on initial load and when search term or page changes
+  // Debounce date filters
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Fetch data from API on initial load and when search term or dates change
+  useEffect(() => {
+    if (embedded) return;
+    
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) return;
+
     const payload = {
       query: {
         userRole: 5, // Retailer role
         kycStatus: "pending",
+        ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       },
       options: {
         sort: { id: -1 },
@@ -126,7 +147,7 @@ const RetailerOnboarding = ({
         : {},
     };
     dispatch(roleDataCompanyUser(payload));
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, embedded, dispatch]);
 
   // Use Redux data when available, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
@@ -136,17 +157,21 @@ const RetailerOnboarding = ({
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
   });
-  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  // Prefer Redux data if available (from API calls) and NOT embedded, otherwise fall back to prop data
   const finalTableData =
-    Array.isArray(reduxTableData) && reduxTableData.length > 0
+    !embedded && Array.isArray(reduxTableData) && reduxTableData.length > 0
       ? reduxTableData
       : allTableData;
-  // Use Redux total count if available, otherwise use current data length
-  const finalTotalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
-  const finalTotalPages =
-    finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
-  const finalStartIndex = (currentPage - 1) * 5;
+  const finalTotalCount = embedded 
+    ? finalTableData.length 
+    : (totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length);
+  
+  const isFullPage = finalTableData.length >= 5;
+  const finalTotalPages = embedded 
+    ? (Math.ceil(finalTableData.length / 5) || 1)
+    : (currentPage + (isFullPage ? 1 : 0));
+
+  const finalStartIndex = embedded ? (currentPage - 1) * 5 : 0;
   const finalEndIndex = finalStartIndex + 5;
   const displayTableData = finalTableData.slice(finalStartIndex, finalEndIndex);
 
@@ -189,12 +214,15 @@ const RetailerOnboarding = ({
 
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
+    if (embedded) return;
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
       // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 5, // Retailer role
           kycStatus: "pending",
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -210,15 +238,18 @@ const RetailerOnboarding = ({
       };
       dispatch(roleDataCompanyUser(payload));
     }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
+    if (embedded) return;
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const payload = {
         query: {
           userRole: 5, // Retailer role
           kycStatus: "pending",
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -234,17 +265,19 @@ const RetailerOnboarding = ({
       };
       dispatch(roleDataCompanyUser(payload));
     }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, dispatch]);
 
   // Refresh table and show notification when companyAepsStatus succeeds
   useEffect(() => {
+    if (embedded) return;
     if (companyAepsStatus?.status === "SUCCESS") {
       notifySuccess(companyAepsStatus.message || "AEPS status updated successfully");
-      
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const payload = {
         query: {
           userRole: 5, // Retailer role
           kycStatus: "pending",
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -262,7 +295,7 @@ const RetailerOnboarding = ({
     } else if (companyAepsStatus?.status === "FAILURE") {
       notifyError(companyAepsStatus.message || "Failed to check AEPS status");
     }
-  }, [companyAepsStatus, dispatch, currentPage, debouncedSearchTerm, notifySuccess, notifyError]);
+  }, [companyAepsStatus, dispatch, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, notifySuccess, notifyError]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -696,26 +729,30 @@ const RetailerOnboarding = ({
                                   }
 
                                   // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                        kycStatus: "pending",
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
-                                    };
-                                    dispatch(roleDataCompanyUser(payload));
-                                  }, 500);
+                                  if (!embedded) {
+                                    setTimeout(() => {
+                                      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+                                      const payload = {
+                                        query: {
+                                          userRole: 5, // Retailer role
+                                          kycStatus: "pending",
+                                          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+                                        },
+                                        options: {
+                                          sort: { id: -1 },
+                                          page: currentPage,
+                                          paginate: 5,
+                                        },
+                                        customSearch: debouncedSearchTerm.trim()
+                                          ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                          : {},
+                                      };
+                                      dispatch(roleDataCompanyUser(payload));
+                                    }, 500);
+                                  }
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1152,26 +1189,30 @@ const RetailerOnboarding = ({
                                   }
 
                                   // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                        kycStatus: "pending",
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
-                                    };
-                                    dispatch(roleDataCompanyUser(payload));
-                                  }, 500);
+                                  if (!embedded) {
+                                    setTimeout(() => {
+                                      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+                                      const payload = {
+                                        query: {
+                                          userRole: 5, // Retailer role
+                                          kycStatus: "pending",
+                                          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+                                        },
+                                        options: {
+                                          sort: { id: -1 },
+                                          page: currentPage,
+                                          paginate: 5,
+                                        },
+                                        customSearch: debouncedSearchTerm.trim()
+                                          ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                          : {},
+                                      };
+                                      dispatch(roleDataCompanyUser(payload));
+                                    }, 500);
+                                  }
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
