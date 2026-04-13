@@ -33,6 +33,9 @@ const MasterDistributionOnboarding = ({
   const [selectedKyc, setSelectedKyc] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
+  const [debouncedKyc, setDebouncedKyc] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -102,15 +105,13 @@ const MasterDistributionOnboarding = ({
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available, otherwise use current data length
-  const totalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
+  const isFullPage = allTableData.length >= 5;
+  const totalPages = embedded 
+    ? (Math.ceil(allTableData.length / 5) || 1)
+    : (currentPage + (isFullPage ? 1 : 0));
 
-  // Calculate total pages based on total count (5 records per page)
-  const totalPages = Math.ceil(totalCount / 5) || 1;
-
-  // Slice data to show only 5 records per page
-  const startIndex = (currentPage - 1) * 5;
+  // Slice data locally only if embedded, otherwise show server items directly
+  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
   const endIndex = startIndex + 5;
   const tableData = allTableData.slice(startIndex, endIndex);
 
@@ -125,62 +126,88 @@ const MasterDistributionOnboarding = ({
     </tr>
   );
 
-  // Fetch data from API on initial load and when page changes
+  // Debounce filters to avoid too many API calls
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setDebouncedKyc(selectedKyc);
+      setCurrentPage(1); // Reset to first page when parameters change
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate, selectedKyc]);
+
+  // Fetch data from API on initial load and when filters change
+  useEffect(() => {
+    if (embedded) return;
+
+    const baseSearch = {};
+    if (debouncedFromDate) baseSearch.startDate = debouncedFromDate;
+    if (debouncedToDate) baseSearch.endDate = debouncedToDate;
+
     const payload = {
       query: {
         userRole: 3, // Master Distributor role
-        kycStatus: "pending",
+        kycStatus: debouncedKyc || "pending",
       },
       options: {
         sort: { id: -1 },
         page: currentPage,
         paginate: 5,
       },
-      customSearch: {},
+      customSearch: baseSearch,
     };
     dispatch(roleDataCompanyUser(payload));
-  }, [currentPage, dispatch]);
+  }, [debouncedFromDate, debouncedToDate, debouncedKyc, currentPage, dispatch, embedded]);
 
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching roleDataCompanyUser again
+      if (embedded) return;
+      const baseSearch = {};
+      if (debouncedFromDate) baseSearch.startDate = debouncedFromDate;
+      if (debouncedToDate) baseSearch.endDate = debouncedToDate;
+
       const payload = {
         query: {
-          userRole: 3, // Master Distributor role
-          kycStatus: "pending",
+          userRole: 3,
+          kycStatus: debouncedKyc || "pending",
         },
         options: {
           sort: { id: -1 },
           page: currentPage,
           paginate: 5,
         },
-        customSearch: {},
+        customSearch: baseSearch,
       };
       dispatch(roleDataCompanyUser(payload));
     }
-  }, [kycStatusCheckResponse, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedFromDate, debouncedToDate, debouncedKyc, dispatch, embedded]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching roleDataCompanyUser again
+      if (embedded) return;
+      const baseSearch = {};
+      if (debouncedFromDate) baseSearch.startDate = debouncedFromDate;
+      if (debouncedToDate) baseSearch.endDate = debouncedToDate;
+
       const payload = {
         query: {
-          userRole: 3, // Master Distributor role
-          kycStatus: "pending",
+          userRole: 3,
+          kycStatus: debouncedKyc || "pending",
         },
         options: {
           sort: { id: -1 },
           page: currentPage,
           paginate: 5,
         },
-        customSearch: {},
+        customSearch: baseSearch,
       };
       dispatch(roleDataCompanyUser(payload));
     }
-  }, [kycLockStatusResponse, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedFromDate, debouncedToDate, debouncedKyc, dispatch, embedded]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {

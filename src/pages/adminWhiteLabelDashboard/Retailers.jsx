@@ -57,6 +57,8 @@ const Retailers = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
   const { success: notifySuccess, error: notifyError } = useNotification();
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -136,9 +138,9 @@ const Retailers = ({
     return propTableData;
   }, [propTableData]);
 
-  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  // Prefer Redux data if available (from API calls) and NOT embedded, otherwise fall back to prop data
   const allTableData =
-    Array.isArray(responseForTable) && responseForTable.length > 0
+    !embedded && Array.isArray(responseForTable) && responseForTable.length > 0
       ? responseForTable
       : flattenedPropData;
 
@@ -150,16 +152,19 @@ const Retailers = ({
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available, otherwise use current data length
-  const totalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
+  // Use current data length if embedded, else use Redux total count if available
+  const totalCount = embedded 
+    ? allTableData.length 
+    : (totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length);
 
   // Calculate total pages based on total count (5 records per page)
-  // If there's at least 1 record, show at least 1 page, otherwise show 0
-  const totalPages = totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
+  const isFullPage = allTableData.length >= 5;
+  const totalPages = embedded 
+    ? (Math.ceil(allTableData.length / 5) || 1)
+    : (currentPage + (isFullPage ? 1 : 0));
 
   // Slice data to show only 5 records per page
-  const startIndex = (currentPage - 1) * 5;
+  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
   const endIndex = startIndex + 5;
   const tableData = allTableData.slice(startIndex, endIndex);
 
@@ -173,11 +178,33 @@ const Retailers = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API on initial load and when search term or page changes
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Fetch data from API on initial load and when search term or dates change
+  useEffect(() => {
+    if (embedded) return; // Skip API fetch if embedded to prevent overwriting Redux store
+
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     const payload = {
       query: {
         userRole: 5, // Retailer role
+        ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       },
       options: {
         sort: { id: -1 },
@@ -193,7 +220,7 @@ const Retailers = ({
     };
 
     dispatch(roleDataCompanyUser(payload));
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, embedded, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -257,36 +284,41 @@ const Retailers = ({
 
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
+    if (embedded) return;
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
       // Refresh table data by dispatching roleDataCompanyUser again
-      if (debouncedSearchTerm.trim()) {
+      if (debouncedSearchTerm.trim() || bothDatesSelected) {
         const payload = {
           query: {
             userRole: 5, // Retailer role
+            ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
           },
           options: {
             sort: { id: -1 },
             page: currentPage,
             paginate: 5,
           },
-          customSearch: {
+          customSearch: debouncedSearchTerm.trim() ? {
             mobileNo: debouncedSearchTerm.trim(),
             name: debouncedSearchTerm.trim(),
-          },
+          } : {},
         };
         dispatch(roleDataCompanyUser(payload));
       }
     }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, dispatch]);
 
   // Refresh table and show notification when companyAepsStatus succeeds
   useEffect(() => {
+    if (embedded) return;
     if (companyAepsStatus?.status === "SUCCESS") {
       notifySuccess(companyAepsStatus.message || "AEPS status updated successfully");
-      
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const payload = {
         query: {
           userRole: 5, // Retailer role
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -304,14 +336,17 @@ const Retailers = ({
     } else if (companyAepsStatus?.status === "FAILURE") {
       notifyError(companyAepsStatus.message || "Failed to check AEPS status");
     }
-  }, [companyAepsStatus, dispatch, currentPage, debouncedSearchTerm, notifySuccess, notifyError]);
+  }, [companyAepsStatus, dispatch, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, notifySuccess, notifyError]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
+    if (embedded) return;
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const payload = {
         query: {
           userRole: 5, // Retailer role
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -327,7 +362,7 @@ const Retailers = ({
       };
       dispatch(roleDataCompanyUser(payload));
     }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, dispatch]);
 
   // Export to Excel function
   const handleExportToExcel = () => {
@@ -754,25 +789,29 @@ const Retailers = ({
                                   }
 
                                   // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
-                                    };
-                                    dispatch(roleDataCompanyUser(payload));
-                                  }, 500);
+                                  if (!embedded) {
+                                    setTimeout(() => {
+                                      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+                                      const payload = {
+                                        query: {
+                                          userRole: 5, // Retailer role
+                                          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+                                        },
+                                        options: {
+                                          sort: { id: -1 },
+                                          page: 1,
+                                          paginate: 100000,
+                                        },
+                                        customSearch: debouncedSearchTerm.trim()
+                                          ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                          : {},
+                                      };
+                                      dispatch(roleDataCompanyUser(payload));
+                                    }, 500);
+                                  }
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1227,25 +1266,29 @@ const Retailers = ({
                                   }
 
                                   // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
-                                    };
-                                    dispatch(roleDataCompanyUser(payload));
-                                  }, 500);
+                                  if (!embedded) {
+                                    setTimeout(() => {
+                                      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+                                      const payload = {
+                                        query: {
+                                          userRole: 5, // Retailer role
+                                          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+                                        },
+                                        options: {
+                                          sort: { id: -1 },
+                                          page: currentPage,
+                                          paginate: 5,
+                                        },
+                                        customSearch: debouncedSearchTerm.trim()
+                                          ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                          : {},
+                                      };
+                                      dispatch(roleDataCompanyUser(payload));
+                                    }, 500);
+                                  }
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
