@@ -47,7 +47,11 @@ const RetailerOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
-  const { success: notifySuccess, error: notifyError } = useNotification();
+  const { 
+    success: notifySuccess, 
+    error: notifyError,
+    showNotification 
+  } = useNotification();
   const [debouncedFromDate, setDebouncedFromDate] = useState("");
   const [debouncedToDate, setDebouncedToDate] = useState("");
 
@@ -269,9 +273,14 @@ const RetailerOnboarding = ({
 
   // Refresh table and show notification when companyAepsStatus succeeds
   useEffect(() => {
-    if (embedded) return;
     if (companyAepsStatus?.status === "SUCCESS") {
-      notifySuccess(companyAepsStatus.message || "AEPS status updated successfully");
+      showNotification({
+        message: companyAepsStatus.message || "AEPS status updated successfully",
+        type: "success",
+        isCritical: true,
+      });
+
+      if (embedded) return;
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const payload = {
         query: {
@@ -292,10 +301,14 @@ const RetailerOnboarding = ({
           : {},
       };
       dispatch(roleDataCompanyUser(payload));
-    } else if (companyAepsStatus?.status === "FAILURE") {
-      notifyError(companyAepsStatus.message || "Failed to check AEPS status");
+    } else if (companyAepsStatus?.status === "FAILURE" || companyAepsStatus?.status === "Error") {
+      showNotification({
+        message: companyAepsStatus.message || "Failed to update AEPS status",
+        type: "error",
+        isCritical: true,
+      });
     }
-  }, [companyAepsStatus, dispatch, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, notifySuccess, notifyError]);
+  }, [companyAepsStatus, dispatch, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, showNotification]);
 
   // Handle click outside modal
   useEffect(() => {

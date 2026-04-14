@@ -101,7 +101,7 @@ const Distribution = ({
         };
         dispatch(employeeUseList(payload));
       }
-    } else if (employeeAepsStatusResponse?.status === "FAILURE") {
+    } else if (employeeAepsStatusResponse?.status === "FAILURE" || employeeAepsStatusResponse?.status === "Error") {
       showNotification({
         message: employeeAepsStatusResponse?.message || "Failed to update AEPS status",
         type: "error",

@@ -49,7 +49,11 @@ const Distribution = ({
   isLoading = false,
 }) => {
   const dispatch = useDispatch();
-  const { success: notifySuccess, error: notifyError } = useNotification();
+  const { 
+    success: notifySuccess, 
+    error: notifyError,
+    showNotification 
+  } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
@@ -82,9 +86,13 @@ const Distribution = ({
 
   useEffect(() => {
     if (companyAepsStatus?.status === "SUCCESS") {
-      notifySuccess(
-        companyAepsStatus.message || "AEPS status updated successfully",
-      );
+      showNotification({
+        message: companyAepsStatus.message || "AEPS status updated successfully",
+        type: "success",
+        isCritical: true,
+      });
+
+      if (embedded) return;
       // Refresh table data
       const payload = {
         query: {
@@ -98,10 +106,14 @@ const Distribution = ({
         customSearch: {},
       };
       dispatch(roleDataCompanyUser(payload));
-    } else if (companyAepsStatus?.status === "FAILURE") {
-      notifyError(companyAepsStatus.message || "Failed to check AEPS status");
+    } else if (companyAepsStatus?.status === "FAILURE" || companyAepsStatus?.status === "Error") {
+      showNotification({
+        message: companyAepsStatus.message || "Failed to check AEPS status",
+        type: "error",
+        isCritical: true,
+      });
     }
-  }, [companyAepsStatus, currentPage, dispatch, notifySuccess, notifyError]);
+  }, [companyAepsStatus, currentPage, dispatch, showNotification, embedded]);
 
   // Get data from Redux when available, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
