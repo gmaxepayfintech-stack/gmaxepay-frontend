@@ -66,9 +66,7 @@ const Distribution = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  );
+  const [toDate, setToDate] = useState("");
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
 

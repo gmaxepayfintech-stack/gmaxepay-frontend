@@ -88,11 +88,7 @@ const CreateCompanyUser = () => {
   const prevResponseRef = useRef(undefined);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
 
-  // Set toDate to today's date in YYYY-MM-DD format
-  const [toDate, setToDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
