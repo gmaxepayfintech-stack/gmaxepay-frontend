@@ -651,9 +651,21 @@ const CreateCompanyUser = () => {
       }
     }
 
-    // If no actual data found, return empty array (don't use dummy data)
+    // If no actual data found, return empty array
     if (!actualData) {
       return [];
+    }
+
+    // Filter by role to ensure Master Distributor tab only shows MD users, etc.
+    // This handles cases where the backend returns all users of a company instead of filtering by role.
+    const roleCodeMap = {
+      "Master Distributor": "MD",
+      "Distributor": "DI",
+      "Retailers": "RE",
+    };
+    const expectedRole = roleCodeMap[activeNav];
+    if (expectedRole && Array.isArray(actualData)) {
+      actualData = actualData.filter((user) => user.userRole === expectedRole);
     }
 
     // Determine component type for proper field mapping
