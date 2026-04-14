@@ -40,11 +40,9 @@ const MasterDistribution = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  );
+  const [toDate, setToDate] = useState("");
   const [debouncedFromDate, setDebouncedFromDate] = useState("");
-  const [debouncedToDate, setDebouncedToDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");

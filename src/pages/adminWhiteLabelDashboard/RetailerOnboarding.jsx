@@ -38,9 +38,7 @@ const RetailerOnboarding = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  ); // Default to today's date
+  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
