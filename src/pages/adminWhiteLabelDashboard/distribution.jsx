@@ -101,7 +101,7 @@ const Distribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: {},
       };
@@ -149,29 +149,26 @@ const Distribution = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
+    const response = state?.roles?.roleDataComp;
+    return response?.totalCount || response?.total || 0;
   });
+
+  const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
 
   // Use Redux total count if available, otherwise use current data length
   const totalCount =
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (5 records per page)
-  // If not embedded, totalCountFromRedux only equals current page items.
-  // We allow clicking Next if the current page returned a full 5 items.
-  const isFullPage = allTableData.length >= 5;
+  // Calculate total pages based on total count (6 records per page)
   const totalPages = embedded 
-    ? (Math.ceil(allTableData.length / 5) || 1)
-    : (currentPage + (isFullPage ? 1 : 0));
+    ? (Math.ceil(allTableData.length / 6) || 1)
+    : serverPageCount || (totalCount > 0 ? Math.ceil(totalCount / 6) : 0);
 
   // If embedded, we have all data locally so we slice it.
-  // If not embedded, the API already paginated it purely for us!
-  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
-  const endIndex = startIndex + 5;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // If not embedded, the API already paginated it for us!
+  const tableData = embedded
+    ? allTableData.slice((currentPage - 1) * 6, currentPage * 6)
+    : allTableData;
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -227,7 +224,7 @@ const Distribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: {
           ...(fromDate && { fromDate }),
