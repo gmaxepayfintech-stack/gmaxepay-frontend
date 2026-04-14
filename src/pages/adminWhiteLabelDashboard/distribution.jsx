@@ -147,12 +147,18 @@ const Distribution = ({
   const totalCount =
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (10 records per page)
-  const totalPages = Math.ceil(totalCount / 10) || 1;
+  // Calculate total pages based on total count (5 records per page)
+  // If not embedded, totalCountFromRedux only equals current page items.
+  // We allow clicking Next if the current page returned a full 5 items.
+  const isFullPage = allTableData.length >= 5;
+  const totalPages = embedded 
+    ? (Math.ceil(allTableData.length / 5) || 1)
+    : (currentPage + (isFullPage ? 1 : 0));
 
-  // Slice data to show only 10 records per page
-  const startIndex = (currentPage - 1) * 10;
-  const endIndex = startIndex + 10;
+  // If embedded, we have all data locally so we slice it.
+  // If not embedded, the API already paginated it purely for us!
+  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
+  const endIndex = startIndex + 5;
   const tableData = allTableData.slice(startIndex, endIndex);
 
   // Update selectedKycData when Redux state changes
@@ -198,19 +204,30 @@ const Distribution = ({
 
   // Fetch data from API on initial load and when page changes
   useEffect(() => {
-    const payload = {
-      query: {
-        userRole: 4, // Distributor role
-      },
-      options: {
-        sort: { id: -1 },
-        page: currentPage,
-        paginate: 10,
-      },
-      customSearch: {},
-    };
-    dispatch(roleDataCompanyUser(payload));
-  }, [currentPage, dispatch]);
+    if (embedded) return; // Prevent API call if embedded
+
+    // Debounce the API call slightly to ensure state is settled
+    const timer = setTimeout(() => {
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: {
+          ...(fromDate && { fromDate }),
+          ...(toDate && { toDate }),
+        },
+      };
+      
+      dispatch(roleDataCompanyUser(payload));
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [currentPage, dispatch, fromDate, toDate, embedded]);
 
   // Handle click outside modal
   useEffect(() => {

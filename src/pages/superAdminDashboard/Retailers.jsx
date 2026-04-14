@@ -74,13 +74,13 @@ const Retailers = ({
         type: "success",
         isCritical: true
       });
-      
+
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const bothDatesNull = !debouncedFromDate && !debouncedToDate;
       if (!bothDatesSelected && !bothDatesNull) {
         return;
       }
-      
+
       const payload = {
         query: {
           userRole: 5,
@@ -645,287 +645,286 @@ const Retailers = ({
                         key={row.id || index}
                         className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                       >
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.id, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] ">
-                        <button
-                          onClick={() => {
-                            const userId = row.id || row.originalItem?.id;
-                            if (userId) {
-                              // Set role code for ProfileDetails badge
-                              const roleFromRow =
-                                row.userRole ||
-                                row.originalItem?.userRole ||
-                                "R"; // Retailer
-                              dispatch(setSelectedUserRole(roleFromRow));
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.id, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] ">
+                          <button
+                            onClick={() => {
+                              const userId = row.id || row.originalItem?.id;
+                              if (userId) {
+                                // Set role code for ProfileDetails badge
+                                const roleFromRow =
+                                  row.userRole ||
+                                  row.originalItem?.userRole ||
+                                  "R"; // Retailer
+                                dispatch(setSelectedUserRole(roleFromRow));
 
-                              // Use only admin profile details API (same as CreateWhiteLabel)
-                              dispatch(getAdminProfileDetails(userId));
+                                // Use only admin profile details API (same as CreateWhiteLabel)
+                                dispatch(getAdminProfileDetails(userId));
 
-                              setShowProfileDetails(true);
-                            }
-                          }}
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
-                        >
-                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                        </button>
-                      </td>
-
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.userId, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.name, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.userRole, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.mobileNo, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.email, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.parentName, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.parentRole, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.company, "N/A")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {(() => {
-                          const status = row.kycStatus?.toLowerCase();
-                          let className =
-                            "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
-                          if (status === "completed" || status === "full_kyc") {
-                            className += "bg-green-100 text-green-700";
-                          } else if (status === "pending") {
-                            className += "bg-yellow-100 text-yellow-700";
-                          } else {
-                            className += "bg-red-100 text-red-700";
-                          }
-                          return (
-                            <span className={className}>
-                              {safeString(row.kycStatus, "N/A")}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {safeString(row.kycSteps, "0")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row, "mainWallet")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          return (
-                            <button
-                              onClick={() => {
-                                if (userId) {
-                                  dispatch(checkAdminAepsStatus(userId));
-                                }
-                              }}
-                              disabled={row.aepsOnboardingStatus === true}
-                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
-                                row.aepsOnboardingStatus === true
-                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
-                                  : "hover:bg-indigo-50"
-                              }`}
-                            >
-                              Check Status
-                            </button>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row, "apes1Wallet")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row, "apes2Wallet")}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                            ? "bg-green-600"
-                            : "bg-red-600"
-                            }`}
-                        >
-                          {safeString(row.status, "Active")}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        <button
-                          onClick={() => {
-                            const userId = row.id || row.originalItem?.id;
-                            if (userId) {
-                              setSelectedUserId(userId);
-                              setIsKycModalLoading(true);
-                              dispatch(kycDataAction(userId));
-                              setShowKycModal(true);
-                            }
-                          }}
-                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
-                        >
-                          KYC Details
-                        </button>
-                      </td>
-                      {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          const isActive =
-                            row.status?.toLowerCase() === "active";
-
-                          return (
-                            <button
-                              onClick={() => {
-                                if (userId) {
-                                  // Handle both cases: active → inactive and inactive → active
-                                  if (isActive) {
-                                    // Toggling from active to inactive (OFF)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    // Toggling from inactive to active (ON)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
-
-                                  // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 6,
-                                      },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
-                                    };
-                                    dispatch(useListAction(payload));
-                                  }, 500);
-                                }
-                              }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
-                                }`}
-                              role="switch"
-                              aria-checked={isActive}
-                            >
-                              <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
-                                  }`}
-                              />
-                            </button>
-                          );
-                        })()}
-                      </td>
-                      {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          // Check multiple possible formats for lock status
-                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
-                          const lockValue =
-                            row?.lock !== undefined && row?.lock !== null
-                              ? row.lock
-                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
-                                ? row.originalItem.lock
-                                : row?.isLocked !== undefined && row?.isLocked !== null
-                                  ? row.isLocked
-                                  : row?.lockStatus;
-                          // More robust check for lock status
-                          const isLocked =
-                            lockValue !== undefined &&
-                            lockValue !== null &&
-                            (lockValue === true ||
-                              lockValue === "true" ||
-                              lockValue === 1 ||
-                              String(lockValue).toLowerCase() === "true");
-
-                          return (
-                            <button
-                              onClick={() => {
-                                // Only trigger API when button is in "Locked" state
-                                if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  // The useEffect hook will automatically refresh the table
-                                  // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
-                                }
-                              }}
-                              disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                                }`}
-                              title={
-                                isLocked
-                                  ? "Click to enable access for this account"
-                                  : "Account access is enabled"
+                                setShowProfileDetails(true);
                               }
-                            >
-                              {isLocked ? "Enable Access" : "Access Enabled"}
-                            </button>
-                          );
-                        })()}
-                      </td>
-                      {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          return (
-                            <button
-                              onClick={() => {
-                                if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                            }}
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                          >
+                            <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                          </button>
+                        </td>
+
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.userId, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.name, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.userRole, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.mobileNo, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.email, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.parentName, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.parentRole, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {safeString(row.company, "N/A")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {(() => {
+                            const status = row.kycStatus?.toLowerCase();
+                            let className =
+                              "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
+                            if (status === "completed" || status === "full_kyc") {
+                              className += "bg-green-100 text-green-700";
+                            } else if (status === "pending") {
+                              className += "bg-yellow-100 text-yellow-700";
+                            } else {
+                              className += "bg-red-100 text-red-700";
+                            }
+                            return (
+                              <span className={className}>
+                                {safeString(row.kycStatus, "N/A")}
+                              </span>
+                            );
+                          })()}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                          {safeString(row.kycSteps, "0")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                          {getWalletValue(row, "mainWallet")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                          {(() => {
+                            const userId = row.id || row.originalItem?.id;
+                            return (
+                              <button
+                                onClick={() => {
+                                  if (userId) {
+                                    dispatch(checkAdminAepsStatus(userId));
+                                  }
+                                }}
+                                disabled={row.aepsOnboardingStatus === true}
+                                className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
+                                    ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                    : "hover:bg-indigo-50"
+                                  }`}
+                              >
+                                Check Status
+                              </button>
+                            );
+                          })()}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                          {getWalletValue(row, "apes1Wallet")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                          {getWalletValue(row, "apes2Wallet")}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          <span
+                            className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
+                              ? "bg-green-600"
+                              : "bg-red-600"
+                              }`}
+                          >
+                            {safeString(row.status, "Active")}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          <button
+                            onClick={() => {
+                              const userId = row.id || row.originalItem?.id;
+                              if (userId) {
+                                setSelectedUserId(userId);
+                                setIsKycModalLoading(true);
+                                dispatch(kycDataAction(userId));
+                                setShowKycModal(true);
+                              }
+                            }}
+                            className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
+                          >
+                            KYC Details
+                          </button>
+                        </td>
+                        {/* Action - Toggle Button */}
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {(() => {
+                            const userId = row.id || row.originalItem?.id;
+                            const isActive =
+                              row.status?.toLowerCase() === "active";
+
+                            return (
+                              <button
+                                onClick={() => {
+                                  if (userId) {
+                                    // Handle both cases: active → inactive and inactive → active
+                                    if (isActive) {
+                                      // Toggling from active to inactive (OFF)
+                                      dispatch(
+                                        kycStatusCheck(userId, {
+                                          isActive: "false",
+                                        }),
+                                      );
+                                    } else {
+                                      // Toggling from inactive to active (ON)
+                                      dispatch(
+                                        kycStatusCheck(userId, {
+                                          isActive: "true",
+                                        }),
+                                      );
+                                    }
+
+                                    // Immediately refresh table data after dispatching
+                                    setTimeout(() => {
+                                      const payload = {
+                                        query: {
+                                          userRole: 5, // Retailer role
+                                        },
+                                        options: {
+                                          sort: { id: -1 },
+                                          page: currentPage,
+                                          paginate: 6,
+                                        },
+                                        customSearch: {
+                                          mobileNo: debouncedSearchTerm.trim(),
+                                          name: debouncedSearchTerm.trim(),
+                                        },
+                                      };
+                                      dispatch(useListAction(payload));
+                                    }, 500);
+                                  }
+                                }}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                  }`}
+                                role="switch"
+                                aria-checked={isActive}
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+                                    }`}
+                                />
+                              </button>
+                            );
+                          })()}
+                        </td>
+                        {/* Lock Status - Colored Button */}
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {(() => {
+                            const userId = row.id || row.originalItem?.id;
+                            // Check multiple possible formats for lock status
+                            // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
+                            const lockValue =
+                              row?.lock !== undefined && row?.lock !== null
+                                ? row.lock
+                                : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                                  ? row.originalItem.lock
+                                  : row?.isLocked !== undefined && row?.isLocked !== null
+                                    ? row.isLocked
+                                    : row?.lockStatus;
+                            // More robust check for lock status
+                            const isLocked =
+                              lockValue !== undefined &&
+                              lockValue !== null &&
+                              (lockValue === true ||
+                                lockValue === "true" ||
+                                lockValue === 1 ||
+                                String(lockValue).toLowerCase() === "true");
+
+                            return (
+                              <button
+                                onClick={() => {
+                                  // Only trigger API when button is in "Locked" state
+                                  if (userId && isLocked) {
+                                    // Dispatch unlock action with the row ID
+                                    // The useEffect hook will automatically refresh the table
+                                    // when kycLockStatusResponse status becomes "SUCCESS"
+                                    dispatch(kycUnlock(userId));
+                                  }
+                                }}
+                                disabled={!isLocked}
+                                className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
+                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                  }`}
+                                title={
+                                  isLocked
+                                    ? "Click to enable access for this account"
+                                    : "Account access is enabled"
                                 }
-                              }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
-                            >
-                              Re-send
-                            </button>
-                          );
-                        })()}
-                      </td>
-                      {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          return (
-                            <button
-                              onClick={() => {
-                                if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
-                                }
-                              }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
-                            >
-                              Send
-                            </button>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {formatDate(row.date)}
-                      </td>
-                    </tr>
+                              >
+                                {isLocked ? "Enable Access" : "Access Enabled"}
+                              </button>
+                            );
+                          })()}
+                        </td>
+                        {/* Onboarding - Re-send Button */}
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {(() => {
+                            const userId = row.id || row.originalItem?.id;
+                            return (
+                              <button
+                                onClick={() => {
+                                  if (userId) {
+                                    dispatch(rescendOnboarding(userId));
+                                  }
+                                }}
+                                className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                              >
+                                Re-send
+                              </button>
+                            );
+                          })()}
+                        </td>
+                        {/* Deactivation - Send Button */}
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {(() => {
+                            const userId = row.id || row.originalItem?.id;
+                            return (
+                              <button
+                                onClick={() => {
+                                  if (userId) {
+                                    dispatch(deActiveOnboarding(userId));
+                                  }
+                                }}
+                                className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
+                              >
+                                Send
+                              </button>
+                            );
+                          })()}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                          {formatDate(row.date)}
+                        </td>
+                      </tr>
                     );
                   })
                 )}
@@ -1216,11 +1215,10 @@ const Retailers = ({
                                 }
                               }}
                               disabled={row.aepsOnboardingStatus === true}
-                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
-                                row.aepsOnboardingStatus === true
+                              className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
                                   ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
                                   : "hover:bg-indigo-50"
-                              }`}
+                                }`}
                             >
                               Check Status
                             </button>
