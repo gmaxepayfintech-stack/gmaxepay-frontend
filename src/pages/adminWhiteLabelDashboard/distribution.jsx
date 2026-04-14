@@ -137,15 +137,17 @@ const Distribution = ({
     return propTableData;
   }, [propTableData]);
 
-  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  // In embedded mode, strictly use the prop data passed from the parent.
+  // Otherwise, use Redux data if available, falling back to props.
   const allTableData = useMemo(() => {
-    // If Redux has data (from API calls), use it
+    if (embedded) {
+      return flattenedPropData;
+    }
     if (Array.isArray(responseForTable) && responseForTable.length > 0) {
       return responseForTable;
     }
-    // Otherwise use flattened prop data
     return flattenedPropData;
-  }, [responseForTable, flattenedPropData]);
+  }, [embedded, responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
