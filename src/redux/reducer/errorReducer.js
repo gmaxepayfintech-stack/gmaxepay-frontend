@@ -135,6 +135,7 @@ const errorReducer = (state = initialState, action) => {
     case COMPANY_TXN_REPORT_FAILURE:
     case ADMIN_TXN_REPORT_FAILURE:
     case USER_TXN_REPORT_FAILURE:
+    case AEPS_STATUS_CHECK_FAILURE:
       return {
         ...state,
         loading: false,

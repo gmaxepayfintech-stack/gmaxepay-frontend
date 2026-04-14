@@ -91,7 +91,7 @@ const DistrubtionOnboarding = ({
         customSearch: {},
       };
       dispatch(useListAction(payload));
-    } else if (adminAepsStatusResponse?.status === "FAILURE") {
+    } else if (adminAepsStatusResponse?.status === "FAILURE" || adminAepsStatusResponse?.status === "Error") {
       showNotification({
         message: adminAepsStatusResponse?.message || "Failed to update AEPS status",
         type: "error",
