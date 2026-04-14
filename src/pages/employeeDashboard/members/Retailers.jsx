@@ -116,7 +116,7 @@ const Retailers = ({
         };
         dispatch(employeeUseList(payload));
       }
-    } else if (employeeAepsStatus?.status === "FAILURE") {
+    } else if (employeeAepsStatus?.status === "FAILURE" || employeeAepsStatus?.status === "Error") {
       showNotification({
         message: employeeAepsStatus.message || "Failed to check AEPS status",
         type: "error",
