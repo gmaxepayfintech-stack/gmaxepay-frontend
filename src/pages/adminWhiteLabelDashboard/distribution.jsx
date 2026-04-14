@@ -500,7 +500,7 @@ const Distribution = ({
                         {row.parentRole || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
-                        {row.companyName || "N/A"}
+                        {row.companyName || row.company || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
