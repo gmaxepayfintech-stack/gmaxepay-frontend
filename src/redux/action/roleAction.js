@@ -205,14 +205,12 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
         );
         const { data: roleDataComp, total, paginator, status, message } = response?.data ?? {};
 
-        if (status === "SUCCESS") {
-            //console.log('✅ SUCCESS - Dispatching ROLEDATA_COMPANY_USER_SUCCESS');
+        if (status === "SUCCESS" || (Array.isArray(roleDataComp) && roleDataComp.length > 0)) {
             dispatch({
                 type: ROLEDATA_COMPANY_USER_SUCCESS,
                 payload: { roleDataComp, total, paginator, status, message },
             });
         } else {
-            console.log('❌ FAILURE - Dispatching ROLEDATA_COMPANY_USER_FAILURE');
             dispatch({
                 type: ROLEDATA_COMPANY_USER_FAILURE,
                 payload: {
@@ -250,7 +248,7 @@ export const roleDataMasterDistributorUser = (values) => async (dispatch) => {
         );
 
         const { data: roleDataMD, status, message } = response?.data ?? {};
-        if (status === "SUCCESS") {
+        if (status === "SUCCESS" || (Array.isArray(roleDataMD) && roleDataMD.length > 0)) {
             dispatch({
                 type: ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS,
                 payload: { roleDataMD, status, message },
