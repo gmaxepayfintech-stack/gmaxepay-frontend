@@ -169,20 +169,15 @@ const RetailerOnboarding = ({
       ? reduxTableData
       : allTableData;
 
-  const finalTotalCount = embedded 
-    ? finalTableData.length 
-    : (totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length);
+  // Use Redux total count even if embedded
+  const finalTotalCount = totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
   
-  // Calculate total pages based on total count (6 records per page)
-  const finalTotalPages = embedded 
-    ? (Math.ceil(finalTableData.length / 6) || 1)
-    : serverPageCount || (finalTotalCount > 0 ? Math.ceil(finalTotalCount / 6) : 0);
+  // Calculate total pages based on server total or local data length
+  const finalTotalPages = serverPageCount || (finalTotalCount > 0 ? Math.ceil(finalTotalCount / 6) : 1);
 
-  // If embedded, we have all data locally so we slice it.
-  // If not embedded, the API already paginated it for us!
-  const displayTableData = embedded
-    ? finalTableData.slice((currentPage - 1) * 6, currentPage * 6)
-    : finalTableData;
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const displayTableData = embedded ? finalTableData : finalTableData;
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {

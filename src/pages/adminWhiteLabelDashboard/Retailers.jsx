@@ -156,15 +156,11 @@ const Retailers = ({
 
   const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
 
-  // Use current data length if embedded, else use Redux total count if available
-  const totalCount = embedded 
-    ? allTableData.length 
-    : (totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length);
+  // Use Redux total count if available, even if embedded
+  const totalCount = totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (6 records per page)
-  const totalPages = embedded 
-    ? (Math.ceil(allTableData.length / 6) || 1)
-    : serverPageCount || (totalCount > 0 ? Math.ceil(totalCount / 6) : 0);
+  // Calculate total pages based on server-side count or total Count
+  const totalPages = serverPageCount || (totalCount > 0 ? Math.ceil(totalCount / 6) : 1);
 
   // If embedded, we have all data locally so we slice it.
   // If not embedded, the API already paginated it for us!
