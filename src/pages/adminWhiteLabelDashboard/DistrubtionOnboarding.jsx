@@ -38,6 +38,8 @@ import { checkCompanyAepsStatus } from "../../redux/action/whiteLabelAction";
 const DistrubtionOnboarding = ({
   embedded = false,
   tableData: propTableData = [],
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const { 
@@ -167,9 +169,24 @@ const DistrubtionOnboarding = ({
 
   // If embedded, we have all data locally so we slice it.
   // If not embedded, the API already paginated it for us!
-  const tableData = embedded
-    ? allTableData.slice((currentPage - 1) * 6, currentPage * 6)
-    : allTableData;
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const tableData = embedded ? allTableData : allTableData;
+
+  // Synchronization logic for embedded mode
+  useEffect(() => {
+    if (embedded && activePage !== undefined && activePage !== currentPage) {
+      setCurrentPage(activePage);
+    }
+  }, [embedded, activePage, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (embedded && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -704,7 +721,7 @@ const DistrubtionOnboarding = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
@@ -716,7 +733,7 @@ const DistrubtionOnboarding = ({
               )}
               <button
                 onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
@@ -1060,7 +1077,7 @@ const DistrubtionOnboarding = ({
             ))}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages

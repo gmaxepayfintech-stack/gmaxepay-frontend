@@ -34,6 +34,8 @@ const Retailers = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -168,9 +170,24 @@ const Retailers = ({
 
   // If embedded, we have all data locally so we slice it.
   // If not embedded, the API already paginated it for us!
-  const tableData = embedded
-    ? allTableData.slice((currentPage - 1) * 6, currentPage * 6)
-    : allTableData;
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const tableData = embedded ? allTableData : allTableData;
+
+  // Synchronization logic for embedded mode
+  useEffect(() => {
+    if (embedded && activePage !== undefined && activePage !== currentPage) {
+      setCurrentPage(activePage);
+    }
+  }, [embedded, activePage, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (embedded && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {
@@ -959,7 +976,7 @@ const Retailers = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
                 ? "text-gray-400 cursor-not-allowed bg-gray-100"
@@ -973,7 +990,7 @@ const Retailers = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                       ? "bg-green-600 text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -990,7 +1007,7 @@ const Retailers = ({
             )}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
@@ -1437,7 +1454,7 @@ const Retailers = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
                 ? "text-gray-400 cursor-not-allowed bg-gray-100"
@@ -1451,7 +1468,7 @@ const Retailers = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                       ? "bg-green-600 text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -1468,7 +1485,7 @@ const Retailers = ({
             )}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0

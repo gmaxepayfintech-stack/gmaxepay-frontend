@@ -30,6 +30,8 @@ import { useNotification } from "../../context/NotificationContext";
 const RetailerOnboarding = ({
   embedded = false,
   tableData: propTableData = [],
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -904,7 +906,7 @@ const RetailerOnboarding = ({
           {/* Pagination */}
           <div className="flex items-center justify-center mt-auto pt-6 pb-4">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || finalTotalPages === 0}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1 || finalTotalPages === 0
                 ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
@@ -918,7 +920,7 @@ const RetailerOnboarding = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
@@ -1287,7 +1289,7 @@ const RetailerOnboarding = ({
           {/* Pagination */}
           <div className="flex items-center justify-center mt-auto pt-6 pb-4">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || finalTotalPages === 0}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1 || finalTotalPages === 0
                 ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
@@ -1301,7 +1303,7 @@ const RetailerOnboarding = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"

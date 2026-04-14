@@ -206,11 +206,15 @@ const CreateCompanyUser = () => {
     }
 
     const payload = {
-      query: query,
+      query: {
+        ...query,
+        ...(fromDate && { fromDate }),
+        ...(toDate && { toDate }),
+      },
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 10,
+        paginate: 6,
       },
       customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
     };
@@ -242,11 +246,15 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: query,
+        query: {
+          ...query,
+          ...(fromDate && { fromDate }),
+          ...(toDate && { toDate }),
+        },
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
@@ -276,11 +284,15 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: query,
+        query: {
+          ...query,
+          ...(fromDate && { fromDate }),
+          ...(toDate && { toDate }),
+        },
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
@@ -832,16 +844,30 @@ const CreateCompanyUser = () => {
               <MasterDistributionOnboarding
                 embedded={true}
                 tableData={apiData}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
           if (showOnboardingList && activeNav === "Distributor") {
             return (
-              <DistributionOnboarding embedded={true} tableData={apiData} />
+              <DistributionOnboarding
+                embedded={true}
+                tableData={apiData}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
+              />
             );
           }
           if (showOnboardingList && activeNav === "Retailers") {
-            return <RetailerOnboarding embedded={true} tableData={apiData} />;
+            return (
+              <RetailerOnboarding
+                embedded={true}
+                tableData={apiData}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            );
           }
           // if (showOnboardingList && activeNav === "Whitelabel") {
           //   return <AdminWhitelabelList embedded={true} tableData={apiData} />;
@@ -855,6 +881,8 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 isLoading={isTableLoading}
                 onProfileDetailsShow={(show) => setHideNavigation(show)}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
@@ -864,6 +892,8 @@ const CreateCompanyUser = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
@@ -873,6 +903,8 @@ const CreateCompanyUser = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
@@ -1200,7 +1232,7 @@ const CreateCompanyUser = () => {
                                           options: {
                                             sort: { id: -1 },
                                             page: currentPage,
-                                            paginate: 10,
+                                            paginate: 6,
                                           },
                                           customSearch:
                                             Object.keys(customSearch).length > 0
