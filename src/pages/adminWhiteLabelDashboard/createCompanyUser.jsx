@@ -34,7 +34,6 @@ import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { motion } from "framer-motion";
 import { roleDataCompanyUser } from "../../redux/action/roleAction";
-// Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
 
 const generateTableData = (type, count = 12) => {

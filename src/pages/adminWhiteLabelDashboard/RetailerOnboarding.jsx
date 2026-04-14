@@ -94,13 +94,7 @@ const RetailerOnboarding = ({
     return propTableData;
   }, [propTableData]);
 
-  // Get total count from Redux state (if available) or use current data length
-  const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
-  });
+
 
 
   // Debounce search term
@@ -141,7 +135,7 @@ const RetailerOnboarding = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 5,
+        paginate: 6,
       },
       customSearch: debouncedSearchTerm.trim()
         ? {
@@ -153,31 +147,42 @@ const RetailerOnboarding = ({
     dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, embedded, dispatch]);
 
+  // Get total count from Redux state (if available) or use current data length
+  const totalCountFromRedux = useSelector((state) => {
+    const response = state?.roles?.roleDataComp;
+    return response?.totalCount || response?.total || 0;
+  });
+
+  const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
+
   // Use Redux data when available, otherwise use prop data
-  // Flatten the nested structure: data is array of companies, each with users array
   const reduxTableData = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
   });
+
   // Prefer Redux data if available (from API calls) and NOT embedded, otherwise fall back to prop data
   const finalTableData =
     !embedded && Array.isArray(reduxTableData) && reduxTableData.length > 0
       ? reduxTableData
       : allTableData;
+
   const finalTotalCount = embedded 
     ? finalTableData.length 
     : (totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length);
   
-  const isFullPage = finalTableData.length >= 5;
+  // Calculate total pages based on total count (6 records per page)
   const finalTotalPages = embedded 
-    ? (Math.ceil(finalTableData.length / 5) || 1)
-    : (currentPage + (isFullPage ? 1 : 0));
+    ? (Math.ceil(finalTableData.length / 6) || 1)
+    : serverPageCount || (finalTotalCount > 0 ? Math.ceil(finalTotalCount / 6) : 0);
 
-  const finalStartIndex = embedded ? (currentPage - 1) * 5 : 0;
-  const finalEndIndex = finalStartIndex + 5;
-  const displayTableData = finalTableData.slice(finalStartIndex, finalEndIndex);
+  // If embedded, we have all data locally so we slice it.
+  // If not embedded, the API already paginated it for us!
+  const displayTableData = embedded
+    ? finalTableData.slice((currentPage - 1) * 6, currentPage * 6)
+    : finalTableData;
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
