@@ -203,7 +203,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       if (apiType === "aeps2") {
         customSearch.transactionStatus = camelStatus;
       } else {
-        customSearch.paymentStatus = camelStatus;
+        customSearch.transactionStatus = camelStatus;
       }
     }
 
