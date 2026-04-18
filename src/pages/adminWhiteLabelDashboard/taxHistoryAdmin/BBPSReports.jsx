@@ -41,17 +41,12 @@ const BBPSReports = ({ onBack, type }) => {
 
         return dataArray.map((item) => {
             // Format date from API
-            let formattedDate = "N/A";
-            if (item.createdAt) {
-                const date = new Date(item.createdAt);
-                formattedDate = date
-                    .toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                    })
-                    .replace(/\//g, "-");
-            }
+            const formattedDateTime = (() => {
+                const dateObj = new Date(item.createdAt || new Date());
+                const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+                const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                return `${datePart} | ${timePart}`;
+            })();
 
             // Format amounts with currency symbol
             const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
@@ -68,7 +63,7 @@ const BBPSReports = ({ onBack, type }) => {
                 amount: formattedAmount,
                 comm: formattedComm,
                 paymentStatus: item.paymentStatus || "N/A",
-                createdAt: formattedDate,
+                formattedDateTime: formattedDateTime,
                 userName: item.user?.name || item.userDetails?.name || "N/A",
                 originalItem: item,
             };
@@ -190,7 +185,7 @@ const BBPSReports = ({ onBack, type }) => {
                 "Amount": row.amount,
                 "Comm": row.comm,
                 "Status": row.paymentStatus,
-                "Date": row.createdAt,
+                "Date & Time": row.formattedDateTime,
             };
         });
 
@@ -382,7 +377,7 @@ const BBPSReports = ({ onBack, type }) => {
                                     Status
                                 </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                                    Date
+                                    Date & Time
                                 </th>
                             </tr>
                         </thead>
@@ -469,7 +464,7 @@ const BBPSReports = ({ onBack, type }) => {
 
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                                     <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                                                        {transaction.createdAt}
+                                                        {transaction.formattedDateTime}
                                                     </span>
                                                 </td>
                                             </tr>
