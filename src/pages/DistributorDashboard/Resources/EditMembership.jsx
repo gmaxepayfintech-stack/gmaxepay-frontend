@@ -396,7 +396,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                       const amtType = commission[`${fieldPrefix}Type`] || "";
 
                       return (
-                        <div className="flex flex-col items-center gap-1 text-xs">
+                        <div className="flex flex-col items-center gap-1 text-sm">
                           <div className="flex items-center justify-center gap-2">
                             <input
                               type="text"
@@ -408,7 +408,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                   e.target.value,
                                 )
                               }
-                              className="w-28 px-3 py-1.5 border rounded-md text-xs"
+                              className="w-28 px-3 py-1.5 border rounded-md text-sm"
                             />
                           </div>
                           <div className="flex gap-3">
@@ -431,7 +431,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                         opt.value,
                                       )
                                     }
-                                    className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${isActive
+                                    className={`min-w-[24px] px-2 py-0.5 text-[12px] font-[Gilroy-Medium] uppercase ${isActive
                                         ? "bg-[#000000] text-white"
                                         : "bg-white text-[#121216]"
                                       } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
@@ -461,7 +461,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                         opt.value,
                                       )
                                     }
-                                    className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${isActive
+                                    className={`min-w-[24px] px-2 py-0.5 text-[12px] font-[Gilroy-Medium] uppercase ${isActive
                                         ? "bg-[#000000] text-white"
                                         : "bg-white text-[#121216]"
                                       } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
@@ -479,26 +479,26 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     return (
                       <div key={commission.id || index}>
                         <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50 items-center">
-                          <div className="flex items-center justify-center text-xs text-[#121216]">
+                          <div className="flex items-center justify-center text-sm text-[#121216]">
                             {commission.operator}
                           </div>
 
                           <div className="flex items-center justify-center">
-                            <span className="inline-flex px-2 py-1 rounded-md text-xs bg-[#4F7EF4] text-white w-fit">
+                            <span className="inline-flex px-2 py-1 rounded-md text-sm bg-[#4F7EF4] text-white w-fit">
                               {commission.operatorType}
                             </span>
                           </div>
 
-                          <div className="flex flex-col items-center gap-1 text-xs">
+                          <div className="flex flex-col items-center gap-1 text-sm">
                             <div className="flex items-center gap-1.5">
                               <span>{commission.myDeal}</span>
                               {commission.myDealCommType && (
-                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[Gilroy-Medium] uppercase tracking-wide text-[#039155]">
+                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[12px] font-[Gilroy-Medium] uppercase tracking-wide text-[#039155]">
                                   {commission.myDealCommType}
                                 </span>
                               )}
                               {commission.myDealType && (
-                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[Gilroy-Medium] uppercase tracking-wide text-[#4F7EF4]">
+                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[12px] font-[Gilroy-Medium] uppercase tracking-wide text-[#4F7EF4]">
                                   {(commission.myDealType || "").toLowerCase() === "fix" ? "flat" :
                                     (commission.myDealType || "").toLowerCase() === "per" ? "per" :
                                       commission.myDealType}
@@ -572,7 +572,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Scheme Name - Left */}
           <div>
-            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
+            <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -580,7 +580,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
               placeholder="Enter Scheme Name"
               value={schemeName}
               onChange={(e) => setSchemeName(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none text-xs sm:text-sm text-[#1B1717]/80"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-sm text-[#1B1717]/80"
             />
           </div>
 
@@ -589,7 +589,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
           {/* Scheme Mode - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
+            <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Mode
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
@@ -600,10 +600,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
+                <span className="text-sm font-[Gilroy-Medium] block text-[#1B1717]/80">
                   {schemeMode}
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
+                <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
                   {schemeMode === "Global"
                     ? "Available To All Users Worldwide"
                     : "Restricted To Specific Users"}
@@ -614,7 +614,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
           {/* Scheme Type - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
+            <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Type
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
@@ -625,10 +625,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
+                <span className="text-sm font-[Gilroy-Medium] block text-[#1B1717]/80">
                   {schemeType}
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
+                <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
                   {schemeType === "Free"
                     ? "No Cost Membership"
                     : "Restricted Access With Invitation Only"}
