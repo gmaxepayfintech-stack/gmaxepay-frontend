@@ -140,8 +140,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
 
             if (item.createdAt) {
                 const date = new Date(item.createdAt);
-                rawDateObj = date;
-                formattedDate = date
+                const datePart = date
                     .toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "2-digit",
@@ -149,10 +148,13 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
                     })
                     .replaceAll("/", "-");
 
-                formattedTime = date.toLocaleTimeString("en-GB", {
+                const timePart = date.toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
+                    hour12: true,
                 });
+
+                formattedDate = `${datePart} | ${timePart}`;
             }
 
             const formattedAmount = item.amount !== undefined ? `₹${item.amount}` : "₹0";
@@ -160,7 +162,6 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
             return {
                 id: item.id,
                 createdAt: formattedDate,
-                createdAtTime: formattedTime,
                 txnUser: item.txnUser || "N/A",
                 userRole: item.userRole || "N/A",
                 deviceType: item.deviceType || "N/A",
@@ -281,7 +282,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
 
         const excelData = filteredTransactions.map((row, index) => ({
             "SR No": index + 1,
-            "Created At": `${row.createdAt} ${row.createdAtTime}`,
+            "Date & Time": row.createdAt,
             "TXN User": row.txnUser,
             "User Role": row.userRole,
             "Device Type": row.deviceType,
@@ -493,7 +494,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
                                     SR.No
                                 </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                                    Created At
+                                    Date & Time
                                 </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                                     TXN User

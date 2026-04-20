@@ -731,7 +731,7 @@ const SchemeMaster = () => {
                           {scheme.tags.map((tag, index) => (
                             <span
                               key={index}
-                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[Gilroy-Regular] ${tag.color}`}
+                              className={`px-2 py-0.5 rounded-2xl text-[12px] font-[Gilroy-Regular] ${tag.color}`}
                             >
                               {tag.label}
                             </span>

@@ -63,13 +63,19 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       let formattedDate = "N/A";
       if (item.createdAt) {
         const date = new Date(item.createdAt);
-        formattedDate = date
+        const datePart = date
           .toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit",
           })
           .replaceAll("/", "-");
+        const timePart = date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        formattedDate = `${datePart} | ${timePart}`;
       }
 
       const isAeps1New = !!item.transactionStatus;
@@ -203,7 +209,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       if (apiType === "aeps2") {
         customSearch.transactionStatus = camelStatus;
       } else {
-        customSearch.paymentStatus = camelStatus;
+        customSearch.transactionStatus = camelStatus;
       }
     }
 

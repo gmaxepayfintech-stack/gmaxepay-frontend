@@ -60,13 +60,14 @@ const CMSHistory = ({ onBack }) => {
             let formattedDate = "N/A", formattedTime = "N/A";
             if (item.createdAt) {
                 const date = new Date(item.createdAt);
-                formattedDate = date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
-                formattedTime = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+                const datePart = date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+                const timePart = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                formattedDate = `${datePart} | ${timePart}`;
             }
             const rawStatus = item.status || "Pending";
             const status = rawStatus === "SUCCESS" ? "Success" : rawStatus === "FAILED" || rawStatus === "FAILURE" ? "Failed" : rawStatus === "PENDING" ? "Pending" : rawStatus;
             return {
-                id: item.id || index, createdAt: formattedDate, createdAtTime: formattedTime,
+                id: item.id || index, createdAt: formattedDate,
                 txnUser: item.user?.name || "N/A", userId: item.user?.userId || "N/A",
                 mobileNo: item.mobileNo || item.user?.mobileNo || "N/A", event: item.event || "N/A",
                 billerName: item.billerName || "N/A", transactionId: item.referenceId || "N/A",
@@ -84,7 +85,7 @@ const CMSHistory = ({ onBack }) => {
     const handleExportToExcel = () => {
         if (!transactions || transactions.length === 0) { alert("No data available to export"); return; }
         const excelData = transactions.map((row, index) => ({
-            "SR No": startIndex + index + 1, "Date": `${row.createdAt} ${row.createdAtTime}`,
+            "SR No": startIndex + index + 1, "Date & Time": row.createdAt,
             "TXN User": row.txnUser, "User ID": row.userId, "Mobile No": row.mobileNo,
             "Event": row.event, "Biller Name": row.billerName,
             "TXN ID": row.transactionId, "UTR / Ackno": row.refNo,
@@ -167,7 +168,7 @@ const CMSHistory = ({ onBack }) => {
                                 {transactions.length > 0 ? transactions.map((transaction, index) => (
                                     <tr key={transaction.id} className={`transition-colors ${index % 2 === 0 ? "bg-[#039155]/5 hover:bg-[#E8F5ED]" : "bg-white hover:bg-gray-50"}`}>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{startIndex + index + 1}</td>
-                                        <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap"><div className="flex flex-col"><span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.createdAt}</span><span className="text-xs text-[#1B1717]/50">{transaction.createdAtTime}</span></div></td>
+                                        <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.createdAt}</td>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap"><div className="flex flex-col"><span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.txnUser}</span><span className="text-xs text-[#1B1717]/50">{transaction.userId}</span></div></td>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.mobileNo}</td>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap"><span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-[Gilroy-Medium] ${transaction.event === "CMS_POSTING" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}>{transaction.event}</span></td>

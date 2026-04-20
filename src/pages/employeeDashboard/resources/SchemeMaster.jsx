@@ -635,7 +635,7 @@ const SchemeMaster = () => {
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-2xl
-            text-xs sm:text-sm transition whitespace-nowrap ${activeFilter === filter
+            text-sm sm:text-sm transition whitespace-nowrap ${activeFilter === filter
                     ? "bg-[#039155] text-white shadow-md font-[Gilroy-Semibold]"
                     : "bg-white text-[#1B1717]/80 border border-[#1B1717]/80 hover:bg-gray-50 font-[Gilroy-Medium]"
                   }`}
@@ -692,7 +692,7 @@ const SchemeMaster = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xs sm:text-sm md:text-base font-[Gilroy-Semibold] text-[#1B1717] truncate">
+                        <h3 className="text-sm sm:text-sm md:text-base font-[Gilroy-Semibold] text-[#1B1717] truncate">
                           {scheme.name}
                         </h3>
 
@@ -700,7 +700,7 @@ const SchemeMaster = () => {
                           {scheme.tags.map((tag, index) => (
                             <span
                               key={index}
-                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[Gilroy-Regular] ${tag.color}`}
+                              className={`px-2 py-0.5 rounded-2xl text-[12px] font-[Gilroy-Regular] ${tag.color}`}
                             >
                               {tag.label}
                             </span>
@@ -767,7 +767,7 @@ const SchemeMaster = () => {
                         <div
                           className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? "bg-white" : "bg-white"}`}
                         />
-                        <span className="text-xs font-[Gilroy-Medium] text-white whitespace-nowrap">
+                        <span className="text-sm font-[Gilroy-Medium] text-white whitespace-nowrap">
                           {scheme.status}
                         </span>
                       </div>
@@ -776,7 +776,7 @@ const SchemeMaster = () => {
 
                   {/* Scheme Details */}
                   <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
-                    <div className="flex justify-between text-xs sm:text-sm">
+                    <div className="flex justify-between text-sm sm:text-sm">
                       <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Scheme Id
                       </span>
@@ -910,7 +910,7 @@ const SchemeMaster = () => {
                 </h2>
 
                 <p
-                  className="mt-1 text-[12px] xs:text-xs sm:text-sm 
+                  className="mt-1 text-[12px] xs:text-sm sm:text-sm 
                         text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Configure Your New Membership Program <br />
@@ -931,7 +931,7 @@ const SchemeMaster = () => {
                        w-4 h-4 sm:w-6 sm:h-6
                        flex items-center justify-center"
                 >
-                  <span className="text-[10px] sm:text-xs leading-none">X</span>
+                  <span className="text-[12px] sm:text-sm leading-none">X</span>
                 </div>
               </button> */}
               <button
@@ -955,7 +955,7 @@ const SchemeMaster = () => {
                   Basic Information
                 </h3>
 
-                <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
+                <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
                   Scheme Name <span>*</span>
                 </label>
 
@@ -981,7 +981,7 @@ const SchemeMaster = () => {
 
                 {/* Scheme Mode */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-[Gilroy-Medium] mb-2">
+                  <label className="block text-sm sm:text-sm font-[Gilroy-Medium] mb-2">
                     Scheme Mode *
                   </label>
 
@@ -1024,7 +1024,7 @@ const SchemeMaster = () => {
                         </div>
 
                         <div>
-                          <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
+                          <span className="block text-sm sm:text-sm font-[Gilroy-Medium]">
                             {mode}
                           </span>
                           <p className="text-[12px] text-[#1B1717]/70">
@@ -1040,7 +1040,7 @@ const SchemeMaster = () => {
 
                 {/* Scheme Type */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-[Gilroy-Medium] mb-2">
+                  <label className="block text-sm sm:text-sm font-[Gilroy-Medium] mb-2">
                     Scheme Type
                   </label>
 
@@ -1083,7 +1083,7 @@ const SchemeMaster = () => {
                         </div>
 
                         <div>
-                          <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
+                          <span className="block text-sm sm:text-sm font-[Gilroy-Medium]">
                             {type}
                           </span>
                           <p className="text-[12px] text-[#1B1717]/70">
@@ -1100,7 +1100,7 @@ const SchemeMaster = () => {
                 {/* Subscription Amount for Premium */}
                 {formData.schemeType === "Premium" && (
                   <div className="mb-4 sm:mb-5">
-                    <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
+                    <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
                       Subscription Amount <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1126,7 +1126,7 @@ const SchemeMaster = () => {
                 {/* User Selection for Private Mode */}
                 {formData.schemeMode === "Private" && (
                   <div className="mb-4 sm:mb-5">
-                    <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
+                    <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
                       Select Users <span className="text-red-500">*</span>
                     </label>
                     <button
@@ -1167,7 +1167,7 @@ const SchemeMaster = () => {
                       )}
                     </button>
                     {selectedUsersData.length > 0 && (
-                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                      <p className="text-sm text-[#1B1717]/70 mt-1">
                         {selectedUsersData.length} user(s) selected
                       </p>
                     )}
@@ -1244,7 +1244,7 @@ const SchemeMaster = () => {
                 </h2>
 
                 <p
-                  className="mt-1 text-[12px] xs:text-xs sm:text-sm 
+                  className="mt-1 text-[12px] xs:text-sm sm:text-sm 
                         text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Update Your Membership Program <br />
@@ -1276,7 +1276,7 @@ const SchemeMaster = () => {
                   Basic Information
                 </h3>
 
-                <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
+                <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
                   Scheme Name <span>*</span>
                 </label>
 
@@ -1302,7 +1302,7 @@ const SchemeMaster = () => {
 
                 {/* Scheme Mode */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-[Gilroy-Medium] mb-2">
+                  <label className="block text-sm sm:text-sm font-[Gilroy-Medium] mb-2">
                     Scheme Mode *
                   </label>
 
@@ -1345,7 +1345,7 @@ const SchemeMaster = () => {
                         </div>
 
                         <div>
-                          <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
+                          <span className="block text-sm sm:text-sm font-[Gilroy-Medium]">
                             {mode}
                           </span>
                           <p className="text-[12px] text-[#1B1717]/70">
@@ -1361,7 +1361,7 @@ const SchemeMaster = () => {
 
                 {/* Scheme Type */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-[Gilroy-Medium] mb-2">
+                  <label className="block text-sm sm:text-sm font-[Gilroy-Medium] mb-2">
                     Scheme Type
                   </label>
 
@@ -1404,7 +1404,7 @@ const SchemeMaster = () => {
                         </div>
 
                         <div>
-                          <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
+                          <span className="block text-sm sm:text-sm font-[Gilroy-Medium]">
                             {type}
                           </span>
                           <p className="text-[12px] text-[#1B1717]/70">
@@ -1421,7 +1421,7 @@ const SchemeMaster = () => {
                 {/* Subscription Amount for Premium */}
                 {formData.schemeType === "Premium" && (
                   <div className="mb-4 sm:mb-5">
-                    <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
+                    <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
                       Subscription Amount <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1447,7 +1447,7 @@ const SchemeMaster = () => {
                 {/* User Selection for Private Mode */}
                 {formData.schemeMode === "Private" && (
                   <div className="mb-4 sm:mb-5">
-                    <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
+                    <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-1.5">
                       Select Users <span className="text-red-500">*</span>
                     </label>
                     <button
@@ -1488,7 +1488,7 @@ const SchemeMaster = () => {
                       )}
                     </button>
                     {selectedUsersData.length > 0 && (
-                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                      <p className="text-sm text-[#1B1717]/70 mt-1">
                         {selectedUsersData.length} user(s) selected
                       </p>
                     )}
@@ -1561,7 +1561,7 @@ const SchemeMaster = () => {
                   Select Users
                 </h2>
                 <p
-                  className="mt-1 text-[12px] xs:text-xs sm:text-sm 
+                  className="mt-1 text-[12px] xs:text-sm sm:text-sm 
                         text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Choose users who can access this private scheme
@@ -1601,13 +1601,13 @@ const SchemeMaster = () => {
               <div className="flex items-center justify-between">
                 <button
                   onClick={handleSelectAllUsers}
-                  className="text-xs sm:text-sm text-[#039155] font-[Gilroy-Medium] hover:underline"
+                  className="text-sm sm:text-sm text-[#039155] font-[Gilroy-Medium] hover:underline"
                 >
                   {selectedUserIds.length === usersList.length && usersList.length > 0
                     ? "Deselect All"
                     : "Select All"}
                 </button>
-                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
+                <span className="text-sm sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                   {selectedUserIds.length} selected
                 </span>
               </div>
@@ -1656,14 +1656,14 @@ const SchemeMaster = () => {
                           <div className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                             {user.name || "N/A"}
                           </div>
-                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
+                          <div className="text-sm sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                             {user.mobileNo || user.mobile || "N/A"} • {user.email || "N/A"}
                           </div>
-                          <div className="text-xs text-[#1B1717]/70 font-[Gilroy-Regular]">
+                          <div className="text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                             {user.company || "N/A"}
                           </div>
                           {user.userId && (
-                            <div className="text-xs text-[#1B1717]/50 font-[Gilroy-Regular]">
+                            <div className="text-sm text-[#1B1717]/50 font-[Gilroy-Regular]">
                               ID: {user.userId}
                             </div>
                           )}

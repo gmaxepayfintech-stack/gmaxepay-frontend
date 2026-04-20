@@ -158,7 +158,12 @@ const PanReportTwo = ({ onBack }) => {
                 amount: amount,
                 status: normalizedStatus,
                 commission: item.retailerCom || 0,
-                date: item.createdAt || new Date().toISOString(),
+                formattedDateTime: (() => {
+                    const dateObj = new Date(item.createdAt || new Date());
+                    const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+                    const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                    return `${datePart} | ${timePart}`;
+                })(),
                 userId: item.user?.userId || "N/A",
                 circle: "N/A", // Not applicable for PAN service
                 action: item.action || "N/A",
@@ -220,8 +225,7 @@ const PanReportTwo = ({ onBack }) => {
                 "TXID": row.txid,
                 "API Message": row.apiMessage,
                 "Redirect URL": row.redirectUrl,
-                "Date": formatDate(row.date),
-                "Time": formatTime(row.date),
+                "Date & Time": row.formattedDateTime,
             };
         });
 
@@ -497,10 +501,7 @@ const PanReportTwo = ({ onBack }) => {
                                             Redirect URL
                                         </th>
                                         <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                                            Date
-                                        </th>
-                                        <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                                            Time
+                                            Date & Time
                                         </th>
                                     </tr>
                                 </thead>
@@ -586,10 +587,7 @@ const PanReportTwo = ({ onBack }) => {
                                                     )}
                                                 </td>
                                                 <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                                                    {formatDate(transaction.date)}
-                                                </td>
-                                                <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                                                    {formatTime(transaction.date)}
+                                                    {transaction.formattedDateTime}
                                                 </td>
                                             </tr>
                                         )))}

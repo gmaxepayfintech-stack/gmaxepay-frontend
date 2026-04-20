@@ -42,13 +42,19 @@ const PayoutHistory = ({ onBack, type }) => {
       let formattedDate = "N/A";
       if (item.createdAt) {
         const date = new Date(item.createdAt);
-        formattedDate = date
+        const datePart = date
           .toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit",
           })
           .replace(/\//g, "-");
+        const timePart = date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        formattedDate = `${datePart} | ${timePart}`;
       }
 
       // Format amount with currency symbol
