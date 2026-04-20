@@ -63,13 +63,19 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       let formattedDate = "N/A";
       if (item.createdAt) {
         const date = new Date(item.createdAt);
-        formattedDate = date
+        const datePart = date
           .toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit",
           })
           .replaceAll("/", "-");
+        const timePart = date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        formattedDate = `${datePart} | ${timePart}`;
       }
 
       // Determine if this is AEPS 1 response structure from reports
@@ -298,7 +304,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
         "Amount": row.amount,
         "VIA": row.via,
         "Status": row.status,
-        "Created At": row.createdAt,
+        "Date & Time": row.createdAt,
       };
     });
 
@@ -592,7 +598,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   Status
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                  Created At
+                  Date & Time
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Action

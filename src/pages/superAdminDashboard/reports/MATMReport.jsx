@@ -133,34 +133,19 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
         }
 
         return dataArray.map((item, index) => {
-            // Format date from API
-            let formattedDate = "N/A";
-            let formattedTime = "N/A";
-            let rawDateObj = null;
-
-            if (item.createdAt) {
-                const date = new Date(item.createdAt);
-                rawDateObj = date;
-                formattedDate = date
-                    .toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                    })
-                    .replaceAll("/", "-");
-
-                formattedTime = date.toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                });
-            }
+            const formattedDateTime = (() => {
+                if (!item.createdAt) return "N/A";
+                const dateObj = new Date(item.createdAt);
+                const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+                const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                return `${datePart} | ${timePart}`;
+            })();
 
             const formattedAmount = item.amount !== undefined ? `₹${item.amount}` : "₹0";
 
             return {
                 id: item.id,
-                createdAt: formattedDate,
-                createdAtTime: formattedTime,
+                formattedDateTime,
                 txnUser: item.txnUser || "N/A",
                 userRole: item.userRole || "N/A",
                 deviceType: item.deviceType || "N/A",
@@ -281,7 +266,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
 
         const excelData = filteredTransactions.map((row, index) => ({
             "SR No": index + 1,
-            "Created At": `${row.createdAt} ${row.createdAtTime}`,
+            "Created At": row.formattedDateTime,
             "TXN User": row.txnUser,
             "User Role": row.userRole,
             "Device Type": row.deviceType,
@@ -553,7 +538,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
 
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                                     <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                                                        {transaction.createdAt}
+                                                        {transaction.formattedDateTime}
                                                     </span>
                                                 </td>
 

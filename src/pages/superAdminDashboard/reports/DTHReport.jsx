@@ -171,8 +171,19 @@ const DTHReport = ({ onBack }) => {
         txid: item.apiResponse?.txid || item.txid || "N/A",
         opid: item.apiResponse?.opid || item.opid || "N/A",
         apiMessage: apiMessage,
-        date: item.createdAt || new Date().toISOString(),
-        updatedDate: item.updatedAt || null,
+        formattedDateTime: (() => {
+          const dateObj = new Date(item.createdAt || new Date());
+          const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+          const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+          return `${datePart} | ${timePart}`;
+        })(),
+        formattedUpdatedDateTime: (() => {
+          if (!item.updatedAt) return "N/A";
+          const dateObj = new Date(item.updatedAt);
+          const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+          const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+          return `${datePart} | ${timePart}`;
+        })(),
       };
     });
   };
@@ -230,9 +241,8 @@ const DTHReport = ({ onBack }) => {
       "TXID": row.txid,
       "OPID": row.opid,
       "API Message": row.apiMessage,
-      "Date": formatDate(row.date),
-      "Updated Date": row.updatedDate ? formatDate(row.updatedDate) : "N/A",
-      "Updated Time": row.updatedDate ? formatTime(row.updatedDate) : "N/A",
+      "Date & Time": row.formattedDateTime,
+      "Updated Date & Time": row.formattedUpdatedDateTime,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -243,33 +253,25 @@ const DTHReport = ({ onBack }) => {
     XLSX.writeFile(workbook, fileName);
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("en-GB", {
+      const datePart = date.toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
-      });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "N/A";
-    }
-  };
+        year: "2-digit",
+      }).replace(/\//g, "-");
 
-  // Format time for display
-  const formatTime = (dateString) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleTimeString("en-GB", {
+      const timePart = date.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: true,
       });
+
+      return `${datePart} | ${timePart}`;
     } catch (error) {
-      console.error("Error formatting time:", error);
+      console.error("Error formatting date:", error);
       return "N/A";
     }
   };
@@ -513,13 +515,10 @@ const DTHReport = ({ onBack }) => {
                       API Message
                     </th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                      Date
+                      Date & Time
                     </th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                      Updated Date
-                    </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                      Updated Time
+                      Updated Date & Time
                     </th>
                   </tr>
                 </thead>
@@ -598,17 +597,10 @@ const DTHReport = ({ onBack }) => {
                           {transaction.apiMessage}
                         </td>
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          {formatDate(transaction.date)}
+                          {transaction.formattedDateTime}
                         </td>
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          {transaction.updatedDate
-                            ? formatDate(transaction.updatedDate)
-                            : "N/A"}
-                        </td>
-                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          {transaction.updatedDate
-                            ? formatTime(transaction.updatedDate)
-                            : "N/A"}
+                          {transaction.formattedUpdatedDateTime}
                         </td>
                       </tr>
                     )))}

@@ -169,8 +169,19 @@ const RechargeReport = ({ onBack }) => {
         txid: item.apiResponse?.txid || item.txid || "N/A",
         opid: item.apiResponse?.opid || item.opid || "N/A",
         apiMessage: apiMessage,
-        date: item.createdAt || new Date().toISOString(),
-        updatedDate: item.updatedAt || null,
+        formattedDateTime: (() => {
+          const dateObj = new Date(item.createdAt || new Date());
+          const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+          const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+          return `${datePart} | ${timePart}`;
+        })(),
+        formattedUpdatedDateTime: (() => {
+          if (!item.updatedAt) return "N/A";
+          const dateObj = new Date(item.updatedAt);
+          const datePart = dateObj.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
+          const timePart = dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+          return `${datePart} | ${timePart}`;
+        })(),
       };
     });
   };
@@ -229,8 +240,8 @@ const RechargeReport = ({ onBack }) => {
         "TXID": row.txid,
         "OPID": row.opid,
         "API Message": row.apiMessage,
-        "Updated Date": formatDate(row.updatedDate),
-        "Updated Time": formatTime(row.updatedDate),
+        "Date & Time": row.formattedDateTime,
+        "Updated Date & Time": row.formattedUpdatedDateTime,
       };
     });
 
@@ -515,10 +526,10 @@ const RechargeReport = ({ onBack }) => {
                       API Message
                     </th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                      Updated Date
+                      Date & Time
                     </th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                      Updated Time
+                      Updated Date & Time
                     </th>
                   </tr>
                 </thead>
@@ -634,15 +645,11 @@ const RechargeReport = ({ onBack }) => {
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          {transaction.updatedDate
-                            ? formatDate(transaction.updatedDate)
-                            : "N/A"}
+                          {transaction.formattedDateTime}
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          {transaction.updatedDate
-                            ? formatTime(transaction.updatedDate)
-                            : "N/A"}
+                          {transaction.formattedUpdatedDateTime}
                         </td>
                       </tr>
                     )))}

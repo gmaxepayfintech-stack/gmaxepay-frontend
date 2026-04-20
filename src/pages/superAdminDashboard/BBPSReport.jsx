@@ -44,13 +44,19 @@ const BBPSReport = ({ onBack, type }) => {
             let formattedDate = "N/A";
             if (item.createdAt) {
                 const date = new Date(item.createdAt);
-                formattedDate = date
+                const datePart = date
                     .toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "2-digit",
                     })
                     .replace(/\//g, "-");
+                const timePart = date.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                });
+                formattedDate = `${datePart} | ${timePart}`;
             }
 
             // Format amounts with currency symbol
@@ -183,7 +189,7 @@ const BBPSReport = ({ onBack, type }) => {
             Amount: row.amount,
             Comm: row.comm,
             Status: row.paymentStatus,
-            Date: row.createdAt,
+            "Date & Time": row.createdAt,
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -374,7 +380,7 @@ const BBPSReport = ({ onBack, type }) => {
                                     Status
                                 </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                                    Date
+                                    Date & Time
                                 </th>
                             </tr>
                         </thead>

@@ -105,7 +105,7 @@ const EditMembership = ({ scheme, onBack }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Scheme Name - Left */}
           <div>
-            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
+            <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -113,7 +113,7 @@ const EditMembership = ({ scheme, onBack }) => {
               placeholder="Enter Scheme Name"
               value={schemeName}
               onChange={(e) => setSchemeName(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none text-xs sm:text-sm text-[#1B1717]/80"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-sm text-[#1B1717]/80"
             />
           </div>
 
@@ -122,7 +122,7 @@ const EditMembership = ({ scheme, onBack }) => {
 
           {/* Scheme Mode - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
+            <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Mode
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg cursor-pointer transition-all bg-white hover:border-gray-400">
@@ -148,10 +148,10 @@ const EditMembership = ({ scheme, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
+                <span className="text-sm font-[Gilroy-Medium] block text-[#1B1717]/80">
                   Global
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
+                <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
                   Available To All Users Worldwide
                 </p>
               </div>
@@ -160,7 +160,7 @@ const EditMembership = ({ scheme, onBack }) => {
 
           {/* Scheme Type - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
+            <label className="block text-sm sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Type
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg cursor-pointer transition-all bg-white hover:border-gray-400">
@@ -186,10 +186,10 @@ const EditMembership = ({ scheme, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
+                <span className="text-sm font-[Gilroy-Medium] block text-[#1B1717]/80">
                   Free
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
+                <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
                   No Cost Membership
                 </p>
               </div>
@@ -244,15 +244,15 @@ const EditMembership = ({ scheme, onBack }) => {
                 {commissions.map((commission, index) => (
                   <div key={commission.id || index}>
                     <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50">
-                      <span className="text-xs text-[#121216]">
+                      <span className="text-sm text-[#121216]">
                         {commission.operator}
                       </span>
 
-                      <span className="inline-flex px-2 py-1 rounded-md text-xs bg-[#4F7EF4] text-white w-fit">
+                      <span className="inline-flex px-2 py-1 rounded-md text-sm bg-[#4F7EF4] text-white w-fit">
                         {commission.operatorType}
                       </span>
 
-                      <span className="text-xs">{commission.myDeal}</span>
+                      <span className="text-sm">{commission.myDeal}</span>
 
                       <input
                         type="text"
@@ -264,7 +264,7 @@ const EditMembership = ({ scheme, onBack }) => {
                             e.target.value,
                           )
                         }
-                        className="w-20 px-2 py-1 border rounded-md text-xs"
+                        className="w-20 px-2 py-1 border rounded-md text-sm"
                       />
 
                       <input
@@ -277,7 +277,7 @@ const EditMembership = ({ scheme, onBack }) => {
                             e.target.value,
                           )
                         }
-                        className="w-20 px-2 py-1 border rounded-md text-xs"
+                        className="w-20 px-2 py-1 border rounded-md text-sm"
                       />
 
                       <div className="flex justify-center">
