@@ -498,9 +498,22 @@ const Retailers = ({
 
   // Format date from API
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString || dateString === "" || dateString === "null") return "N/A";
+
+    // Handle DD-MM-YYYY or DD/MM/YYYY formats manually
+    if (typeof dateString === "string" && (dateString.includes("-") || dateString.includes("/"))) {
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+        // Already in a display format, just ensure it uses hyphens
+        return parts.join("-");
+      }
+    }
+
     try {
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
       return date.toLocaleDateString("en-GB").replaceAll("/", "-");
     } catch {
       return "N/A";
