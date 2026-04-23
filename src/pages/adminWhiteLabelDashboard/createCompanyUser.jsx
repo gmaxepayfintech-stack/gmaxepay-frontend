@@ -34,7 +34,6 @@ import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { motion } from "framer-motion";
 import { roleDataCompanyUser } from "../../redux/action/roleAction";
-// Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
 
 const generateTableData = (type, count = 12) => {
@@ -89,11 +88,7 @@ const CreateCompanyUser = () => {
   const prevResponseRef = useRef(undefined);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
 
-  // Set toDate to today's date in YYYY-MM-DD format
-  const [toDate, setToDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -118,7 +113,7 @@ const CreateCompanyUser = () => {
   // Flatten the nested structure: data is array of companies, each with users array
   // Use stable empty array reference to prevent unnecessary re-renders
   const responseForTableRaw = useSelector((state) => {
-    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return EMPTY_ARRAY;
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
@@ -134,7 +129,7 @@ const CreateCompanyUser = () => {
   );
 
   const totalCount = useSelector((state) => {
-    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return 0;
     // Sum all users from all companies
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
@@ -207,11 +202,15 @@ const CreateCompanyUser = () => {
     }
 
     const payload = {
-      query: query,
+      query: {
+        ...query,
+        ...(fromDate && { fromDate }),
+        ...(toDate && { toDate }),
+      },
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 10,
+        paginate: 6,
       },
       customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
     };
@@ -243,11 +242,15 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: query,
+        query: {
+          ...query,
+          ...(fromDate && { fromDate }),
+          ...(toDate && { toDate }),
+        },
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
@@ -277,11 +280,15 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: query,
+        query: {
+          ...query,
+          ...(fromDate && { fromDate }),
+          ...(toDate && { toDate }),
+        },
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
@@ -644,9 +651,21 @@ const CreateCompanyUser = () => {
       }
     }
 
-    // If no actual data found, return empty array (don't use dummy data)
+    // If no actual data found, return empty array
     if (!actualData) {
       return [];
+    }
+
+    // Filter by role to ensure Master Distributor tab only shows MD users, etc.
+    // This handles cases where the backend returns all users of a company instead of filtering by role.
+    const roleCodeMap = {
+      "Master Distributor": "MD",
+      "Distributor": "DI",
+      "Retailers": "RE",
+    };
+    const expectedRole = roleCodeMap[activeNav];
+    if (expectedRole && Array.isArray(actualData)) {
+      actualData = actualData.filter((user) => user.userRole === expectedRole);
     }
 
     // Determine component type for proper field mapping
@@ -833,16 +852,30 @@ const CreateCompanyUser = () => {
               <MasterDistributionOnboarding
                 embedded={true}
                 tableData={apiData}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
           if (showOnboardingList && activeNav === "Distributor") {
             return (
-              <DistributionOnboarding embedded={true} tableData={apiData} />
+              <DistributionOnboarding
+                embedded={true}
+                tableData={apiData}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
+              />
             );
           }
           if (showOnboardingList && activeNav === "Retailers") {
-            return <RetailerOnboarding embedded={true} tableData={apiData} />;
+            return (
+              <RetailerOnboarding
+                embedded={true}
+                tableData={apiData}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            );
           }
           // if (showOnboardingList && activeNav === "Whitelabel") {
           //   return <AdminWhitelabelList embedded={true} tableData={apiData} />;
@@ -856,6 +889,8 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 isLoading={isTableLoading}
                 onProfileDetailsShow={(show) => setHideNavigation(show)}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
@@ -865,6 +900,8 @@ const CreateCompanyUser = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
@@ -874,6 +911,8 @@ const CreateCompanyUser = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                activePage={currentPage}
+                onPageChange={setCurrentPage}
               />
             );
           }
@@ -1201,7 +1240,7 @@ const CreateCompanyUser = () => {
                                           options: {
                                             sort: { id: -1 },
                                             page: currentPage,
-                                            paginate: 10,
+                                            paginate: 6,
                                           },
                                           customSearch:
                                             Object.keys(customSearch).length > 0

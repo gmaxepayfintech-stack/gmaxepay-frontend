@@ -30,15 +30,15 @@ import { useNotification } from "../../context/NotificationContext";
 const RetailerOnboarding = ({
   embedded = false,
   tableData: propTableData = [],
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  ); // Default to today's date
+  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -94,13 +94,7 @@ const RetailerOnboarding = ({
     return propTableData;
   }, [propTableData]);
 
-  // Get total count from Redux state (if available) or use current data length
-  const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
-  });
+
 
 
   // Debounce search term
@@ -141,7 +135,7 @@ const RetailerOnboarding = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 5,
+        paginate: 6,
       },
       customSearch: debouncedSearchTerm.trim()
         ? {
@@ -153,31 +147,37 @@ const RetailerOnboarding = ({
     dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, embedded, dispatch]);
 
+  // Get total count from Redux state (if available) or use current data length
+  const totalCountFromRedux = useSelector((state) => {
+    const response = state?.roles?.roleDataComp;
+    return response?.totalCount || response?.total || 0;
+  });
+
+  const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
+
   // Use Redux data when available, otherwise use prop data
-  // Flatten the nested structure: data is array of companies, each with users array
   const reduxTableData = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
   });
+
   // Prefer Redux data if available (from API calls) and NOT embedded, otherwise fall back to prop data
   const finalTableData =
     !embedded && Array.isArray(reduxTableData) && reduxTableData.length > 0
       ? reduxTableData
       : allTableData;
-  const finalTotalCount = embedded 
-    ? finalTableData.length 
-    : (totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length);
-  
-  const isFullPage = finalTableData.length >= 5;
-  const finalTotalPages = embedded 
-    ? (Math.ceil(finalTableData.length / 5) || 1)
-    : (currentPage + (isFullPage ? 1 : 0));
 
-  const finalStartIndex = embedded ? (currentPage - 1) * 5 : 0;
-  const finalEndIndex = finalStartIndex + 5;
-  const displayTableData = finalTableData.slice(finalStartIndex, finalEndIndex);
+  // Use Redux total count even if embedded
+  const finalTotalCount = totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
+  
+  // Calculate total pages based on server total or local data length
+  const finalTotalPages = serverPageCount || (finalTotalCount > 0 ? Math.ceil(finalTotalCount / 6) : 1);
+
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const displayTableData = embedded ? finalTableData : finalTableData;
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -912,7 +912,7 @@ const RetailerOnboarding = ({
           {/* Pagination */}
           <div className="flex items-center justify-center mt-auto pt-6 pb-4">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || finalTotalPages === 0}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1 || finalTotalPages === 0
                 ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
@@ -926,7 +926,7 @@ const RetailerOnboarding = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
@@ -1295,7 +1295,7 @@ const RetailerOnboarding = ({
           {/* Pagination */}
           <div className="flex items-center justify-center mt-auto pt-6 pb-4">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || finalTotalPages === 0}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1 || finalTotalPages === 0
                 ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
@@ -1309,7 +1309,7 @@ const RetailerOnboarding = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"

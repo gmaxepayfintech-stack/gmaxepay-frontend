@@ -47,6 +47,8 @@ const Distribution = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const {
@@ -64,9 +66,7 @@ const Distribution = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  );
+  const [toDate, setToDate] = useState("");
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
 
@@ -101,7 +101,7 @@ const Distribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 10,
+          paginate: 6,
         },
         customSearch: {},
       };
@@ -137,41 +137,54 @@ const Distribution = ({
     return propTableData;
   }, [propTableData]);
 
-  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  // In embedded mode, strictly use the prop data passed from the parent.
+  // Otherwise, use Redux data if available, falling back to props.
   const allTableData = useMemo(() => {
-    // If Redux has data (from API calls), use it
+    if (embedded) {
+      return flattenedPropData;
+    }
     if (Array.isArray(responseForTable) && responseForTable.length > 0) {
       return responseForTable;
     }
-    // Otherwise use flattened prop data
     return flattenedPropData;
-  }, [responseForTable, flattenedPropData]);
+  }, [embedded, responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
+    const response = state?.roles?.roleDataComp;
+    return response?.totalCount || response?.total || 0;
   });
+
+  const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
 
   // Use Redux total count if available, otherwise use current data length
   const totalCount =
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (5 records per page)
-  // If not embedded, totalCountFromRedux only equals current page items.
-  // We allow clicking Next if the current page returned a full 5 items.
-  const isFullPage = allTableData.length >= 5;
-  const totalPages = embedded
-    ? (Math.ceil(allTableData.length / 5) || 1)
-    : (currentPage + (isFullPage ? 1 : 0));
+  // Calculate total pages based on server total or local data length
+  const totalPages =
+    serverPageCount || (totalCount > 0 ? Math.ceil(totalCount / 6) : 1);
 
   // If embedded, we have all data locally so we slice it.
-  // If not embedded, the API already paginated it purely for us!
-  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
-  const endIndex = startIndex + 5;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // If not embedded, the API already paginated it for us!
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const tableData = embedded ? allTableData : allTableData;
+
+  // Synchronization logic for embedded mode
+  useEffect(() => {
+    if (embedded && activePage !== undefined && activePage !== currentPage) {
+      setCurrentPage(activePage);
+    }
+  }, [embedded, activePage, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (embedded && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -227,7 +240,7 @@ const Distribution = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: {
           ...(fromDate && { fromDate }),
@@ -503,7 +516,7 @@ const Distribution = ({
                         {row.parentRole || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
-                        {row.companyName || "N/A"}
+                        {row.companyName || row.company || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
@@ -706,7 +719,7 @@ const Distribution = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-6 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
                 ? "text-gray-400 cursor-not-allowed"
@@ -718,7 +731,7 @@ const Distribution = ({
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => handlePageChange(page)}
                 className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
                   ? "bg-green-600 text-white"
                   : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -729,7 +742,7 @@ const Distribution = ({
             ))}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages
@@ -1099,7 +1112,7 @@ const Distribution = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-6 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
                 ? "text-gray-400 cursor-not-allowed"
@@ -1111,7 +1124,7 @@ const Distribution = ({
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => handlePageChange(page)}
                 className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
                   ? "bg-green-600 text-white"
                   : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -1122,7 +1135,7 @@ const Distribution = ({
             ))}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages

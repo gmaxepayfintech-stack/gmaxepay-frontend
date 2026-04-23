@@ -34,15 +34,15 @@ const Retailers = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  ); // Default to today's date
+  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -150,27 +150,38 @@ const Retailers = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
+    const response = state?.roles?.roleDataComp;
+    return response?.totalCount || response?.total || 0;
   });
 
-  // Use current data length if embedded, else use Redux total count if available
-  const totalCount = embedded 
-    ? allTableData.length 
-    : (totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length);
+  const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
 
-  // Calculate total pages based on total count (5 records per page)
-  const isFullPage = allTableData.length >= 5;
-  const totalPages = embedded 
-    ? (Math.ceil(allTableData.length / 5) || 1)
-    : (currentPage + (isFullPage ? 1 : 0));
+  // Use Redux total count if available, even if embedded
+  const totalCount = totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Slice data to show only 5 records per page
-  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
-  const endIndex = startIndex + 5;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  // Calculate total pages based on server-side count or total Count
+  const totalPages = serverPageCount || (totalCount > 0 ? Math.ceil(totalCount / 6) : 1);
+
+  // If embedded, we have all data locally so we slice it.
+  // If not embedded, the API already paginated it for us!
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const tableData = embedded ? allTableData : allTableData;
+
+  // Synchronization logic for embedded mode
+  useEffect(() => {
+    if (embedded && activePage !== undefined && activePage !== currentPage) {
+      setCurrentPage(activePage);
+    }
+  }, [embedded, activePage, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (embedded && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
 
   // Debounce search term to avoid too many API calls
   useEffect(() => {
@@ -213,7 +224,7 @@ const Retailers = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 5,
+        paginate: 6,
       },
       customSearch: debouncedSearchTerm.trim()
         ? {
@@ -301,7 +312,7 @@ const Retailers = ({
           options: {
             sort: { id: -1 },
             page: currentPage,
-            paginate: 5,
+            paginate: 6,
           },
           customSearch: debouncedSearchTerm.trim() ? {
             mobileNo: debouncedSearchTerm.trim(),
@@ -332,7 +343,7 @@ const Retailers = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
@@ -364,7 +375,7 @@ const Retailers = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
@@ -717,17 +728,17 @@ const Retailers = ({
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.email, "N/A")}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216]">
+                        {safeString(row.email || row.emailId, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                        {safeString(row.company, "N/A")}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216]">
+                        {safeString(row.company || row.companyName, "N/A")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
@@ -972,7 +983,7 @@ const Retailers = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
                 ? "text-gray-400 cursor-not-allowed bg-gray-100"
@@ -986,7 +997,7 @@ const Retailers = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                       ? "bg-green-600 text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -1003,7 +1014,7 @@ const Retailers = ({
             )}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
@@ -1303,7 +1314,7 @@ const Retailers = ({
                                         options: {
                                           sort: { id: -1 },
                                           page: currentPage,
-                                          paginate: 5,
+                                          paginate: 6,
                                         },
                                         customSearch: debouncedSearchTerm.trim()
                                           ? {
@@ -1450,7 +1461,7 @@ const Retailers = ({
           {/* Pagination */}
           <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
                 ? "text-gray-400 cursor-not-allowed bg-gray-100"
@@ -1464,7 +1475,7 @@ const Retailers = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                       ? "bg-green-600 text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -1481,7 +1492,7 @@ const Retailers = ({
             )}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0

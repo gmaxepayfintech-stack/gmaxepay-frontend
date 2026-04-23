@@ -38,6 +38,8 @@ import { checkCompanyAepsStatus } from "../../redux/action/whiteLabelAction";
 const DistrubtionOnboarding = ({
   embedded = false,
   tableData: propTableData = [],
+  activePage,
+  onPageChange,
 }) => {
   const dispatch = useDispatch();
   const { 
@@ -101,7 +103,7 @@ const DistrubtionOnboarding = ({
         options: {
           sort: { id: -1 },
           page: currentPage,
-          paginate: 5,
+          paginate: 6,
         },
         customSearch: {},
       };
@@ -127,7 +129,7 @@ const DistrubtionOnboarding = ({
       options: {
         sort: { id: -1 },
         page: currentPage,
-        paginate: 5,
+        paginate: 6,
       },
       customSearch: {},
     };
@@ -147,15 +149,40 @@ const DistrubtionOnboarding = ({
     return propTableData;
   }, [propTableData]);
 
-  const isFullPage = allTableData.length >= 5;
-  const totalPages = embedded 
-    ? (Math.ceil(allTableData.length / 5) || 1)
-    : (currentPage + (isFullPage ? 1 : 0));
+  // Get total count from Redux state (if available) or use current data length
+  const totalCountFromRedux = useSelector((state) => {
+    const response = state?.roles?.roleDataComp;
+    return response?.totalCount || response?.total || 0;
+  });
 
-  // Slice data locally only if embedded, otherwise show server items directly
-  const startIndex = embedded ? (currentPage - 1) * 5 : 0;
-  const endIndex = startIndex + 5;
-  const tableData = allTableData.slice(startIndex, endIndex);
+  const serverPageCount = useSelector((state) => state?.roles?.roleDataComp?.paginator?.pageCount || 0);
+
+  // Use Redux total count even if embedded
+  const totalCount = totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
+
+  // Calculate total pages based on server total or local data length
+  const totalPages = serverPageCount || (totalCount > 0 ? Math.ceil(totalCount / 6) : 1);
+
+  // If embedded, we have all data locally so we slice it.
+  // If not embedded, the API already paginated it for us!
+  // In embedded mode, the parent component handles fetching the correct page, 
+  // so we don't need to slice the data locally anymore!
+  const tableData = embedded ? allTableData : allTableData;
+
+  // Synchronization logic for embedded mode
+  useEffect(() => {
+    if (embedded && activePage !== undefined && activePage !== currentPage) {
+      setCurrentPage(activePage);
+    }
+  }, [embedded, activePage, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (embedded && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -690,7 +717,7 @@ const DistrubtionOnboarding = ({
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
@@ -702,7 +729,7 @@ const DistrubtionOnboarding = ({
               )}
               <button
                 onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
@@ -1046,7 +1073,7 @@ const DistrubtionOnboarding = ({
             ))}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
