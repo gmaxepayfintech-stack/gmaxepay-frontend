@@ -108,6 +108,44 @@ const ProfileDetails = ({ onBack = null }) => {
     return "";
   };
 
+  // Format date from API
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "N/A") return "N/A";
+
+    try {
+      const date = new Date(dateString);
+
+      // Check if the date is valid
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+      }
+
+      // If invalid, try parsing common formats like DD-MM-YYYY or DD/MM/YYYY
+      if (typeof dateString === "string") {
+        const parts = dateString.split(/[-/]/);
+        if (parts.length === 3) {
+          // If it's DD-MM-YYYY, convert to YYYY-MM-DD for reliable parsing
+          if (parts[0].length === 2 && parts[2].length === 4) {
+            const reorderedDate = new Date(
+              `${parts[2]}-${parts[1]}-${parts[0]}`,
+            );
+            if (!isNaN(reorderedDate.getTime())) {
+              return reorderedDate
+                .toLocaleDateString("en-GB")
+                .replaceAll("/", "-");
+            }
+          }
+        }
+        // If it already looks like a formatted date but new Date() failed, return as is
+        return dateString;
+      }
+
+      return "N/A";
+    } catch (error) {
+      return "N/A";
+    }
+  };
+
   // Get explicitly selected user role from Redux (set from list screens like CreateWhiteLabel)
   const selectedUserRole = useSelector(
     (state) => state?.userProfile?.selectedUserRole ?? null,
@@ -596,7 +634,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Upload Date</p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    14-05-2022
+                    {formatDate(data?.createdAt)}
                   </p>
                 </div>
                 <div>
@@ -681,7 +719,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Upload Date</p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    14-05-2022
+                    {formatDate(data?.createdAt)}
                   </p>
                 </div>
                 <div>
@@ -958,9 +996,7 @@ const ProfileDetails = ({ onBack = null }) => {
                     Profile Expiry Date
                   </p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    {data?.createdAt
-                      ? new Date(data.createdAt).toLocaleDateString()
-                      : "N/A"}
+                    {formatDate(data?.createdAt)}
                   </p>
                 </div>
                 <div>

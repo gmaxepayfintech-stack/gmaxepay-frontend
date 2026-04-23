@@ -438,11 +438,38 @@ const RetailerOnboarding = ({
 
   // Format date from API
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString || dateString === "N/A") return "N/A";
+
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("en-GB").replaceAll("/", "-");
-    } catch {
+
+      // Check if the date is valid
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+      }
+
+      // If invalid, try parsing common formats like DD-MM-YYYY or DD/MM/YYYY
+      if (typeof dateString === "string") {
+        const parts = dateString.split(/[-/]/);
+        if (parts.length === 3) {
+          // If it's DD-MM-YYYY, convert to YYYY-MM-DD for reliable parsing
+          if (parts[0].length === 2 && parts[2].length === 4) {
+            const reorderedDate = new Date(
+              `${parts[2]}-${parts[1]}-${parts[0]}`,
+            );
+            if (!isNaN(reorderedDate.getTime())) {
+              return reorderedDate
+                .toLocaleDateString("en-GB")
+                .replaceAll("/", "-");
+            }
+          }
+        }
+        // If it already looks like a formatted date but new Date() failed, return as is
+        return dateString;
+      }
+
+      return "N/A";
+    } catch (error) {
       return "N/A";
     }
   };
