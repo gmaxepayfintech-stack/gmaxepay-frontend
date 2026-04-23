@@ -191,7 +191,6 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
             "Amount": row.amount,
             "Commission": row.commission,
             "Status": row.status,
-            "Status": row.status,
             "Date & Time": row.formattedDateTime,
         }));
 
