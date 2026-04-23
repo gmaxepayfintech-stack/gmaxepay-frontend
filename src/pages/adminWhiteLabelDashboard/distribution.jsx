@@ -51,10 +51,10 @@ const Distribution = ({
   onPageChange,
 }) => {
   const dispatch = useDispatch();
-  const { 
-    success: notifySuccess, 
+  const {
+    success: notifySuccess,
     error: notifyError,
-    showNotification 
+    showNotification
   } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKycData, setSelectedKycData] = useState(null);
@@ -247,10 +247,10 @@ const Distribution = ({
           ...(toDate && { toDate }),
         },
       };
-      
+
       dispatch(roleDataCompanyUser(payload));
     }, 300);
-    
+
     return () => clearTimeout(timer);
   }, [currentPage, dispatch, fromDate, toDate, embedded]);
 
