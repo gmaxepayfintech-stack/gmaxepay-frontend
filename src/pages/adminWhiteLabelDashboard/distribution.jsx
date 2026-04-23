@@ -49,10 +49,10 @@ const Distribution = ({
   isLoading = false,
 }) => {
   const dispatch = useDispatch();
-  const { 
-    success: notifySuccess, 
+  const {
+    success: notifySuccess,
     error: notifyError,
-    showNotification 
+    showNotification
   } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKycData, setSelectedKycData] = useState(null);
@@ -163,7 +163,7 @@ const Distribution = ({
   // If not embedded, totalCountFromRedux only equals current page items.
   // We allow clicking Next if the current page returned a full 5 items.
   const isFullPage = allTableData.length >= 5;
-  const totalPages = embedded 
+  const totalPages = embedded
     ? (Math.ceil(allTableData.length / 5) || 1)
     : (currentPage + (isFullPage ? 1 : 0));
 
@@ -234,10 +234,10 @@ const Distribution = ({
           ...(toDate && { toDate }),
         },
       };
-      
+
       dispatch(roleDataCompanyUser(payload));
     }, 300);
-    
+
     return () => clearTimeout(timer);
   }, [currentPage, dispatch, fromDate, toDate, embedded]);
 

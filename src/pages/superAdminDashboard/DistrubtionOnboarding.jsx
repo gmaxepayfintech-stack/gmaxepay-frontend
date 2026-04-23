@@ -38,12 +38,37 @@ import {
 } from "../../redux/action/userProfileAction";
 import { checkAdminAepsStatus } from "../../redux/action/whiteLabelAction";
 import { useNotification } from "../../context/NotificationContext";
-
-
 const DistrubtionOnboarding = ({
   embedded = false,
   tableData: propTableData = [],
 }) => {
+  // Format date from API
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "" || dateString === "null") return "N/A";
+
+    // Handle DD-MM-YYYY or DD/MM/YYYY formats manually
+    if (
+      typeof dateString === "string" &&
+      (dateString.includes("-") || dateString.includes("/"))
+    ) {
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+        // Already in a display format, just ensure it uses hyphens
+        return parts.join("-");
+      }
+    }
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
+      return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+    } catch {
+      return "N/A";
+    }
+  };
+
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKyc, setSelectedKyc] = useState("");
@@ -312,7 +337,7 @@ const DistrubtionOnboarding = ({
     // Prepare data for Excel export
     const excelData = allTableData.map((row) => ({
       ID: row.id || "N/A",
-      Date: row.date || "N/A",
+      Date: formatDate(row.date),
       "User ID": row.userId || row.userAgentCode || "N/A",
       Name: row.name || row.userName || "N/A",
       "User Role": row.userRole || "N/A",
@@ -759,7 +784,7 @@ const DistrubtionOnboarding = ({
                         </td>
                         {/* Date */}
                         <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
-                          {row.date || "N/A"}
+                          {formatDate(row.date)}
                         </td>
                       </tr>
                     ))
@@ -1119,7 +1144,7 @@ const DistrubtionOnboarding = ({
                       </td>
                       {/* Date */}
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
-                        {row.date || "N/A"}
+                        {formatDate(row.date)}
                       </td>
                     </tr>
                   ))

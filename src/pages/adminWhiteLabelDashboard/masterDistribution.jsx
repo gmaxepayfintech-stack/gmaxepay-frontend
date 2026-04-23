@@ -134,6 +134,31 @@ const MasterDistribution = ({
     </tr>
   );
 
+  // Format date from API
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "" || dateString === "null") return "N/A";
+
+    // Handle DD-MM-YYYY or DD/MM/YYYY formats manually
+    if (typeof dateString === "string" && (dateString.includes("-") || dateString.includes("/"))) {
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+        // Already in a display format, just ensure it uses hyphens
+        return parts.join("-");
+      }
+    }
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
+      return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+    } catch {
+      return "N/A";
+    }
+  };
+
+
   // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -739,7 +764,7 @@ const MasterDistribution = ({
                       </td>
                       {/* Date */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
-                        {row.date || "N/A"}
+                        {formatDate(row.date)}
                       </td>
                     </tr>
                   ))
@@ -1167,7 +1192,7 @@ const MasterDistribution = ({
                       </td>
                       {/* Date */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
-                        {row.date || "N/A"}
+                        {formatDate(row.date)}
                       </td>
                     </tr>
                   ))

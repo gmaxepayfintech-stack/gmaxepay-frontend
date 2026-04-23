@@ -2,6 +2,30 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const DistributorList = ({ tableData = [], isLoading = false, onUpgradeClick }) => {
+  // Format date from API
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "" || dateString === "null") return "N/A";
+
+    // Handle DD-MM-YYYY or DD/MM/YYYY formats manually
+    if (typeof dateString === "string" && (dateString.includes("-") || dateString.includes("/"))) {
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+        // Already in a display format, just ensure it uses hyphens
+        return parts.join("-");
+      }
+    }
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
+      return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+    } catch {
+      return "N/A";
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 text-center">
@@ -85,7 +109,7 @@ const DistributorList = ({ tableData = [], isLoading = false, onUpgradeClick }) 
                 className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
               >
                 <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.srNo}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.date}</td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{formatDate(row.date)}</td>
                 <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.parentName}</td>
                 <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.userName}</td>
                 <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.mobileNumber}</td>

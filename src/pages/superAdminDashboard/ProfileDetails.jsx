@@ -23,9 +23,34 @@ import Pincode from "../../../public/img/Pincode.png";
 import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
-import { motion } from "framer-motion";
-
 const ProfileDetails = ({ onBack = null }) => {
+  // Format date from API
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "" || dateString === "null") return "N/A";
+
+    // Handle DD-MM-YYYY or DD/MM/YYYY formats manually
+    if (
+      typeof dateString === "string" &&
+      (dateString.includes("-") || dateString.includes("/"))
+    ) {
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+        // Already in a display format, just ensure it uses hyphens
+        return parts.join("-");
+      }
+    }
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
+      return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+    } catch {
+      return "N/A";
+    }
+  };
+
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState("membership");
@@ -108,43 +133,7 @@ const ProfileDetails = ({ onBack = null }) => {
     return "";
   };
 
-  // Format date from API
-  const formatDate = (dateString) => {
-    if (!dateString || dateString === "N/A") return "N/A";
 
-    try {
-      const date = new Date(dateString);
-
-      // Check if the date is valid
-      if (!isNaN(date.getTime())) {
-        return date.toLocaleDateString("en-GB").replaceAll("/", "-");
-      }
-
-      // If invalid, try parsing common formats like DD-MM-YYYY or DD/MM/YYYY
-      if (typeof dateString === "string") {
-        const parts = dateString.split(/[-/]/);
-        if (parts.length === 3) {
-          // If it's DD-MM-YYYY, convert to YYYY-MM-DD for reliable parsing
-          if (parts[0].length === 2 && parts[2].length === 4) {
-            const reorderedDate = new Date(
-              `${parts[2]}-${parts[1]}-${parts[0]}`,
-            );
-            if (!isNaN(reorderedDate.getTime())) {
-              return reorderedDate
-                .toLocaleDateString("en-GB")
-                .replaceAll("/", "-");
-            }
-          }
-        }
-        // If it already looks like a formatted date but new Date() failed, return as is
-        return dateString;
-      }
-
-      return "N/A";
-    } catch (error) {
-      return "N/A";
-    }
-  };
 
   // Get explicitly selected user role from Redux (set from list screens like CreateWhiteLabel)
   const selectedUserRole = useSelector(
