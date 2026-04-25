@@ -168,6 +168,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
         commDisplay: `SA: ₹${saComm} | WL: ₹${wlComm} | MD: ₹${mdComm} | DT: ₹${distComm} | RT: ₹${retComm}`,
+        responseMessage: item.message || item.responseMessage || "N/A",
         originalItem: item,
       };
     });
@@ -342,6 +343,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       "VIA": row.via,
       "Status": row.status,
       "Created At": row.createdAt,
+      "Response Message": row.responseMessage,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -607,6 +609,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Response Message
+                </th>
               </tr>
             </thead>
             {!isLoading && (
@@ -758,12 +763,17 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                             {transaction.createdAt}
                           </span>
                         </td>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.responseMessage}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={16} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
