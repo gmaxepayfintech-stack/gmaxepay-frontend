@@ -601,7 +601,7 @@ const SuperAdmin = () => {
           {/* Header Section */}
           <div className="flex flex-col gap-3 mb-4">
             <h2 className="text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-              Today Earning
+              Today Business
             </h2>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
