@@ -21,6 +21,33 @@ import { employeeGetAdminDetails } from "../../redux/action/userProfileAction";
 import { employeeAddBankAdminDetails } from "../../redux/action/userProfileAction";
 
 const EmployeeProfile = ({ onBack = null }) => {
+  // Format date from API
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "" || dateString === "null") return "N/A";
+
+    // Handle DD-MM-YYYY or DD/MM/YYYY formats manually
+    if (
+      typeof dateString === "string" &&
+      (dateString.includes("-") || dateString.includes("/"))
+    ) {
+      const parts = dateString.split(/[-/]/);
+      if (parts.length === 3 && parts[0].length <= 2 && parts[2].length === 4) {
+        // Already in a display format, just ensure it uses hyphens
+        return parts.join("-");
+      }
+    }
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
+      return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+    } catch {
+      return "N/A";
+    }
+  };
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
@@ -513,7 +540,7 @@ const EmployeeProfile = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Upload Date</p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    14-05-2022
+                    {formatDate(data?.createdAt)}
                   </p>
                 </div>
                 <div>
@@ -598,7 +625,7 @@ const EmployeeProfile = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Upload Date</p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    14-05-2022
+                    {formatDate(data?.createdAt)}
                   </p>
                 </div>
                 <div>
@@ -878,9 +905,7 @@ const EmployeeProfile = ({ onBack = null }) => {
                     Profile Expiry Date
                   </p>
                   <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    {data?.createdAt
-                      ? new Date(data.createdAt).toLocaleDateString()
-                      : "N/A"}
+                    {formatDate(data?.createdAt)}
                   </p>
                 </div>
                 <div>

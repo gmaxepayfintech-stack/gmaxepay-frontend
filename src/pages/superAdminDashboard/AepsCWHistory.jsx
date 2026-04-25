@@ -170,6 +170,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
         commDisplay: `SA: ₹${saComm} | WL: ₹${wlComm} | MD: ₹${mdComm} | DT: ₹${distComm} | RT: ₹${retComm}`,
         profileImage: userDetails.profileImage || null,
         companyLogo: item.companyLogo || null,
+        responseMessage: item.message || item.responseMessage || "N/A",
         originalItem: item,
       };
     });
@@ -298,25 +299,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
     }
   }, [isLoading, isReloading]);
 
-  // Handle reconciliation response
-  useEffect(() => {
-    if (reconcilingId && reconciliationResponse) {
-      if (reconciliationResponse?.status === "SUCCESS") {
-        showNotification({
-          type: "success",
-          message: reconciliationResponse?.message || "Reconciliation successful!",
-          isCritical: true,
-        });
-      } else if (reconciliationResponse?.status === "FAILURE") {
-        showNotification({
-          type: "error",
-          message: reconciliationResponse?.message || "Reconciliation failed.",
-          isCritical: true,
-        });
-      }
-      setReconcilingId(null);
-    }
-  }, [reconciliationResponse]);
+
 
   // Reconcile a transaction (only for aeps1-cw-history)
   const handleReconcile = async (transaction) => {
@@ -417,6 +400,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       "VIA": row.via,
       "Status": row.status,
       "Created At": row.createdAt,
+      "Response Message": row.responseMessage,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -703,6 +687,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Response Message
+                </th>
               </tr>
             </thead>
             {!isLoading && (
@@ -741,8 +728,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                                   disabled={!!reconcilingId || isCooldownActive}
                                   title={`Check Status: ${transaction?.originalItem?.merchantReferenceId || transaction?.refID || "N/A"}`}
                                   className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg transition shadow-sm whitespace-nowrap ${(reconcilingId === transaction.id || isCooldownActive)
-                                      ? "bg-gray-400 text-white cursor-not-allowed"
-                                      : "bg-[#039155] text-white hover:bg-green-700"
+                                    ? "bg-gray-400 text-white cursor-not-allowed"
+                                    : "bg-[#039155] text-white hover:bg-green-700"
                                     }`}
                                 >
                                   {reconcilingId === transaction.id ? "..." : "CheckStatus"}
@@ -878,12 +865,17 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                             {transaction.createdAt}
                           </span>
                         </td>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.responseMessage}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={18} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
