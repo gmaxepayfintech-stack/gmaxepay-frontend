@@ -148,6 +148,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
         createdAt: formattedDate,
         createdAtTime: formattedTime,
         retailerCommDisplay: `Comm: ₹${retComm} | TDS: ₹${retTDS}`,
+        responseMessage: item.message || item.responseMessage || "N/A",
         rawDateObj,
         originalItem: item,
       };
@@ -308,6 +309,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       "Status": row.status,
       "Date": row.createdAt,
       "Time": row.createdAtTime,
+      "Response Message": row.responseMessage,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -586,6 +588,9 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   Created At
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Response Message
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Action
                 </th>
               </tr>
@@ -689,6 +694,11 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                             {transaction.createdAt}
                           </span>
                         </td>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.responseMessage}
+                          </span>
+                        </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
@@ -703,7 +713,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   })
                 ) : (
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={16} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
