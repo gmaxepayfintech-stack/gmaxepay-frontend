@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import {
   FaSearch,
   FaPlus,
@@ -77,7 +78,26 @@ const CreateCompanyUser = () => {
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
   const [hideNavigation, setHideNavigation] = useState(false);
-  const [activeNav, setActiveNav] = useState("Master Distributor");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeNav, setActiveNav] = useState(() => {
+    // Check URL parameter first
+    const tabFromUrl = searchParams.get("tab");
+    const validTabs = ["Master Distributor", "Distributor", "Retailers"];
+    if (tabFromUrl && validTabs.includes(tabFromUrl)) {
+      return tabFromUrl;
+    }
+    return "Master Distributor";
+  });
+
+  // Handle tab changes from URL parameter (e.g., browser back button)
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl) {
+      setActiveNav(tabFromUrl);
+      setShowOnboardingList(false);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -783,6 +803,7 @@ const CreateCompanyUser = () => {
                       onClick={() => {
                         setActiveNav(item);
                         setShowOnboardingList(false);
+                        setSearchParams({ tab: item });
                       }}
                       className="relative flex-auto flex justify-evenly"
                     >
