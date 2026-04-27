@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { MapPin, FileText, Camera, ChevronDown, X, Edit, Trash2 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
+import { motion } from "framer-motion";
 import {
   getSlabVisibility,
   assignSlabToCompany,
@@ -23,6 +24,7 @@ import Pincode from "../../../public/img/Pincode.png";
 import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
+
 const ProfileDetails = ({ onBack = null }) => {
   // Format date from API
   const formatDate = (dateString) => {

@@ -55,7 +55,7 @@ const CreateWhiteLabel = () => {
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
-  const [searchParams] = useSearchParams(); // Add this line before state declarations
+  const [searchParams, setSearchParams] = useSearchParams(); // Add this line before state declarations
 
   const [activeNav, setActiveNav] = useState(() => {
     // Check URL parameter first
@@ -788,6 +788,7 @@ const CreateWhiteLabel = () => {
                   onClick={() => {
                     setActiveNav(item);
                     setShowOnboardingList(false);
+                    setSearchParams({ tab: item });
                   }}
                   className="relative flex-auto flex justify-evenly"
                 >
