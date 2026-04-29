@@ -60,6 +60,11 @@ const Distribution = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
 
+  // Revert Confirmation Modal State
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [isReverting, setIsReverting] = useState(false);
+
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsUser);
   const kycRetrieved = kycDetailsState?.data || null;
@@ -149,17 +154,26 @@ const Distribution = ({
       selectedUserId &&
       showKycModal
     ) {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
       // Clear current data to force re-render
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
+        // Set loading for data refresh
+        setIsKycModalLoading(true);
         // Refresh KYC data after revert
         dispatch(kycDataUser(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
+    } else if (kycRevertResponse?.status === "ERROR" || kycRevertResponse?.status === "FAILED") {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
@@ -1249,13 +1263,8 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        aadhar: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ aadhar: "true" });
+                                  setShowRevertConfirm(true);
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
@@ -1379,13 +1388,8 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        pan: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ pan: "true" });
+                                  setShowRevertConfirm(true);
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
@@ -1509,13 +1513,8 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        shopImage: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ shopImage: "true" });
+                                  setShowRevertConfirm(true);
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
@@ -1595,13 +1594,8 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        bankVerification: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ bankVerification: "true" });
+                                  setShowRevertConfirm(true);
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
@@ -1925,6 +1919,50 @@ const Distribution = ({
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revert Confirmation Modal */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaTimesCircle className="text-red-600 text-3xl" />
+              </div>
+              <h3 className="text-xl font-[Gilroy-Semibold] text-gray-900 mb-2">
+                Confirm Revert
+              </h3>
+              <p className="text-gray-600 mb-8 font-[Gilroy-Regular]">
+                Are you sure you want to revert this document? This action will
+                notify the user to re-upload the document.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-[Gilroy-Medium] disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      dispatch(kycRevert(selectedUserId, revertPayload));
+                    }
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-[Gilroy-Medium] disabled:opacity-50 flex items-center justify-center"
+                >
+                  {isReverting ? <ButtonLoader size={20} color="#ffffff" /> : "Confirm Revert"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
