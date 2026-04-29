@@ -70,6 +70,11 @@ const Distribution = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
 
+  // Revert confirmation state
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [isReverting, setIsReverting] = useState(false);
+
   // Get KYC details from Redux state - watch the entire kycDetailsCompany object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsCompany);
   const kycRetrieved = kycDetailsState?.data || null;
@@ -213,17 +218,23 @@ const Distribution = ({
       selectedUserId &&
       showKycModal
     ) {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
       // Clear current data to force re-render
       setSelectedKycData(null);
+      setIsKycModalLoading(true);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
-        // Force update by incrementing refresh key
-        setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
         dispatch(kycDataCompany(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
+    } else if (kycRevertResponse?.status === "ERROR" || kycRevertResponse?.status === "FAILED") {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
@@ -1018,6 +1029,7 @@ const Distribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
+                              setIsKycModalLoading(true);
                               dispatch(kycDataCompany(userId));
                               setActiveTab("overview");
                               setZoomedImage(null);
@@ -1251,8 +1263,11 @@ const Distribution = ({
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {isKycModalLoading ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-4">
-                  <ButtonLoader color="#039155" size={40} thickness={4} />
+                <div className="flex flex-col items-center justify-center py-20">
+                  <ButtonLoader color="#039155" size={40} />
+                  <p className="mt-4 text-gray-500 font-[Gilroy-Medium]">
+                    Loading KYC Details...
+                  </p>
                 </div>
               ) : selectedKycData ? (
                 <div className="space-y-6 animate-fadeIn">
@@ -1389,7 +1404,8 @@ const Distribution = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    setRevertPayload({ aadhar: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1515,7 +1531,8 @@ const Distribution = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    setRevertPayload({ pan: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1641,7 +1658,8 @@ const Distribution = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    setRevertPayload({ shopImage: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1723,7 +1741,8 @@ const Distribution = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    setRevertPayload({ bankVerification: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -2027,11 +2046,11 @@ const Distribution = ({
                       </div>
                     )}
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No KYC details available</p>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No KYC details available</p>
+                  </div>
+                )}
             </div>
 
             {/* Modal Footer */}
@@ -2048,6 +2067,47 @@ const Distribution = ({
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revert Confirmation Modal */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp">
+            <div className="flex flex-col p-6 items-center text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <FaTimesCircle className="text-3xl" />
+              </div>
+              <h2 className="text-2xl font-[Gilroy-Semibold] text-gray-800 mb-2">Confirm Revert</h2>
+              <p className="text-gray-600 mb-6 font-[Gilroy-Medium]">
+                Are you sure you want to revert this document? This action cannot be undone.
+              </p>
+              <div className="flex gap-4 w-full">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-[Gilroy-Semibold]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      dispatch(kycRevertCompany(selectedUserId, revertPayload));
+                    }
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-[Gilroy-Semibold] flex items-center justify-center"
+                >
+                  {isReverting ? <ButtonLoader color="#ffffff" size={20} /> : "Confirm Revert"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

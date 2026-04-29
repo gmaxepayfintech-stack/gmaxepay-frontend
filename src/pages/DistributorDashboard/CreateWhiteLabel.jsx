@@ -33,6 +33,7 @@ import {
   rescendOnboarding,
   deActiveOnboarding,
 } from "../../redux/action/whiteLabelAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
 
 const generateTableData = (type, count = 12) => {
   let userRole = "WL";
@@ -91,6 +92,11 @@ const CreateWhiteLabel = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
+
+  // Revert confirmation state
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [isReverting, setIsReverting] = useState(false);
 
   // Get data from Redux - the action extracts data array and stores it as whitelabelList.whitelabelList
   const responseForTable = useSelector(
@@ -288,6 +294,9 @@ const CreateWhiteLabel = () => {
       selectedUserId &&
       showKycModal
     ) {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
       // Clear current data to force re-render
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
@@ -299,6 +308,10 @@ const CreateWhiteLabel = () => {
       }, 500);
 
       return () => clearTimeout(timer);
+    } else if (kycRevertResponse?.status === "ERROR" || kycRevertResponse?.status === "FAILED") {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
@@ -1496,11 +1509,8 @@ const CreateWhiteLabel = () => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        aadhar: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ aadhar: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1626,11 +1636,8 @@ const CreateWhiteLabel = () => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        pan: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ pan: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1756,11 +1763,8 @@ const CreateWhiteLabel = () => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        shopImage: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ shopImage: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1842,11 +1846,8 @@ const CreateWhiteLabel = () => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        bankVerification: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ bankVerification: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -2171,6 +2172,47 @@ const CreateWhiteLabel = () => {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revert Confirmation Modal */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp">
+            <div className="flex flex-col p-6 items-center text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <FaTimesCircle className="text-3xl" />
+              </div>
+              <h2 className="text-2xl font-[Gilroy-Semibold] text-gray-800 mb-2">Confirm Revert</h2>
+              <p className="text-gray-600 mb-6 font-[Gilroy-Medium]">
+                Are you sure you want to revert this document? This action cannot be undone.
+              </p>
+              <div className="flex gap-4 w-full">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-[Gilroy-Semibold]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      dispatch(kycRevert(selectedUserId, revertPayload));
+                    }
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-[Gilroy-Semibold] flex items-center justify-center"
+                >
+                  {isReverting ? <ButtonLoader color="#ffffff" size={20} /> : "Confirm Revert"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -33,6 +33,7 @@ import {
   employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const AdminWhitelabelList = ({
   embedded = false,
@@ -51,7 +52,13 @@ const AdminWhitelabelList = ({
   const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
+  const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+
+  // Revert confirmation state
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [isReverting, setIsReverting] = useState(false);
 
   const kycModalRef = useRef(null);
 
@@ -190,6 +197,7 @@ const AdminWhitelabelList = ({
       try {
         const deepCopy = structuredClone(kycDetailsFromRedux);
         setSelectedKycData(deepCopy);
+        setIsKycModalLoading(false);
       } catch (error) {
         // Fallback to shallow copy if deep copy fails
         console.warn(
@@ -197,7 +205,10 @@ const AdminWhitelabelList = ({
           error,
         );
         setSelectedKycData({ ...kycDetailsFromRedux });
+        setIsKycModalLoading(false);
       }
+    } else if (kycDetailsState?.status === "ERROR" || kycDetailsState?.status === "FAILED") {
+      setIsKycModalLoading(false);
     }
   }, [kycDetailsState, kycDetailsFromRedux, showKycModal, kycDataRefreshKey]);
 
@@ -208,17 +219,26 @@ const AdminWhitelabelList = ({
       selectedUserId &&
       showKycModal
     ) {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
       // Clear current data to force re-render
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
+        // Set loading for data refresh
+        setIsKycModalLoading(true);
         // Refresh KYC data after revert
         dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
+    } else if (kycRevertResponse?.status === "ERROR" || kycRevertResponse?.status === "FAILED") {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
@@ -487,21 +507,22 @@ const AdminWhitelabelList = ({
                     </span>
                   </td>
                   <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
-                    <button
-                      onClick={() => {
-                        const userId = row.id || row.originalItem?.id;
-                        if (userId) {
-                          setSelectedUserId(userId);
-                          dispatch(employeeKycData(userId));
-                          setActiveTab("overview");
-                          setZoomedImage(null);
-                          setShowKycModal(true);
-                        }
-                      }}
-                      className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
-                    >
-                      KYC Details
-                    </button>
+                      <button
+                        onClick={() => {
+                          const userId = row.id || row.originalItem?.id;
+                          if (userId) {
+                            setSelectedUserId(userId);
+                            setIsKycModalLoading(true);
+                            dispatch(employeeKycData(userId));
+                            setActiveTab("overview");
+                            setZoomedImage(null);
+                            setShowKycModal(true);
+                          }
+                        }}
+                        className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
+                      >
+                        KYC Details
+                      </button>
                   </td>
                   {/* Action - Toggle Button */}
                   <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
@@ -1014,7 +1035,11 @@ const AdminWhitelabelList = ({
 
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {selectedKycData ? (
+              {isKycModalLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                  <ButtonLoader color="#039155" size={40} thickness={4} />
+                </div>
+              ) : selectedKycData ? (
                 <div className="space-y-6 animate-fadeIn">
                   {/* Overview Tab */}
                   {activeTab === "overview" && (
@@ -1149,11 +1174,8 @@ const AdminWhitelabelList = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      employeeKycRevert(selectedUserId, {
-                                        aadhar: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ aadhar: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1279,11 +1301,8 @@ const AdminWhitelabelList = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      employeeKycRevert(selectedUserId, {
-                                        pan: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ pan: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1409,11 +1428,8 @@ const AdminWhitelabelList = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      employeeKycRevert(selectedUserId, {
-                                        shopImage: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ shopImage: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1495,11 +1511,8 @@ const AdminWhitelabelList = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      employeeKycRevert(selectedUserId, {
-                                        bankVerification: "true",
-                                      }),
-                                    );
+                                    setRevertPayload({ bankVerification: "true" });
+                                    setShowRevertConfirm(true);
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1848,6 +1861,53 @@ const AdminWhitelabelList = ({
               className="max-w-full max-h-[90vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Revert Confirmation Modal */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-slideUp">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <FaTimesCircle className="text-red-600 text-2xl" />
+              </div>
+              <h3 className="text-xl font-[Gilroy-Semibold] text-center text-gray-800 mb-2">
+                Confirm Revert
+              </h3>
+              <p className="text-center text-gray-600 mb-6 font-[Gilroy-Medium]">
+                Are you sure you want to revert this document? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-[Gilroy-Medium] disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      dispatch(employeeKycRevert(selectedUserId, revertPayload));
+                    }
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-[Gilroy-Medium] disabled:opacity-50 flex items-center justify-center"
+                >
+                  {isReverting ? (
+                    <ButtonLoader size={20} color="#ffffff" />
+                  ) : (
+                    "Confirm Revert"
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
