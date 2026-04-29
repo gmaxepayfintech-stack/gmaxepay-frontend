@@ -1063,14 +1063,14 @@ export const kycDataUser = (id) => async (dispatch) => {
   }
 };
 
-export const kycRevertCompany = (id) => async (dispatch) => {
+export const kycRevertCompany = (id, body = {}) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
       `${API_ROUTE}/api/v1/company/user/kyc/revert/${id}`,
-      {},
+      body,
       {
         headers: {
           "Content-Type": "application/json",
