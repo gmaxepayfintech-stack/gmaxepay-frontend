@@ -1867,7 +1867,7 @@ const RetailerOnboarding = ({
                                 }}
                                 className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                <X className="w-3.5 h-3.5" />
+                                <RotateCcw className="w-3.5 h-3.5" />
                                 Revert PAN
                               </button>
                             )}
@@ -1993,7 +1993,7 @@ const RetailerOnboarding = ({
                                 }}
                                 className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                <X className="w-3.5 h-3.5" />
+                                <RotateCcw className="w-3.5 h-3.5" />
                                 Revert Outlet
                               </button>
                             )}
@@ -2075,7 +2075,7 @@ const RetailerOnboarding = ({
                                 }}
                                 className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                <X className="w-3.5 h-3.5" />
+                                <RotateCcw className="w-3.5 h-3.5" />
                                 Revert Bank
                               </button>
                             )}
@@ -2145,9 +2145,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.mobileVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Mobile
@@ -2174,9 +2174,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.emailVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Email
@@ -2203,9 +2203,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.aadharVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Aadhar
@@ -2232,9 +2232,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.panVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 PAN
@@ -2261,9 +2261,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.shopDetailsVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Shop Details
@@ -2290,9 +2290,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.imageVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Image
@@ -2321,9 +2321,9 @@ const RetailerOnboarding = ({
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails
                                 .profileImageWithShopVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Profile with Shop
@@ -2352,9 +2352,9 @@ const RetailerOnboarding = ({
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.bankDetailsVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
+                                <CheckCircle2 className="text-green-600 w-5 h-5" />
                               ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
+                                <ShieldAlert className="text-red-600 w-5 h-5" />
                               )}
                               <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Bank Details
@@ -2424,55 +2424,53 @@ const RetailerOnboarding = ({
         </div>
       )}
 
-      {/* Unified Confirmation Modal - High-End SaaS Design */}
+      {/* Simple Professional Confirmation Modal */}
       {confirmModal.show && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
+        <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[32px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.18)] w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-100"
+            className="bg-white rounded-xl shadow-xl w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-200"
           >
-            <div className="p-10 text-center flex flex-col items-center">
-              {/* Status Icon with subtle ring */}
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-8 ring-8 ${
-                confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600 ring-rose-50/50' :
-                confirmModal.type === 'success' ? 'bg-emerald-50 text-emerald-600 ring-emerald-50/50' :
-                'bg-indigo-50 text-indigo-600 ring-indigo-50/50'
-              }`}>
-                {confirmModal.type === 'danger' ? <ShieldAlert className="w-10 h-10" /> :
-                 confirmModal.type === 'success' ? <CheckCircle2 className="w-10 h-10" /> :
-                 <Info className="w-10 h-10" />}
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                  confirmModal.type === 'danger' ? 'bg-red-50 text-red-600' :
+                  confirmModal.type === 'success' ? 'bg-green-50 text-green-600' :
+                  'bg-blue-50 text-blue-600'
+                }`}>
+                  {confirmModal.type === 'danger' ? <ShieldAlert className="w-6 h-6" /> :
+                   confirmModal.type === 'success' ? <CheckCircle2 className="w-6 h-6" /> :
+                   <Info className="w-6 h-6" />}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-1">
+                    {confirmModal.title}
+                  </h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    {confirmModal.message}
+                  </p>
+                </div>
               </div>
-              
-              <h3 className="text-[26px] font-[Gilroy-Bold] text-slate-900 tracking-tight leading-none mb-4">
-                {confirmModal.title}
-              </h3>
-              
-              <p className="text-slate-500 text-[16px] font-[Gilroy-Medium] leading-relaxed mb-10 px-4">
-                {confirmModal.message}
-              </p>
 
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={confirmModal.onConfirm}
-                  disabled={confirmModal.isProcessing}
-                  className={`w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-white rounded-2xl transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center ${
-                    confirmModal.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200' :
-                    confirmModal.type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
-                    'bg-slate-900 hover:bg-slate-800 shadow-slate-200'
-                  }`}
-                >
-                  {confirmModal.isProcessing ? (
-                    <ButtonLoader size={18} color="#ffffff" />
-                  ) : (
-                    confirmModal.confirmText || 'Continue'
-                  )}
-                </button>
+              <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   onClick={() => setConfirmModal({ ...confirmModal, show: false })}
                   disabled={confirmModal.isProcessing}
-                  className="w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {confirmModal.cancelText || 'Cancel'}
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  disabled={confirmModal.isProcessing}
+                  className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 flex items-center gap-2 ${
+                    confirmModal.type === 'danger' ? 'bg-red-600 hover:bg-red-700' :
+                    confirmModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' :
+                    'bg-slate-900 hover:bg-slate-800'
+                  }`}
+                >
+                  {confirmModal.isProcessing && <ButtonLoader size={14} color="#ffffff" />}
+                  {confirmModal.confirmText || 'Continue'}
                 </button>
               </div>
             </div>
@@ -2480,65 +2478,38 @@ const RetailerOnboarding = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal - Premium Enterprise Design */}
+      {/* Revert Confirmation Modal */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
-          <div 
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[110] animate-fadeIn p-4">
+          <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[32px] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.2)] w-full max-w-[460px] relative overflow-hidden animate-slideUp border border-slate-100"
+            className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden animate-slideUp"
           >
-            {/* Elegant Header Background */}
-            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-rose-50/50 to-transparent -z-0" />
-
-            <div className="p-10 relative z-10">
-              <div className="flex items-start justify-between mb-8">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-md border border-rose-50 ring-4 ring-rose-50/50">
-                  <RotateCcw className="w-8 h-8" />
-                </div>
-                <button
-                  onClick={() => {
-                    setShowRevertConfirm(false);
-                    setRevertPayload(null);
-                  }}
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100/50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="text-left mb-8">
-                <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-3 tracking-tight">
-                  Revert {revertPayload?.step}?
-                </h3>
-                <p className="text-slate-500 font-[Gilroy-Medium] leading-relaxed text-[17px]">
-                  This action will invalidate the submitted <span className="text-slate-900 font-bold underline decoration-rose-200 underline-offset-4">{revertPayload?.step}</span>. 
-                  The user will be required to upload new documentation.
-                </p>
-              </div>
-
-              {/* Sophisticated Alert Section */}
-              <div className="bg-amber-50/40 border border-amber-100/60 rounded-2xl p-5 mb-10 flex gap-4 items-center">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-amber-100 shrink-0">
-                  <ShieldAlert className="w-6 h-6 text-amber-500" />
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-2">
+                <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center shrink-0 mt-0.5 border border-red-100">
+                  <RotateCcw className="text-red-600 w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-amber-900 font-[Gilroy-Bold] text-sm">Action Required</p>
-                  <p className="text-amber-700/80 font-[Gilroy-Medium] text-[13px]">
-                    User will be notified to re-verify their documents.
+                  <h3 className="text-lg font-[Gilroy-Semibold] text-gray-900 mb-1">
+                    Revert {revertPayload?.step}?
+                  </h3>
+                  <p className="text-gray-500 text-sm font-[Gilroy-Medium] leading-relaxed">
+                    This will notify the user to re-upload their {revertPayload?.step} document for verification.
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 py-4 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
+                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-[Gilroy-Medium] disabled:opacity-50"
                 >
-                  Go Back
+                  Cancel
                 </button>
                 <button
                   onClick={() => {
@@ -2549,12 +2520,12 @@ const RetailerOnboarding = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-[1.5] py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-[Gilroy-Bold] text-[15px] shadow-2xl shadow-slate-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-[Gilroy-Medium] disabled:opacity-50 flex items-center justify-center min-w-[90px] shadow-sm"
                 >
                   {isReverting ? (
-                    <ButtonLoader size={20} color="#ffffff" />
+                    <ButtonLoader size={16} color="#ffffff" />
                   ) : (
-                    "Confirm Revert"
+                    "Revert"
                   )}
                 </button>
               </div>
@@ -2570,14 +2541,14 @@ const RetailerOnboarding = ({
           to { opacity: 1; }
         }
         @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
+          from { transform: translateY(10px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.4s ease-out forwards;
+          animation: fadeIn 0.2s ease-out forwards;
         }
         .animate-slideUp {
-          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: slideUp 0.3s ease-out forwards;
         }
       `}</style>
     </div>

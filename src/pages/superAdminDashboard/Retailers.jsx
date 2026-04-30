@@ -1629,31 +1629,36 @@ const Retailers = ({
 
       {/* Revert Confirmation Modal */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-fadeIn p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] animate-fadeIn p-4">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp"
+            className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden animate-slideUp"
           >
-            <div className="p-8 text-center">
-              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
-                <FaTimesCircle className="text-red-500 text-4xl" />
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-2">
+                <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center shrink-0 mt-0.5 border border-red-100">
+                  <RotateCcw className="text-red-600 w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-[Gilroy-Semibold] text-gray-900 mb-1">
+                    Revert {revertPayload?.step}?
+                  </h3>
+                  <p className="text-gray-500 text-sm font-[Gilroy-Medium] leading-relaxed">
+                    This will notify the user to re-upload their {revertPayload?.step} document for verification.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
-                Revert {revertPayload?.step}?
-              </h3>
-              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
-                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
-              </p>
-              <div className="flex gap-4">
+              
+              <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
+                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-[Gilroy-Medium] disabled:opacity-50"
                 >
-                  No, Cancel
+                  Cancel
                 </button>
                 <button
                   onClick={() => {
@@ -1664,12 +1669,12 @@ const Retailers = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg shadow-red-200"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-[Gilroy-Medium] disabled:opacity-50 flex items-center justify-center min-w-[90px] shadow-sm"
                 >
                   {isReverting ? (
-                    <ButtonLoader size={20} color="#ffffff" />
+                    <ButtonLoader size={16} color="#ffffff" />
                   ) : (
-                    "Yes, Revert"
+                    "Revert"
                   )}
                 </button>
               </div>
