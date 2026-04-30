@@ -5,6 +5,11 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import {
+  ShieldAlert,
+  CheckCircle2,
+  Info
+} from "lucide-react";
 import { createEmployee, useList, ResendEmployeeLoginAccess, kycUnlock, kycStatusCheck } from "../../redux/action/whiteLabelAction";
 import { useNotification } from "../../context/NotificationContext";
 
@@ -15,8 +20,8 @@ const tableHeaders = [
   "Mobile Number",
   "Email Id",
   "Active",
-  "Lock Status",
   "Date",
+  "Lock Status",
   "Login Access"
 ];
 
@@ -103,7 +108,7 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
         email: values.email,
         mobileNo: values.mobileNumber,
       };
-      
+
       dispatch(createEmployee(payload));
     },
   });
@@ -553,56 +558,51 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
         </div>
       )}
 
-      {/* Unified Confirmation Modal - High-End SaaS Design */}
+      {/* Simple Professional Confirmation Modal */}
       {confirmModal.show && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
+        <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[32px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.18)] w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-100"
+            className="bg-white rounded-xl shadow-xl w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-200"
           >
-            <div className="p-10 text-center flex flex-col items-center">
-              {/* Status Icon with subtle ring */}
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-8 ring-8 ${
-                confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600 ring-rose-50/50' :
-                confirmModal.type === 'success' ? 'bg-emerald-50 text-emerald-600 ring-emerald-50/50' :
-                confirmModal.type === 'info' ? 'bg-indigo-50 text-indigo-600 ring-indigo-50/50' :
-                'bg-indigo-50 text-indigo-600 ring-indigo-50/50'
-              }`}>
-                {confirmModal.type === 'danger' ? <ShieldAlert className="w-10 h-10" /> :
-                 confirmModal.type === 'success' ? <CheckCircle2 className="w-10 h-10" /> :
-                 <Info className="w-10 h-10" />}
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${confirmModal.type === 'danger' ? 'bg-red-50 text-red-600' :
+                    confirmModal.type === 'success' ? 'bg-green-50 text-green-600' :
+                      'bg-blue-50 text-blue-600'
+                  }`}>
+                  {confirmModal.type === 'danger' ? <ShieldAlert className="w-6 h-6" /> :
+                    confirmModal.type === 'success' ? <CheckCircle2 className="w-6 h-6" /> :
+                      <Info className="w-6 h-6" />}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-1">
+                    {confirmModal.title}
+                  </h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    {confirmModal.message}
+                  </p>
+                </div>
               </div>
-              
-              <h3 className="text-[26px] font-[Gilroy-Bold] text-slate-900 tracking-tight leading-none mb-4">
-                {confirmModal.title}
-              </h3>
-              
-              <p className="text-slate-500 text-[16px] font-[Gilroy-Medium] leading-relaxed mb-10 px-4">
-                {confirmModal.message}
-              </p>
 
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={confirmModal.onConfirm}
-                  disabled={confirmModal.isProcessing}
-                  className={`w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-white rounded-2xl transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center ${
-                    confirmModal.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200' :
-                    confirmModal.type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
-                    'bg-slate-900 hover:bg-slate-800 shadow-slate-200'
-                  }`}
-                >
-                  {confirmModal.isProcessing ? (
-                    <ButtonLoader size={18} color="#ffffff" />
-                  ) : (
-                    confirmModal.confirmText || 'Continue'
-                  )}
-                </button>
+              <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   onClick={() => setConfirmModal({ ...confirmModal, show: false })}
                   disabled={confirmModal.isProcessing}
-                  className="w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {confirmModal.cancelText || 'Cancel'}
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  disabled={confirmModal.isProcessing}
+                  className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 flex items-center gap-2 ${confirmModal.type === 'danger' ? 'bg-red-600 hover:bg-red-700' :
+                      confirmModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' :
+                        'bg-slate-900 hover:bg-slate-800'
+                    }`}
+                >
+                  {confirmModal.isProcessing && <ButtonLoader size={14} color="#ffffff" />}
+                  {confirmModal.confirmText || 'Continue'}
                 </button>
               </div>
             </div>
@@ -617,14 +617,14 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
           to { opacity: 1; }
         }
         @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
+          from { transform: translateY(10px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.4s ease-out forwards;
+          animation: fadeIn 0.2s ease-out forwards;
         }
         .animate-slideUp {
-          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: slideUp 0.3s ease-out forwards;
         }
       `}</style>
     </div>

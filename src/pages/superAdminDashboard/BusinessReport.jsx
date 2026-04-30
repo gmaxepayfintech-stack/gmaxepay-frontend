@@ -98,11 +98,10 @@ const BusinessReport = ({ embedded = false }) => {
               onClick={() => setActiveTab("myPerformance")}
               className={`flex-1 h-[40px] rounded-2xl font-[Gilroy-Medium]
         transition-all flex items-center justify-center
-        ${
-          activeTab === "myPerformance"
-            ? "text-white bg-[#039155] shadow-sm font-[Gilroy-Semibold]"
-            : "text-gray-700 hover:text-gray-900"
-        }`}
+        ${activeTab === "myPerformance"
+                  ? "text-white bg-[#039155] shadow-sm font-[Gilroy-Semibold]"
+                  : "text-gray-700 hover:text-gray-900"
+                }`}
             >
               My Performance
             </button>
@@ -111,11 +110,10 @@ const BusinessReport = ({ embedded = false }) => {
               onClick={() => setActiveTab("userBusinessStats")}
               className={`flex-1 h-[40px] rounded-2xl font-[Gilroy-Medium]
         transition-all flex items-center justify-center
-        ${
-          activeTab === "userBusinessStats"
-            ? "text-white bg-[#039155] shadow-sm font-[Gilroy-Semibold]"
-            : "text-gray-700 hover:text-gray-900"
-        }`}
+        ${activeTab === "userBusinessStats"
+                  ? "text-white bg-[#039155] shadow-sm font-[Gilroy-Semibold]"
+                  : "text-gray-700 hover:text-gray-900"
+                }`}
             >
               User Business Statistics
             </button>
@@ -206,9 +204,8 @@ const BusinessReport = ({ embedded = false }) => {
                     {servicesData.map((service, index) => (
                       <tr
                         key={index}
-                        className={`transition-colors ${
-                          index % 2 === 0 ? "bg-[#F0F9F4]" : "bg-white"
-                        }`}
+                        className={`transition-colors ${index % 2 === 0 ? "bg-[#F0F9F4]" : "bg-white"
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-[10px] font-['Gilroy-SemiBold'] text-[#121216]">
