@@ -17,6 +17,7 @@ import {
   FaBuilding,
   FaUniversity,
   FaExpand,
+  FaHistory,
 } from "react-icons/fa";
 import {
   useList as useListAction,
@@ -2145,35 +2146,76 @@ const AdminWhitelabelList = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal */}
+      {/* Revert Confirmation Modal - Exact Match to UI Mockup */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-[100] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] w-full max-w-md mx-4 overflow-hidden animate-slideUp border border-white/20"
+            className="bg-white rounded-[2.5rem] shadow-[0_25px_80px_-15px_rgba(0,0,0,0.3)] w-full max-w-lg relative overflow-hidden animate-slideUp"
           >
-            <div className="p-8 sm:p-10 text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-rose-500 to-red-600 rounded-3xl flex items-center justify-center mx-auto mb-8 transform rotate-3 transition-transform hover:rotate-0 duration-300 shadow-2xl shadow-red-200 ring-8 ring-red-50">
-                <FaTimesCircle className="text-white text-5xl drop-shadow-lg" />
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setShowRevertConfirm(false);
+                setRevertPayload(null);
+              }}
+              className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all z-10"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="p-10 sm:p-12 text-center">
+              {/* Header Icon Composition */}
+              <div className="relative w-32 h-32 mx-auto mb-8">
+                <div className="absolute inset-0 bg-rose-50 rounded-full scale-110 opacity-50 animate-pulse"></div>
+                <div className="relative w-full h-full bg-rose-50 rounded-full flex items-center justify-center">
+                  <div className="relative">
+                    <FaIdCard className="text-rose-500/80 text-5xl" />
+                    <div className="absolute -bottom-1 -right-1 bg-rose-600 rounded-full w-8 h-8 flex items-center justify-center border-4 border-rose-50 shadow-lg">
+                      <FaHistory className="text-white text-[10px] transform -scale-x-100" />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-4 tracking-tight">
+              <h3 className="text-4xl font-[Gilroy-Bold] text-slate-900 mb-4 tracking-tight">
                 Revert {revertPayload?.step}?
               </h3>
 
-              <p className="text-slate-600 mb-10 font-[Gilroy-Medium] leading-relaxed px-2 text-lg">
+              {/* Decorative Divider */}
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-rose-200"></div>
+                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-rose-200"></div>
+              </div>
+
+              <p className="text-slate-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4 text-lg">
                 Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              {/* Important Alert Box */}
+              <div className="bg-[#FFF9F5] border border-[#FFE4D6] rounded-[1.5rem] p-5 mb-10 flex gap-4 text-left items-start">
+                <div className="bg-orange-100 p-2 rounded-full mt-0.5">
+                  <div className="w-6 h-6 border-2 border-orange-500 rounded-full flex items-center justify-center text-orange-600 font-bold text-sm">!</div>
+                </div>
+                <div>
+                  <span className="text-[#B45309] font-[Gilroy-Bold] text-lg block mb-0.5">Important:</span>
+                  <p className="text-[#D97706] font-[Gilroy-Medium]">
+                    The user will be required to upload their {revertPayload?.step} document again.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-5">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl hover:bg-slate-100 transition-all font-[Gilroy-Semibold] disabled:opacity-50 border border-slate-200 active:scale-95"
+                  className="flex-1 px-8 py-5 bg-white text-slate-600 rounded-2xl hover:bg-slate-50 transition-all font-[Gilroy-Bold] disabled:opacity-50 border-2 border-slate-100 flex items-center justify-center gap-2 active:scale-95"
                 >
+                  <X className="w-5 h-5" />
                   No, Cancel
                 </button>
                 <button
@@ -2185,12 +2227,15 @@ const AdminWhitelabelList = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-2xl hover:from-red-700 hover:to-rose-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-[0_10px_20px_-5px] shadow-red-300 active:scale-95"
+                  className="flex-1 px-8 py-5 bg-gradient-to-r from-[#F43F5E] to-[#E11D48] text-white rounded-2xl hover:brightness-110 transition-all font-[Gilroy-Bold] disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl shadow-rose-200 active:scale-95"
                 >
                   {isReverting ? (
                     <ButtonLoader size={24} color="#ffffff" />
                   ) : (
-                    "Yes, Revert"
+                    <>
+                      <FaHistory className="w-5 h-5 transform -scale-x-100" />
+                      Yes, Revert
+                    </>
                   )}
                 </button>
               </div>
