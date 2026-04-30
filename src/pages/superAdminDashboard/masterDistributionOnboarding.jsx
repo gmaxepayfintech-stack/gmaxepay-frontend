@@ -46,6 +46,11 @@ const MasterDistributionOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [revertReason, setRevertReason] = useState("");
+  const [isReverting, setIsReverting] = useState(false);
+  const revertConfirmRef = useRef(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -222,31 +227,50 @@ const MasterDistributionOnboarding = ({
 
   // Refresh KYC data when revert succeeds
   useEffect(() => {
-    if (
-      kycRevertResponse?.status === "SUCCESS" &&
-      selectedUserId &&
-      showKycModal
-    ) {
-      // Clear current data to force re-render
-      setSelectedKycData(null);
-      // Small delay to ensure backend has processed the revert
-      const timer = setTimeout(() => {
-        // Force update by incrementing refresh key
-        setKycDataRefreshKey((prev) => prev + 1);
-        // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
-      }, 500);
+    if (kycRevertResponse?.status === "SUCCESS") {
+      setIsReverting(false);
+      setShowRevertConfirm(false);
+      setRevertPayload(null);
 
-      return () => clearTimeout(timer);
+      if (selectedUserId && showKycModal) {
+        // Clear current data to force re-render
+        setSelectedKycData(null);
+        // Small delay to ensure backend has processed the revert
+        const timer = setTimeout(() => {
+          // Force update by incrementing refresh key
+          setKycDataRefreshKey((prev) => prev + 1);
+          // Refresh KYC data after revert
+          dispatch(kycDataAction(selectedUserId));
+        }, 500);
+
+        return () => clearTimeout(timer);
+      }
+    } else if (
+      kycRevertResponse?.status === "ERROR" ||
+      kycRevertResponse?.status === "FAILED" ||
+      kycRevertResponse?.status === "FAILURE"
+    ) {
+      setIsReverting(false);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // If revert modal is open, don't close KYC modal
+      if (showRevertConfirm) return;
+
       if (kycModalRef.current && !kycModalRef.current.contains(event.target)) {
+        // Also check if the click is inside the revert confirm modal container
+        // This is a safety check in case the event bubbles unexpectedly
+        const isClickInsideRevertModal = event.target.closest('.revert-modal-container');
+        if (isClickInsideRevertModal) return;
+
         setShowKycModal(false);
         setSelectedKycData(null);
+        setSelectedUserId(null);
+        setActiveTab("overview");
+        setZoomedImage(null);
       }
     };
 
@@ -257,7 +281,7 @@ const MasterDistributionOnboarding = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showKycModal]);
+  }, [showKycModal, showRevertConfirm]);
 
   if (showProfileDetails) {
     return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
@@ -1449,6 +1473,20 @@ const MasterDistributionOnboarding = ({
                               </div>
                             )}
                           </div>
+                          {/* Revert Button */}
+                          <div className="mt-6 flex justify-end">
+                            <button
+                              onClick={() => {
+                                setRevertPayload({ step: "aadhar" });
+                                setRevertReason("");
+                                setShowRevertConfirm(true);
+                              }}
+                              className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
+                            >
+                              <FaTimesCircle />
+                              Revert Aadhar
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <div className="text-center py-8 text-gray-500">
@@ -1560,6 +1598,20 @@ const MasterDistributionOnboarding = ({
                               </div>
                             )}
                           </div>
+                          {/* Revert Button */}
+                          <div className="mt-6 flex justify-end">
+                            <button
+                              onClick={() => {
+                                setRevertPayload({ step: "pan" });
+                                setRevertReason("");
+                                setShowRevertConfirm(true);
+                              }}
+                              className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
+                            >
+                              <FaTimesCircle />
+                              Revert PAN
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <div className="text-center py-8 text-gray-500">
@@ -1633,6 +1685,20 @@ const MasterDistributionOnboarding = ({
                               </div>
                             )}
                           </div>
+                          {/* Revert Button */}
+                          <div className="mt-6 flex justify-end">
+                            <button
+                              onClick={() => {
+                                setRevertPayload({ step: "shop" });
+                                setRevertReason("");
+                                setShowRevertConfirm(true);
+                              }}
+                              className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
+                            >
+                              <FaTimesCircle />
+                              Revert Outlet Details
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1684,6 +1750,20 @@ const MasterDistributionOnboarding = ({
                                   .beneficiaryName || "N/A"}
                               </span>
                             </div>
+                          </div>
+                          {/* Revert Button */}
+                          <div className="mt-6 flex justify-end">
+                            <button
+                              onClick={() => {
+                                setRevertPayload({ step: "bank" });
+                                setRevertReason("");
+                                setShowRevertConfirm(true);
+                              }}
+                              className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
+                            >
+                              <FaTimesCircle />
+                              Revert Bank Details
+                            </button>
                           </div>
                         </div>
                       ) : (
@@ -1963,6 +2043,118 @@ const MasterDistributionOnboarding = ({
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revert Confirmation Modal - Ultra Premium Design */}
+      {showRevertConfirm && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-[80] animate-fadeIn p-4"
+          onClick={() => {
+            if (!isReverting) {
+              setShowRevertConfirm(false);
+              setRevertPayload(null);
+              setRevertReason("");
+            }
+          }}
+        >
+          <div
+            ref={revertConfirmRef}
+            onClick={(e) => e.stopPropagation()}
+            className="revert-modal-container bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] w-full max-w-sm overflow-hidden animate-slideUp border border-gray-100"
+          >
+            {/* Header with Close Icon */}
+            <div className="flex justify-between items-center p-5 border-b border-gray-50 bg-gray-50/50">
+              <span className="text-[10px] font-[Gilroy-Semibold] text-red-500 uppercase tracking-[2px]">
+                Attention Required
+              </span>
+              <button 
+                onClick={() => {
+                  setShowRevertConfirm(false);
+                  setRevertPayload(null);
+                  setRevertReason("");
+                }}
+                disabled={isReverting}
+                className="p-1.5 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="p-8">
+              {/* Icon Section */}
+              <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-6 rotate-3">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+              </div>
+              
+              <h3 className="text-xl font-[Gilroy-Semibold] text-center text-gray-900 mb-2">
+                Revert Document?
+              </h3>
+              
+              <p className="text-center text-gray-500 mb-8 text-xs font-[Gilroy-Medium] px-2 leading-relaxed">
+                Confirming this will mark the <span className="text-red-600 font-[Gilroy-Semibold]">{revertPayload?.step}</span> section as rejected.
+              </p>
+
+              {/* Reason Input Field */}
+              <div className="mb-8">
+                <div className="flex justify-between mb-2">
+                  <label className="text-[10px] font-[Gilroy-Semibold] text-gray-400 uppercase tracking-wider">
+                    Reason
+                  </label>
+                  <span className="text-[10px] text-red-400 font-[Gilroy-Medium]">
+                    Required *
+                  </span>
+                </div>
+                <textarea
+                  value={revertReason}
+                  onChange={(e) => setRevertReason(e.target.value)}
+                  placeholder="Why is this document being reverted?"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-100 focus:ring-2 focus:ring-red-500/20 focus:border-red-400 outline-none transition-all resize-none text-[13px] font-[Gilroy-Medium] text-gray-700 h-28 bg-gray-50"
+                />
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      dispatch(kycRevert(selectedUserId, { ...revertPayload, reason: revertReason }));
+                    }
+                  }}
+                  disabled={isReverting || !revertReason.trim()}
+                  className="w-full px-6 py-3.5 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] shadow-lg shadow-red-200 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
+                >
+                  {isReverting ? (
+                    <>
+                      <ButtonLoader size={18} thickness={3} color="#ffffff" />
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    "Confirm Revert"
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                    setRevertReason("");
+                  }}
+                  disabled={isReverting}
+                  className="w-full px-6 py-3.5 text-gray-400 hover:text-gray-600 transition-all font-[Gilroy-Semibold] text-sm"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+            
+            {/* Minimalist Footer */}
+            <div className="py-4 border-t border-gray-50 flex items-center justify-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[9px] text-gray-400 font-[Gilroy-Medium] uppercase tracking-[1px]">
+                Secure Action Portal
+              </span>
             </div>
           </div>
         </div>
