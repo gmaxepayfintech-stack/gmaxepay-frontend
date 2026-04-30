@@ -294,26 +294,11 @@ const AdminWhitelabelList = ({
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
-  // Handle click outside modal
+  // Handle click outside modal - DISABLED as per user request to prevent accidental closure
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (kycModalRef.current && !kycModalRef.current.contains(event.target)) {
-        setShowKycModal(false);
-        setSelectedKycData(null);
-        setSelectedUserId(null);
-        setActiveTab("overview");
-        setZoomedImage(null);
-      }
-    };
-
-    if (showKycModal) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showKycModal]);
+    // Logic removed to prevent closing on outside click
+    return () => {};
+  }, []);
 
   // Format date from API
   const formatDate = (dateString) => {
@@ -1035,6 +1020,7 @@ const AdminWhitelabelList = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
           <div
             ref={kycModalRef}
+            onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {/* Modal Header */}
@@ -1956,10 +1942,13 @@ const AdminWhitelabelList = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal */}
+      {/* Revert Confirmation Modal - Standardized Premium UI */}
       {showRevertConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp">
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp"
+          >
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
                 <FaTimesCircle className="text-red-500 text-4xl" />

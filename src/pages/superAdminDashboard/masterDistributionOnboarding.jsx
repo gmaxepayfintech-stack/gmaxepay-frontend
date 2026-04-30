@@ -1134,6 +1134,7 @@ const MasterDistributionOnboarding = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
           <div
             ref={kycModalRef}
+            onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {/* Modal Header */}
@@ -2020,41 +2021,34 @@ const MasterDistributionOnboarding = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal - Simple & Stable Design */}
+      {/* Revert Confirmation Modal - Standardized Premium UI */}
       {showRevertConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[80] animate-fadeIn p-4">
           <div
-            ref={revertConfirmRef}
-            className="revert-modal-container bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slideUp border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp"
           >
-            {/* Header */}
-            <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800">
-                Confirm Revert
-              </h3>
-              <button 
-                onClick={() => {
-                  setShowRevertConfirm(false);
-                  setRevertPayload(null);
-                }}
-                disabled={isReverting}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-
-            <div className="p-8">
-              {/* Simple Icon Section */}
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-                <FaTimesCircle className="text-red-500 text-2xl" />
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
+                <FaTimesCircle className="text-red-500 text-4xl" />
               </div>
-              
-              <p className="text-center text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed">
-                Are you sure you want to revert the <span className="text-red-600 font-[Gilroy-Semibold]">{revertPayload?.step}</span> section?
+              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
+                Revert {revertPayload?.step}?
+              </h3>
+              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
+                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
               </p>
-              
-              <div className="flex flex-col gap-3">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
+                >
+                  No, Cancel
+                </button>
                 <button
                   onClick={() => {
                     if (selectedUserId && revertPayload) {
@@ -2064,26 +2058,13 @@ const MasterDistributionOnboarding = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg shadow-red-200"
                 >
                   {isReverting ? (
-                    <>
-                      <ButtonLoader size={18} thickness={3} color="#ffffff" />
-                      <span>Processing...</span>
-                    </>
+                    <ButtonLoader size={20} color="#ffffff" />
                   ) : (
                     "Yes, Revert"
                   )}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowRevertConfirm(false);
-                    setRevertPayload(null);
-                  }}
-                  disabled={isReverting}
-                  className="w-full px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all font-[Gilroy-Semibold]"
-                >
-                  Cancel
                 </button>
               </div>
             </div>
