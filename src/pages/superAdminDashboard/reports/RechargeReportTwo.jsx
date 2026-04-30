@@ -257,7 +257,7 @@ const RechargeReportTwo = ({ onBack }) => {
                 month: "2-digit",
                 year: "2-digit",
             }).replace(/\//g, "-");
-            
+
             const timePart = date.toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
