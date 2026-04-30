@@ -2295,47 +2295,38 @@ const DistrubtionOnboarding = ({
         </div>
       )}
 
-      {/* Unified Confirmation Modal - Professional SaaS Design */}
+      {/* Unified Confirmation Modal - High-End SaaS Design */}
       {confirmModal.show && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] w-full max-w-sm overflow-hidden animate-slideUp border border-slate-100"
+            className="bg-white rounded-[32px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.18)] w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-100"
           >
-            <div className="p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
-                  confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600' :
-                  confirmModal.type === 'success' ? 'bg-emerald-50 text-emerald-600' :
-                  'bg-indigo-50 text-indigo-600'
-                }`}>
-                  {confirmModal.type === 'danger' ? <ShieldAlert className="w-8 h-8" /> :
-                   confirmModal.type === 'success' ? <CheckCircle2 className="w-8 h-8" /> :
-                   <Info className="w-8 h-8" />}
-                </div>
-                <div>
-                  <h3 className="text-xl font-[Gilroy-Bold] text-slate-900 tracking-tight leading-tight">
-                    {confirmModal.title}
-                  </h3>
-                </div>
+            <div className="p-10 text-center flex flex-col items-center">
+              {/* Status Icon with subtle ring */}
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-8 ring-8 ${
+                confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600 ring-rose-50/50' :
+                confirmModal.type === 'success' ? 'bg-emerald-50 text-emerald-600 ring-emerald-50/50' :
+                'bg-indigo-50 text-indigo-600 ring-indigo-50/50'
+              }`}>
+                {confirmModal.type === 'danger' ? <ShieldAlert className="w-10 h-10" /> :
+                 confirmModal.type === 'success' ? <CheckCircle2 className="w-10 h-10" /> :
+                 <Info className="w-10 h-10" />}
               </div>
               
-              <p className="text-slate-500 mb-8 font-[Gilroy-Medium] leading-relaxed">
+              <h3 className="text-[26px] font-[Gilroy-Bold] text-slate-900 tracking-tight leading-none mb-4">
+                {confirmModal.title}
+              </h3>
+              
+              <p className="text-slate-500 text-[16px] font-[Gilroy-Medium] leading-relaxed mb-10 px-4">
                 {confirmModal.message}
               </p>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setConfirmModal({ ...confirmModal, show: false })}
-                  disabled={confirmModal.isProcessing}
-                  className="flex-1 px-4 py-3 text-sm font-[Gilroy-Bold] text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50 active:scale-95"
-                >
-                  {confirmModal.cancelText || 'Cancel'}
-                </button>
+              <div className="flex flex-col gap-3 w-full">
                 <button
                   onClick={confirmModal.onConfirm}
                   disabled={confirmModal.isProcessing}
-                  className={`flex-1 px-4 py-3 text-sm font-[Gilroy-Bold] text-white rounded-xl transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center ${
+                  className={`w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-white rounded-2xl transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center ${
                     confirmModal.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200' :
                     confirmModal.type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
                     'bg-slate-900 hover:bg-slate-800 shadow-slate-200'
@@ -2344,8 +2335,15 @@ const DistrubtionOnboarding = ({
                   {confirmModal.isProcessing ? (
                     <ButtonLoader size={18} color="#ffffff" />
                   ) : (
-                    confirmModal.confirmText || 'Confirm'
+                    confirmModal.confirmText || 'Continue'
                   )}
+                </button>
+                <button
+                  onClick={() => setConfirmModal({ ...confirmModal, show: false })}
+                  disabled={confirmModal.isProcessing}
+                  className="w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  {confirmModal.cancelText || 'Cancel'}
                 </button>
               </div>
             </div>
@@ -2353,16 +2351,19 @@ const DistrubtionOnboarding = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal - Professional SaaS Design */}
+      {/* Revert Confirmation Modal - Premium Enterprise Design */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] w-full max-w-[440px] relative overflow-hidden animate-slideUp border border-slate-100"
+            className="bg-white rounded-[32px] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.2)] w-full max-w-[460px] relative overflow-hidden animate-slideUp border border-slate-100"
           >
-            <div className="p-10">
+            {/* Elegant Header Background */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-rose-50/50 to-transparent -z-0" />
+
+            <div className="p-10 relative z-10">
               <div className="flex items-start justify-between mb-8">
-                <div className="w-16 h-16 bg-rose-50 rounded-[1.25rem] flex items-center justify-center text-rose-600 shadow-sm">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-md border border-rose-50 ring-4 ring-rose-50/50">
                   <RotateCcw className="w-8 h-8" />
                 </div>
                 <button
@@ -2370,7 +2371,7 @@ const DistrubtionOnboarding = ({
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
-                  className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100/50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2380,29 +2381,35 @@ const DistrubtionOnboarding = ({
                 <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-3 tracking-tight">
                   Revert {revertPayload?.step}?
                 </h3>
-                <p className="text-slate-500 font-[Gilroy-Medium] leading-relaxed text-lg">
-                  This document will be marked as invalid. The user will be notified to re-upload their 
-                  <span className="text-slate-900 font-bold mx-1">{revertPayload?.step}</span> 
-                  document for verification.
+                <p className="text-slate-500 font-[Gilroy-Medium] leading-relaxed text-[17px]">
+                  This action will invalidate the submitted <span className="text-slate-900 font-bold underline decoration-rose-200 underline-offset-4">{revertPayload?.step}</span>. 
+                  The user will be required to upload new documentation.
                 </p>
               </div>
 
-              {/* Minimalist Warning Badge */}
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-rose-50 rounded-xl border border-rose-100 mb-10 w-fit">
-                <div className="w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
-                <p className="text-[10px] font-bold text-rose-700 uppercase tracking-widest">Destructive Action</p>
+              {/* Sophisticated Alert Section */}
+              <div className="bg-amber-50/40 border border-amber-100/60 rounded-2xl p-5 mb-10 flex gap-4 items-center">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-amber-100 shrink-0">
+                  <ShieldAlert className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <p className="text-amber-900 font-[Gilroy-Bold] text-sm">Action Required</p>
+                  <p className="text-amber-700/80 font-[Gilroy-Medium] text-[13px]">
+                    User will be notified to re-verify their documents.
+                  </p>
+                </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl hover:bg-slate-100 transition-all font-[Gilroy-Bold] active:scale-95 disabled:opacity-50 border border-slate-100"
+                  className="flex-1 py-4 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
                 >
-                  Cancel
+                  Go Back
                 </button>
                 <button
                   onClick={() => {
@@ -2413,7 +2420,7 @@ const DistrubtionOnboarding = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-[1.5] px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-[Gilroy-Bold] shadow-xl shadow-slate-200 active:scale-95 disabled:opacity-50 flex items-center justify-center"
+                  className="flex-[1.5] py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-[Gilroy-Bold] text-[15px] shadow-2xl shadow-slate-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center"
                 >
                   {isReverting ? (
                     <ButtonLoader size={20} color="#ffffff" />
@@ -2438,10 +2445,10 @@ const DistrubtionOnboarding = ({
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.4s ease-out forwards;
         }
         .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
+          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>

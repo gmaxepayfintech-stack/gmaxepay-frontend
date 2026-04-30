@@ -2101,58 +2101,55 @@ const MasterDistributionOnboarding = ({
         </div>
       )}
 
-      {/* Unified Confirmation Modal */}
+      {/* Unified Confirmation Modal - High-End SaaS Design */}
       {confirmModal.show && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-[100] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] w-full max-w-md mx-4 overflow-hidden animate-slideUp border border-white/20"
+            className="bg-white rounded-[32px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.18)] w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-100"
           >
-            <div className="p-8 sm:p-10 text-center">
-              {/* Icon Container with Dynamic Gradient & Glow */}
-              <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 transform -rotate-3 transition-transform hover:rotate-0 duration-300 shadow-2xl ${
-                confirmModal.type === 'danger' ? 'bg-gradient-to-br from-red-500 to-rose-600 shadow-red-200 ring-8 ring-red-50' :
-                confirmModal.type === 'success' ? 'bg-gradient-to-br from-emerald-500 to-green-600 shadow-emerald-200 ring-8 ring-emerald-50' :
-                confirmModal.type === 'warning' ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-200 ring-8 ring-amber-50' :
-                'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-200 ring-8 ring-blue-50'
+            <div className="p-10 text-center flex flex-col items-center">
+              {/* Status Icon with subtle ring */}
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-8 ring-8 ${
+                confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600 ring-rose-50/50' :
+                confirmModal.type === 'success' ? 'bg-emerald-50 text-emerald-600 ring-emerald-50/50' :
+                'bg-indigo-50 text-indigo-600 ring-indigo-50/50'
               }`}>
-                {confirmModal.type === 'danger' ? <FaTimesCircle className="text-5xl text-white drop-shadow-lg" /> :
-                 confirmModal.type === 'success' ? <FaCheckCircle className="text-5xl text-white drop-shadow-lg" /> :
-                 confirmModal.type === 'warning' ? <FaTimesCircle className="text-5xl text-white drop-shadow-lg" /> :
-                 <FaUser className="text-5xl text-white drop-shadow-lg" />}
+                {confirmModal.type === 'danger' ? <ShieldAlert className="w-10 h-10" /> :
+                 confirmModal.type === 'success' ? <CheckCircle2 className="w-10 h-10" /> :
+                 <Info className="w-10 h-10" />}
               </div>
-
-              <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-4 tracking-tight">
+              
+              <h3 className="text-[26px] font-[Gilroy-Bold] text-slate-900 tracking-tight leading-none mb-4">
                 {confirmModal.title}
               </h3>
               
-              <p className="text-slate-600 mb-10 font-[Gilroy-Medium] leading-relaxed px-2 text-lg">
+              <p className="text-slate-500 text-[16px] font-[Gilroy-Medium] leading-relaxed mb-10 px-4">
                 {confirmModal.message}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={() => setConfirmModal({ ...confirmModal, show: false })}
-                  disabled={confirmModal.isProcessing}
-                  className="flex-1 px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl hover:bg-slate-100 transition-all font-[Gilroy-Semibold] disabled:opacity-50 border border-slate-200 active:scale-95"
-                >
-                  {confirmModal.cancelText}
-                </button>
+              <div className="flex flex-col gap-3 w-full">
                 <button
                   onClick={confirmModal.onConfirm}
                   disabled={confirmModal.isProcessing}
-                  className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-[0_10px_20px_-5px] active:scale-95 ${
-                    confirmModal.type === 'danger' ? 'bg-gradient-to-r from-red-600 to-rose-600 shadow-red-300 hover:from-red-700 hover:to-rose-700' :
-                    confirmModal.type === 'success' ? 'bg-gradient-to-r from-emerald-600 to-green-600 shadow-emerald-300 hover:from-emerald-700 hover:to-green-700' :
-                    confirmModal.type === 'warning' ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-amber-300 hover:from-amber-700 hover:to-orange-700' :
-                    'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-300 hover:from-blue-700 hover:to-indigo-700'
+                  className={`w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-white rounded-2xl transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center ${
+                    confirmModal.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200' :
+                    confirmModal.type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
+                    'bg-slate-900 hover:bg-slate-800 shadow-slate-200'
                   }`}
                 >
                   {confirmModal.isProcessing ? (
-                    <ButtonLoader size={24} color="#ffffff" />
+                    <ButtonLoader size={18} color="#ffffff" />
                   ) : (
-                    confirmModal.confirmText
+                    confirmModal.confirmText || 'Continue'
                   )}
+                </button>
+                <button
+                  onClick={() => setConfirmModal({ ...confirmModal, show: false })}
+                  disabled={confirmModal.isProcessing}
+                  className="w-full py-4.5 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                  {confirmModal.cancelText || 'Cancel'}
                 </button>
               </div>
             </div>
@@ -2160,77 +2157,65 @@ const MasterDistributionOnboarding = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal - Exact Match to UI Mockup */}
+      {/* Revert Confirmation Modal - Premium Enterprise Design */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[2.5rem] shadow-[0_25px_80px_-15px_rgba(0,0,0,0.3)] w-full max-w-lg relative overflow-hidden animate-slideUp"
+            className="bg-white rounded-[32px] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.2)] w-full max-w-[460px] relative overflow-hidden animate-slideUp border border-slate-100"
           >
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                setShowRevertConfirm(false);
-                setRevertPayload(null);
-              }}
-              className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all z-10"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            {/* Elegant Header Background */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-rose-50/50 to-transparent -z-0" />
 
-            <div className="p-10 sm:p-12 text-center">
-              {/* Header Icon Composition */}
-              <div className="relative w-32 h-32 mx-auto mb-8">
-                <div className="absolute inset-0 bg-rose-50 rounded-full scale-110 opacity-50 animate-pulse"></div>
-                <div className="relative w-full h-full bg-rose-50 rounded-full flex items-center justify-center">
-                  <div className="relative">
-                    <FaIdCard className="text-rose-500/80 text-5xl" />
-                    <div className="absolute -bottom-1 -right-1 bg-rose-600 rounded-full w-8 h-8 flex items-center justify-center border-4 border-rose-50 shadow-lg">
-                      <FaHistory className="text-white text-[10px] transform -scale-x-100" />
-                    </div>
-                  </div>
+            <div className="p-10 relative z-10">
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-md border border-rose-50 ring-4 ring-rose-50/50">
+                  <RotateCcw className="w-8 h-8" />
                 </div>
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100/50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <h3 className="text-4xl font-[Gilroy-Bold] text-slate-900 mb-4 tracking-tight">
-                Revert {revertPayload?.step}?
-              </h3>
-
-              {/* Decorative Divider */}
-              <div className="flex items-center justify-center gap-3 mb-8">
-                <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-rose-200"></div>
-                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-rose-200"></div>
+              <div className="text-left mb-8">
+                <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-3 tracking-tight">
+                  Revert {revertPayload?.step}?
+                </h3>
+                <p className="text-slate-500 font-[Gilroy-Medium] leading-relaxed text-[17px]">
+                  This action will invalidate the submitted <span className="text-slate-900 font-bold underline decoration-rose-200 underline-offset-4">{revertPayload?.step}</span>. 
+                  The user will be required to upload new documentation.
+                </p>
               </div>
 
-              <p className="text-slate-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4 text-lg">
-                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
-              </p>
-
-              {/* Important Alert Box */}
-              <div className="bg-[#FFF9F5] border border-[#FFE4D6] rounded-[1.5rem] p-5 mb-10 flex gap-4 text-left items-start">
-                <div className="bg-orange-100 p-2 rounded-full mt-0.5">
-                  <div className="w-6 h-6 border-2 border-orange-500 rounded-full flex items-center justify-center text-orange-600 font-bold text-sm">!</div>
+              {/* Sophisticated Alert Section */}
+              <div className="bg-amber-50/40 border border-amber-100/60 rounded-2xl p-5 mb-10 flex gap-4 items-center">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-amber-100 shrink-0">
+                  <ShieldAlert className="w-6 h-6 text-amber-500" />
                 </div>
                 <div>
-                  <span className="text-[#B45309] font-[Gilroy-Bold] text-lg block mb-0.5">Important:</span>
-                  <p className="text-[#D97706] font-[Gilroy-Medium]">
-                    The user will be required to upload their {revertPayload?.step} document again.
+                  <p className="text-amber-900 font-[Gilroy-Bold] text-sm">Action Required</p>
+                  <p className="text-amber-700/80 font-[Gilroy-Medium] text-[13px]">
+                    User will be notified to re-verify their documents.
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-5">
+              <div className="flex gap-3">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-5 bg-white text-slate-600 rounded-2xl hover:bg-slate-50 transition-all font-[Gilroy-Bold] disabled:opacity-50 border-2 border-slate-100 flex items-center justify-center gap-2 active:scale-95"
+                  className="flex-1 py-4 text-[15px] font-[Gilroy-Bold] text-slate-500 bg-[#F8FAFC] hover:bg-slate-100 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
                 >
-                  <X className="w-5 h-5" />
-                  No, Cancel
+                  Go Back
                 </button>
                 <button
                   onClick={() => {
@@ -2241,15 +2226,12 @@ const MasterDistributionOnboarding = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-5 bg-gradient-to-r from-[#F43F5E] to-[#E11D48] text-white rounded-2xl hover:brightness-110 transition-all font-[Gilroy-Bold] disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl shadow-rose-200 active:scale-95"
+                  className="flex-[1.5] py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-[Gilroy-Bold] text-[15px] shadow-2xl shadow-slate-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center"
                 >
                   {isReverting ? (
-                    <ButtonLoader size={24} color="#ffffff" />
+                    <ButtonLoader size={20} color="#ffffff" />
                   ) : (
-                    <>
-                      <FaHistory className="w-5 h-5 transform -scale-x-100" />
-                      Yes, Revert
-                    </>
+                    "Confirm Revert"
                   )}
                 </button>
               </div>
@@ -2292,10 +2274,10 @@ const MasterDistributionOnboarding = ({
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.4s ease-out forwards;
         }
         .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
+          animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>
