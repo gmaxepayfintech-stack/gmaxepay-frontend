@@ -13,6 +13,8 @@ import {
   FaUpload,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
+import { ButtonLoader } from "../../../widgets/layout/loader";
+
 import {
   employeeUseList,
   employeeKycData,
@@ -1576,15 +1578,17 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    setRevertPayload({ aadhar: "true" });
+                                    setRevertPayload({ aadhar: "true", step: "Aadhar Document" });
                                     setShowRevertConfirm(true);
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert Aadhar
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
@@ -1703,15 +1707,17 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    setRevertPayload({ pan: "true" });
+                                    setRevertPayload({ pan: "true", step: "PAN Document" });
                                     setShowRevertConfirm(true);
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert PAN
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
@@ -1830,15 +1836,17 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    setRevertPayload({ shopImage: "true" });
+                                    setRevertPayload({ shopImage: "true", step: "Outlet Details" });
                                     setShowRevertConfirm(true);
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert Outlet
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
@@ -1913,15 +1921,17 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    setRevertPayload({ bankVerification: "true" });
+                                    setRevertPayload({ bankVerification: "true", step: "Bank Details" });
                                     setShowRevertConfirm(true);
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert Bank Details
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
@@ -2269,17 +2279,32 @@ const RetailerOnboarding = ({
 
       {/* Revert Confirmation Modal */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] animate-fadeIn">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-slideUp">
-            <div className="p-6">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                <FaTimesCircle className="text-red-600 text-2xl" />
-              </div>
-              <h3 className="text-xl font-[Gilroy-Semibold] text-center text-gray-800 mb-2">
-                Confirm Revert
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slideUp mx-4">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800">
+                Confirm Reversion
               </h3>
-              <p className="text-center text-gray-600 mb-6 font-[Gilroy-Medium]">
-                Are you sure you want to revert this document? This action cannot be undone.
+              <button
+                onClick={() => {
+                  setShowRevertConfirm(false);
+                  setRevertPayload(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-8">
+              <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6 border border-red-100">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+              </div>
+              <p className="text-center text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed">
+                Are you sure you want to revert the{" "}
+                <span className="font-[Gilroy-Bold] text-red-600">
+                  {revertPayload?.step || "selected"}
+                </span>{" "}
+                section? This action cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
@@ -2288,7 +2313,7 @@ const RetailerOnboarding = ({
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-[Gilroy-Medium] disabled:opacity-50"
+                  className="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors font-[Gilroy-Semibold] disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -2296,16 +2321,20 @@ const RetailerOnboarding = ({
                   onClick={() => {
                     if (selectedUserId && revertPayload) {
                       setIsReverting(true);
-                      dispatch(employeeKycRevert(selectedUserId, revertPayload));
+                      const { step, ...apiPayload } = revertPayload;
+                      dispatch(employeeKycRevert(selectedUserId, apiPayload));
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-[Gilroy-Medium] disabled:opacity-50 flex items-center justify-center"
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-red-200"
                 >
                   {isReverting ? (
                     <ButtonLoader size={20} color="#ffffff" />
                   ) : (
-                    "Confirm Revert"
+                    <>
+                      <FaTimesCircle />
+                      Yes, Revert
+                    </>
                   )}
                 </button>
               </div>

@@ -40,6 +40,11 @@ const MasterDistributionOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
 
+  // Revert Confirmation Modal State
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [isReverting, setIsReverting] = useState(false);
+
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsUser);
   const kycRetrieved = kycDetailsState?.data || null;
@@ -172,6 +177,31 @@ const MasterDistributionOnboarding = ({
       }, 500);
 
       return () => clearTimeout(timer);
+    }
+  }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
+
+  // Refresh KYC data when revert succeeds
+  useEffect(() => {
+    if (kycRevertResponse) {
+      if (kycRevertResponse.status === "SUCCESS") {
+        setIsReverting(false);
+        setShowRevertConfirm(false);
+        setRevertPayload(null);
+        if (selectedUserId && showKycModal) {
+          // Clear current data to force re-render
+          setSelectedKycData(null);
+          // Small delay to ensure backend has processed the revert
+          const timer = setTimeout(() => {
+            // Force update by incrementing refresh key
+            setKycDataRefreshKey((prev) => prev + 1);
+            // Refresh KYC data after revert
+            dispatch(kycDataUser(selectedUserId));
+          }, 500);
+          return () => clearTimeout(timer);
+        }
+      } else if (kycRevertResponse.status === "FAILED") {
+        setIsReverting(false);
+      }
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
@@ -1220,10 +1250,24 @@ const MasterDistributionOnboarding = ({
                     <div className="space-y-6">
                       {selectedKycData.aadhaarDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
-                            <FaIdCard className="text-blue-600" />
-                            Aadhaar Document
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                              <FaIdCard className="text-blue-600" />
+                              Aadhaar Document
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  setRevertPayload({ aadhar: "true", step: "Aadhar" });
+                                  setShowRevertConfirm(true);
+                                }}
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Revert Aadhar
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">
@@ -1332,10 +1376,24 @@ const MasterDistributionOnboarding = ({
                     <div className="space-y-6">
                       {selectedKycData.panDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
-                            <FaIdCard className="text-purple-600" />
-                            PAN Document
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                              <FaIdCard className="text-purple-600" />
+                              PAN Document
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  setRevertPayload({ pan: "true", step: "PAN" });
+                                  setShowRevertConfirm(true);
+                                }}
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Revert PAN
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">
@@ -1444,10 +1502,24 @@ const MasterDistributionOnboarding = ({
                       {/* Outlet Details */}
                       {selectedKycData.outletDetails && (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
-                            <FaBuilding className="text-orange-600" />
-                            Outlet Details
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                              <FaBuilding className="text-orange-600" />
+                              Outlet Details
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  setRevertPayload({ shopImage: "true", step: "Outlet" });
+                                  setShowRevertConfirm(true);
+                                }}
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Revert Outlet
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">
@@ -1512,10 +1584,24 @@ const MasterDistributionOnboarding = ({
                     <div className="space-y-6">
                       {selectedKycData.customerBankDetails ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
-                            <FaUniversity className="text-indigo-600" />
-                            Bank Details
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                              <FaUniversity className="text-indigo-600" />
+                              Bank Details
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  setRevertPayload({ bankVerification: "true", step: "Bank Details" });
+                                  setShowRevertConfirm(true);
+                                }}
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Revert Bank
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">
@@ -1837,6 +1923,54 @@ const MasterDistributionOnboarding = ({
         </div>
       )}
 
+      {/* Revert Confirmation Modal */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
+                <FaTimesCircle className="text-red-500 text-4xl" />
+              </div>
+              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
+                Revert {revertPayload?.step}?
+              </h3>
+              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
+                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
+                >
+                  No, Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      const { step, ...apiPayload } = revertPayload;
+                      dispatch(kycRevert(selectedUserId, apiPayload));
+                    }
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg shadow-red-200"
+                >
+                  {isReverting ? (
+                    <ButtonLoader size={20} color="#ffffff" />
+                  ) : (
+                    "Yes, Revert"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Image Zoom Modal */}
       {zoomedImage && (
         <div
@@ -1871,10 +2005,10 @@ const MasterDistributionOnboarding = ({
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.3s ease-out forwards;
         }
         .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
+          animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>
