@@ -1,6 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ChevronLeft, ChevronRight, User, X, ZoomIn } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  User, 
+  X, 
+  ZoomIn, 
+  ShieldAlert, 
+  CheckCircle2, 
+  Info, 
+  RotateCcw 
+} from "lucide-react";
 import {
   FaSearch,
   FaCheckCircle,
@@ -2414,57 +2424,56 @@ const RetailerOnboarding = ({
         </div>
       )}
 
-      {/* Unified Confirmation Modal */}
+      {/* Unified Confirmation Modal - Professional SaaS Design */}
       {confirmModal.show && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-[100] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-[120] animate-fadeIn p-4 overflow-y-auto">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] w-full max-w-md mx-4 overflow-hidden animate-slideUp border border-white/20"
+            className="bg-white rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] w-full max-w-sm overflow-hidden animate-slideUp border border-slate-100"
           >
-            <div className="p-8 sm:p-10 text-center">
-              {/* Icon Container with Dynamic Gradient & Glow */}
-              <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 transform -rotate-3 transition-transform hover:rotate-0 duration-300 shadow-2xl ${
-                confirmModal.type === 'danger' ? 'bg-gradient-to-br from-red-500 to-rose-600 shadow-red-200 ring-8 ring-red-50' :
-                confirmModal.type === 'success' ? 'bg-gradient-to-br from-emerald-500 to-green-600 shadow-emerald-200 ring-8 ring-emerald-50' :
-                confirmModal.type === 'warning' ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-200 ring-8 ring-amber-50' :
-                'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-200 ring-8 ring-blue-50'
-              }`}>
-                {confirmModal.type === 'danger' ? <FaTimesCircle className="text-5xl text-white drop-shadow-lg" /> :
-                 confirmModal.type === 'success' ? <FaCheckCircle className="text-5xl text-white drop-shadow-lg" /> :
-                 confirmModal.type === 'warning' ? <FaTimesCircle className="text-5xl text-white drop-shadow-lg" /> :
-                 <FaUser className="text-5xl text-white drop-shadow-lg" />}
+            <div className="p-8">
+              <div className="flex items-center gap-4 mb-6">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
+                  confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600' :
+                  confirmModal.type === 'success' ? 'bg-emerald-50 text-emerald-600' :
+                  'bg-indigo-50 text-indigo-600'
+                }`}>
+                  {confirmModal.type === 'danger' ? <ShieldAlert className="w-8 h-8" /> :
+                   confirmModal.type === 'success' ? <CheckCircle2 className="w-8 h-8" /> :
+                   <Info className="w-8 h-8" />}
+                </div>
+                <div>
+                  <h3 className="text-xl font-[Gilroy-Bold] text-slate-900 tracking-tight leading-tight">
+                    {confirmModal.title}
+                  </h3>
+                </div>
               </div>
-
-              <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-4 tracking-tight">
-                {confirmModal.title}
-              </h3>
               
-              <p className="text-slate-600 mb-10 font-[Gilroy-Medium] leading-relaxed px-2 text-lg">
+              <p className="text-slate-500 mb-8 font-[Gilroy-Medium] leading-relaxed">
                 {confirmModal.message}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmModal({ ...confirmModal, show: false })}
                   disabled={confirmModal.isProcessing}
-                  className="flex-1 px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl hover:bg-slate-100 transition-all font-[Gilroy-Semibold] disabled:opacity-50 border border-slate-200 active:scale-95"
+                  className="flex-1 px-4 py-3 text-sm font-[Gilroy-Bold] text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50 active:scale-95"
                 >
-                  {confirmModal.cancelText}
+                  {confirmModal.cancelText || 'Cancel'}
                 </button>
                 <button
                   onClick={confirmModal.onConfirm}
                   disabled={confirmModal.isProcessing}
-                  className={`flex-1 px-8 py-4 text-white rounded-2xl transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-[0_10px_20px_-5px] active:scale-95 ${
-                    confirmModal.type === 'danger' ? 'bg-gradient-to-r from-red-600 to-rose-600 shadow-red-300 hover:from-red-700 hover:to-rose-700' :
-                    confirmModal.type === 'success' ? 'bg-gradient-to-r from-emerald-600 to-green-600 shadow-emerald-300 hover:from-emerald-700 hover:to-green-700' :
-                    confirmModal.type === 'warning' ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-amber-300 hover:from-amber-700 hover:to-orange-700' :
-                    'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-300 hover:from-blue-700 hover:to-indigo-700'
+                  className={`flex-1 px-4 py-3 text-sm font-[Gilroy-Bold] text-white rounded-xl transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center ${
+                    confirmModal.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200' :
+                    confirmModal.type === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' :
+                    'bg-slate-900 hover:bg-slate-800 shadow-slate-200'
                   }`}
                 >
                   {confirmModal.isProcessing ? (
-                    <ButtonLoader size={24} color="#ffffff" />
+                    <ButtonLoader size={18} color="#ffffff" />
                   ) : (
-                    confirmModal.confirmText
+                    confirmModal.confirmText || 'Confirm'
                   )}
                 </button>
               </div>
@@ -2473,77 +2482,56 @@ const RetailerOnboarding = ({
         </div>
       )}
 
-      {/* Revert Confirmation Modal - Exact Match to UI Mockup */}
+      {/* Revert Confirmation Modal - Professional SaaS Design */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-[110] animate-fadeIn p-4 overflow-y-auto">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[2.5rem] shadow-[0_25px_80px_-15px_rgba(0,0,0,0.3)] w-full max-w-lg relative overflow-hidden animate-slideUp"
+            className="bg-white rounded-[2rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] w-full max-w-[440px] relative overflow-hidden animate-slideUp border border-slate-100"
           >
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                setShowRevertConfirm(false);
-                setRevertPayload(null);
-              }}
-              className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all z-10"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <div className="p-10 sm:p-12 text-center">
-              {/* Header Icon Composition */}
-              <div className="relative w-32 h-32 mx-auto mb-8">
-                <div className="absolute inset-0 bg-rose-50 rounded-full scale-110 opacity-50 animate-pulse"></div>
-                <div className="relative w-full h-full bg-rose-50 rounded-full flex items-center justify-center">
-                  <div className="relative">
-                    <FaIdCard className="text-rose-500/80 text-5xl" />
-                    <div className="absolute -bottom-1 -right-1 bg-rose-600 rounded-full w-8 h-8 flex items-center justify-center border-4 border-rose-50 shadow-lg">
-                      <FaHistory className="text-white text-[10px] transform -scale-x-100" />
-                    </div>
-                  </div>
+            <div className="p-10">
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-16 h-16 bg-rose-50 rounded-[1.25rem] flex items-center justify-center text-rose-600 shadow-sm">
+                  <RotateCcw className="w-8 h-8" />
                 </div>
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <h3 className="text-4xl font-[Gilroy-Bold] text-slate-900 mb-4 tracking-tight">
-                Revert {revertPayload?.step}?
-              </h3>
-
-              {/* Decorative Divider */}
-              <div className="flex items-center justify-center gap-3 mb-8">
-                <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-rose-200"></div>
-                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-rose-200"></div>
+              <div className="text-left mb-8">
+                <h3 className="text-3xl font-[Gilroy-Bold] text-slate-900 mb-3 tracking-tight">
+                  Revert {revertPayload?.step}?
+                </h3>
+                <p className="text-slate-500 font-[Gilroy-Medium] leading-relaxed text-lg">
+                  This document will be marked as invalid. The user will be notified to re-upload their 
+                  <span className="text-slate-900 font-bold mx-1">{revertPayload?.step}</span> 
+                  document for verification.
+                </p>
               </div>
 
-              <p className="text-slate-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4 text-lg">
-                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
-              </p>
-
-              {/* Important Alert Box */}
-              <div className="bg-[#FFF9F5] border border-[#FFE4D6] rounded-[1.5rem] p-5 mb-10 flex gap-4 text-left items-start">
-                <div className="bg-orange-100 p-2 rounded-full mt-0.5">
-                  <div className="w-6 h-6 border-2 border-orange-500 rounded-full flex items-center justify-center text-orange-600 font-bold text-sm">!</div>
-                </div>
-                <div>
-                  <span className="text-[#B45309] font-[Gilroy-Bold] text-lg block mb-0.5">Important:</span>
-                  <p className="text-[#D97706] font-[Gilroy-Medium]">
-                    The user will be required to upload their {revertPayload?.step} document again.
-                  </p>
-                </div>
+              {/* Minimalist Warning Badge */}
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-rose-50 rounded-xl border border-rose-100 mb-10 w-fit">
+                <div className="w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
+                <p className="text-[10px] font-bold text-rose-700 uppercase tracking-widest">Destructive Action</p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-5">
+              <div className="flex gap-4">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-5 bg-white text-slate-600 rounded-2xl hover:bg-slate-50 transition-all font-[Gilroy-Bold] disabled:opacity-50 border-2 border-slate-100 flex items-center justify-center gap-2 active:scale-95"
+                  className="flex-1 px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl hover:bg-slate-100 transition-all font-[Gilroy-Bold] active:scale-95 disabled:opacity-50 border border-slate-100"
                 >
-                  <X className="w-5 h-5" />
-                  No, Cancel
+                  Cancel
                 </button>
                 <button
                   onClick={() => {
@@ -2554,15 +2542,12 @@ const RetailerOnboarding = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-8 py-5 bg-gradient-to-r from-[#F43F5E] to-[#E11D48] text-white rounded-2xl hover:brightness-110 transition-all font-[Gilroy-Bold] disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl shadow-rose-200 active:scale-95"
+                  className="flex-[1.5] px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-[Gilroy-Bold] shadow-xl shadow-slate-200 active:scale-95 disabled:opacity-50 flex items-center justify-center"
                 >
                   {isReverting ? (
-                    <ButtonLoader size={24} color="#ffffff" />
+                    <ButtonLoader size={20} color="#ffffff" />
                   ) : (
-                    <>
-                      <FaHistory className="w-5 h-5 transform -scale-x-100" />
-                      Yes, Revert
-                    </>
+                    "Confirm Revert"
                   )}
                 </button>
               </div>
