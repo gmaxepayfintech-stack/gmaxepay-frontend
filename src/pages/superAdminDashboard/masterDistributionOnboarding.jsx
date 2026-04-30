@@ -1453,8 +1453,7 @@ const MasterDistributionOnboarding = ({
                           <div className="mt-6 flex justify-end">
                             <button
                               onClick={() => {
-                                setRevertPayload({ step: "aadhar" });
-                                setRevertReason("");
+                                setRevertPayload({ aadhar: "true", step: "Aadhar" });
                                 setShowRevertConfirm(true);
                               }}
                               className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
@@ -1578,8 +1577,7 @@ const MasterDistributionOnboarding = ({
                           <div className="mt-6 flex justify-end">
                             <button
                               onClick={() => {
-                                setRevertPayload({ step: "pan" });
-                                setRevertReason("");
+                                setRevertPayload({ pan: "true", step: "PAN" });
                                 setShowRevertConfirm(true);
                               }}
                               className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
@@ -1665,8 +1663,7 @@ const MasterDistributionOnboarding = ({
                           <div className="mt-6 flex justify-end">
                             <button
                               onClick={() => {
-                                setRevertPayload({ step: "shop" });
-                                setRevertReason("");
+                                setRevertPayload({ shopImage: "true", step: "Outlet Details" });
                                 setShowRevertConfirm(true);
                               }}
                               className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
@@ -1731,8 +1728,7 @@ const MasterDistributionOnboarding = ({
                           <div className="mt-6 flex justify-end">
                             <button
                               onClick={() => {
-                                setRevertPayload({ step: "bank" });
-                                setRevertReason("");
+                                setRevertPayload({ bankVerification: "true", step: "Bank Details" });
                                 setShowRevertConfirm(true);
                               }}
                               className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"

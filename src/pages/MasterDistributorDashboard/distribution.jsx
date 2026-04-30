@@ -1263,12 +1263,13 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  setRevertPayload({ aadhar: "true" });
+                                  setRevertPayload({ aadhar: "true", step: "Aadhar" });
                                   setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                Revert
+                                <X className="w-3.5 h-3.5" />
+                                Revert Aadhar
                               </button>
                             )}
                           </div>
@@ -1388,12 +1389,13 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  setRevertPayload({ pan: "true" });
+                                  setRevertPayload({ pan: "true", step: "PAN" });
                                   setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                Revert
+                                <X className="w-3.5 h-3.5" />
+                                Revert PAN
                               </button>
                             )}
                           </div>
@@ -1513,12 +1515,13 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  setRevertPayload({ shopImage: "true" });
+                                  setRevertPayload({ shopImage: "true", step: "Outlet" });
                                   setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                Revert
+                                <X className="w-3.5 h-3.5" />
+                                Revert Outlet
                               </button>
                             )}
                           </div>
@@ -1594,12 +1597,13 @@ const Distribution = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  setRevertPayload({ bankVerification: "true" });
+                                  setRevertPayload({ bankVerification: "true", step: "Bank Details" });
                                   setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-1.5 border-2 border-red-100 text-red-600 bg-white rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs font-[Gilroy-Semibold] flex items-center gap-2 shadow-sm"
                               >
-                                Revert
+                                <X className="w-3.5 h-3.5" />
+                                Revert Bank
                               </button>
                             )}
                           </div>
@@ -1928,39 +1932,43 @@ const Distribution = ({
       {showRevertConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] animate-fadeIn">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp">
-            <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaTimesCircle className="text-red-600 text-3xl" />
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
+                <FaTimesCircle className="text-red-500 text-4xl" />
               </div>
-              <h3 className="text-xl font-[Gilroy-Semibold] text-gray-900 mb-2">
-                Confirm Revert
+              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
+                Revert {revertPayload?.step}?
               </h3>
-              <p className="text-gray-600 mb-8 font-[Gilroy-Regular]">
-                Are you sure you want to revert this document? This action will
-                notify the user to re-upload the document.
+              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
+                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <button
                   onClick={() => {
                     setShowRevertConfirm(false);
                     setRevertPayload(null);
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-[Gilroy-Medium] disabled:opacity-50"
+                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
                 >
-                  Cancel
+                  No, Cancel
                 </button>
                 <button
                   onClick={() => {
                     if (selectedUserId && revertPayload) {
                       setIsReverting(true);
-                      dispatch(kycRevert(selectedUserId, revertPayload));
+                      const { step, ...apiPayload } = revertPayload;
+                      dispatch(kycRevert(selectedUserId, apiPayload));
                     }
                   }}
                   disabled={isReverting}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-[Gilroy-Medium] disabled:opacity-50 flex items-center justify-center"
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg shadow-red-200"
                 >
-                  {isReverting ? <ButtonLoader size={20} color="#ffffff" /> : "Confirm Revert"}
+                  {isReverting ? (
+                    <ButtonLoader size={20} color="#ffffff" />
+                  ) : (
+                    "Yes, Revert"
+                  )}
                 </button>
               </div>
             </div>
@@ -2002,10 +2010,10 @@ const Distribution = ({
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.3s ease-out forwards;
         }
         .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
+          animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>
