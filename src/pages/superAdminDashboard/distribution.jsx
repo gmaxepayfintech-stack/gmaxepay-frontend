@@ -74,6 +74,18 @@ const Distribution = ({
   const [debouncedToDate, setDebouncedToDate] = useState("");
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
+  // Unified Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    title: "",
+    message: "",
+    type: "danger", // danger, success, warning, info
+    onConfirm: null,
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    isProcessing: false,
+  });
+
   const { showNotification } = useNotification();
   const adminAepsStatusResponse = useSelector(
     (state) => state?.whitelabel?.adminAepsStatus
@@ -509,7 +521,7 @@ const Distribution = ({
                     Onboarding
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Token Expire
+                    Deactivation
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
@@ -684,19 +696,20 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  if (isActive) {
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate Distributor?" : "Activate Distributor?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this distributor account? This will affect their ability to manage retail networks.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -723,7 +736,20 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId && isLocked) {
-                                  dispatch(kycUnlock(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Distributor Access?",
+                                    message: "Are you sure you want to enable access for this distributor account? This will unlock their dashboard and services.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               disabled={!isLocked}
@@ -750,7 +776,20 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this distributor?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -768,7 +807,20 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Request Deactivation?",
+                                    message: "Are you sure you want to request deactivation for this distributor? This will initiate the account closure process.",
+                                    type: "warning",
+                                    confirmText: "Yes, Send Request",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -951,6 +1003,12 @@ const Distribution = ({
                     Lock Status
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Onboarding
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -959,7 +1017,7 @@ const Distribution = ({
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {!tableData || tableData.length === 0 ? (
                   <tr>
-                    <td colSpan={21} className="py-12 text-center">
+                    <td colSpan={23} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
@@ -1108,6 +1166,7 @@ const Distribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
+                              setIsKycModalLoading(true);
                               dispatch(kycDataAction(userId));
                               setActiveTab("overview");
                               setZoomedImage(null);
@@ -1130,19 +1189,20 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  if (isActive) {
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate Distributor?" : "Activate Distributor?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this distributor account? This will affect their ability to manage retail networks.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1169,7 +1229,20 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId && isLocked) {
-                                  dispatch(kycUnlock(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Distributor Access?",
+                                    message: "Are you sure you want to enable access for this distributor account? This will unlock their dashboard and services.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               disabled={!isLocked}
@@ -1184,6 +1257,68 @@ const Distribution = ({
                               }
                             >
                               {isLocked ? "Enable Access" : "Access Enabled"}
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this distributor?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Re-send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Deactivation - Send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Request Deactivation?",
+                                    message: "Are you sure you want to request deactivation for this distributor? This will initiate the account closure process.",
+                                    type: "warning",
+                                    confirmText: "Yes, Send Request",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Send
                             </button>
                           );
                         })()}
@@ -2168,36 +2303,32 @@ const Distribution = ({
 
       {/* Revert Confirmation Modal - Simple & Stable Design */}
       {showRevertConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[80] animate-fadeIn p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slideUp border border-gray-100">
-            {/* Header */}
-            <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800">
-                Confirm Revert
-              </h3>
-              <button 
-                onClick={() => {
-                  setShowRevertConfirm(false);
-                  setRevertPayload(null);
-                }}
-                disabled={isReverting}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-
-            <div className="p-8">
-              {/* Simple Icon Section */}
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-                <FaTimesCircle className="text-red-500 text-2xl" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-fadeIn p-4">
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp"
+          >
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
+                <FaTimesCircle className="text-red-500 text-4xl" />
               </div>
-              
-              <p className="text-center text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed">
-                Are you sure you want to revert the <span className="text-red-600 font-[Gilroy-Semibold]">{revertPayload?.step}</span> section?
+              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
+                Revert {revertPayload?.step}?
+              </h3>
+              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
+                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
               </p>
-              
-              <div className="flex flex-col gap-3">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
+                >
+                  No, Cancel
+                </button>
                 <button
                   onClick={() => {
                     if (selectedUserId && revertPayload) {
@@ -2207,26 +2338,46 @@ const Distribution = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg shadow-red-200"
                 >
                   {isReverting ? (
-                    <>
-                      <ButtonLoader size={18} thickness={3} color="#ffffff" />
-                      <span>Processing...</span>
-                    </>
+                    <ButtonLoader size={20} color="#ffffff" />
                   ) : (
                     "Yes, Revert"
                   )}
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unified Confirmation Modal */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slideUp">
+            <div className={`h-2 ${confirmModal.type === 'danger' ? 'bg-red-500' : confirmModal.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`} />
+            <div className="p-6">
+              <h3 className="text-xl font-[Gilroy-SemiBold] text-[#1B1717] mb-2">{confirmModal.title}</h3>
+              <p className="text-[#1B1717]/70 font-[Gilroy-Regular] mb-8">{confirmModal.message}</p>
+              <div className="flex gap-3">
                 <button
-                  onClick={() => {
-                    setShowRevertConfirm(false);
-                    setRevertPayload(null);
-                  }}
-                  disabled={isReverting}
-                  className="w-full px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all font-[Gilroy-Semibold]"
+                  disabled={confirmModal.isProcessing}
+                  onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+                  className="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-xl font-[Gilroy-Medium] hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  Cancel
+                  {confirmModal.cancelText}
+                </button>
+                <button
+                  disabled={confirmModal.isProcessing}
+                  onClick={confirmModal.onConfirm}
+                  className={`flex-1 px-4 py-3 text-white rounded-xl font-[Gilroy-Semibold] transition-all flex items-center justify-center min-w-[120px] ${
+                    confirmModal.type === 'danger' ? 'bg-red-500 hover:bg-red-600' : 
+                    confirmModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 
+                    'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {confirmModal.isProcessing ? <ButtonLoader size={20} color="white" /> : confirmModal.confirmText}
                 </button>
               </div>
             </div>

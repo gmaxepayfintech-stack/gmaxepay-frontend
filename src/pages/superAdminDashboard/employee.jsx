@@ -5,7 +5,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ButtonLoader } from "../../widgets/layout/loader";
-import { createEmployee, useList, ResendEmployeeLoginAccess, kycUnlock } from "../../redux/action/whiteLabelAction";
+import { createEmployee, useList, ResendEmployeeLoginAccess, kycUnlock, kycStatusCheck } from "../../redux/action/whiteLabelAction";
 import { useNotification } from "../../context/NotificationContext";
 
 const tableHeaders = [
@@ -30,6 +30,18 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingLocal, setIsLoadingLocal] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Unified Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    title: "",
+    message: "",
+    type: "danger", // danger, success, warning, info
+    onConfirm: null,
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    isProcessing: false,
+  });
 
   const dispatch = useDispatch();
   const { EmployeeAdd, Success, message, whitelabelList, resendAccess } = useSelector((state) => state.whitelabel);
@@ -145,14 +157,25 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
   // Filter logic handled by API, using search locally for immediate feedback if needed
   const currentTableData = embedded && tableData ? tableData : apiData;
 
-  const handleToggle = (id) => {
-    // setData((prev) =>
-    //   prev.map((row) =>
-    //     row.id === id
-    //       ? { ...row, status: row.status === "active" ? "inactive" : "active" }
-    //       : row
-    //   )
-    // );
+  const handleToggle = (id, currentStatus) => {
+    if (!id) return;
+    const isActive = currentStatus === "Active" || currentStatus === "active";
+
+    setConfirmModal({
+      show: true,
+      title: isActive ? "Deactivate Employee?" : "Activate Employee?",
+      message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this employee account? This will affect their system access.`,
+      type: isActive ? "danger" : "success",
+      confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+      onConfirm: () => {
+        dispatch(kycStatusCheck(id, { isActive: isActive ? "false" : "true" }));
+        setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+        setTimeout(() => {
+          setConfirmModal({ show: false, isProcessing: false });
+          fetchEmployees(); // Refresh list
+        }, 800);
+      }
+    });
   };
 
   return (
@@ -265,7 +288,7 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                     {/* Active Toggle */}
                     <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                       <button
-                        onClick={() => handleToggle(row.id)}
+                        onClick={() => handleToggle(row.id, row.status)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
                           }`}
                         role="switch"
@@ -288,12 +311,28 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                         const userId = row.id || row.originalItem?.id;
                         const isLocked =
                           row?.originalItem?.lock === true ||
-                          row?.originalItem?.lock === "true";
+                          row?.originalItem?.lock === "true" ||
+                          row?.lock === true ||
+                          row?.lock === "true";
                         return (
                           <button
                             onClick={() => {
                               if (userId && isLocked) {
-                                dispatch(kycUnlock(userId));
+                                setConfirmModal({
+                                  show: true,
+                                  title: "Enable Employee Access?",
+                                  message: "Are you sure you want to enable access for this employee? This will unlock their dashboard and system functions.",
+                                  type: "success",
+                                  confirmText: "Yes, Enable Access",
+                                  onConfirm: () => {
+                                    dispatch(kycUnlock(userId));
+                                    setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                    setTimeout(() => {
+                                      setConfirmModal({ show: false, isProcessing: false });
+                                      fetchEmployees();
+                                    }, 800);
+                                  }
+                                });
                               }
                             }}
                             disabled={!isLocked}
@@ -314,7 +353,22 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                     </td>
                     <td className="px-4 py-4">
                       <button
-                        onClick={() => dispatch(ResendEmployeeLoginAccess(row.id))}
+                        onClick={() => {
+                          setConfirmModal({
+                            show: true,
+                            title: "Resend Login Access?",
+                            message: "Are you sure you want to resend the login credentials and access link to this employee?",
+                            type: "info",
+                            confirmText: "Yes, Resend",
+                            onConfirm: () => {
+                              dispatch(ResendEmployeeLoginAccess(row.id));
+                              setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                              setTimeout(() => {
+                                setConfirmModal({ show: false, isProcessing: false });
+                              }, 800);
+                            }
+                          });
+                        }}
                         className="group flex items-center justify-center gap-2 border border-green-500 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white px-5 py-2.5 rounded-xl font-[Gilroy-Semibold] transition-all duration-300 active:scale-95 text-sm"
                       >
                         <span>Resend</span>
@@ -495,6 +549,39 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Unified Confirmation Modal */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slideUp">
+            <div className={`h-2 ${confirmModal.type === 'danger' ? 'bg-red-500' : confirmModal.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`} />
+            <div className="p-6">
+              <h3 className="text-xl font-[Gilroy-SemiBold] text-[#1B1717] mb-2">{confirmModal.title}</h3>
+              <p className="text-[#1B1717]/70 font-[Gilroy-Regular] mb-8">{confirmModal.message}</p>
+              <div className="flex gap-3">
+                <button
+                  disabled={confirmModal.isProcessing}
+                  onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+                  className="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-xl font-[Gilroy-Medium] hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  {confirmModal.cancelText}
+                </button>
+                <button
+                  disabled={confirmModal.isProcessing}
+                  onClick={confirmModal.onConfirm}
+                  className={`flex-1 px-4 py-3 text-white rounded-xl font-[Gilroy-SemiBold] transition-all flex items-center justify-center min-w-[120px] ${
+                    confirmModal.type === 'danger' ? 'bg-red-500 hover:bg-red-600' : 
+                    confirmModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 
+                    'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {confirmModal.isProcessing ? <ButtonLoader size={20} color="white" /> : confirmModal.confirmText}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

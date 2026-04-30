@@ -988,6 +988,18 @@ const DistrubtionOnboarding = ({
                     Action
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Lock Status
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Onboarding
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Token Expire
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -1160,26 +1172,153 @@ const DistrubtionOnboarding = ({
                           KYC Details
                         </button>
                       </td>
-                      {/* Action */}
+                      {/* Action - Toggle Button */}
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => {
-                              console.log("Edit:", row.originalItem || row);
-                            }}
-                            className="text-gray-600 hover:text-green-600 transition-colors"
-                          >
-                            <FaEdit className="text-sm" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              console.log("Delete:", row.originalItem || row);
-                            }}
-                            className="text-gray-600 hover:text-red-600 transition-colors"
-                          >
-                            <FaTrash className="text-sm" />
-                          </button>
-                        </div>
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isActive =
+                            row.status?.toLowerCase() === "active";
+
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate Distributor?" : "Activate Distributor?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this distributor account? This will affect their ability to manage retail networks.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                }`}
+                              role="switch"
+                              aria-checked={isActive}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+                                  }`}
+                              />
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Lock Status - Colored Button */}
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isLocked =
+                            row?.originalItem?.lock === true ||
+                            row?.originalItem?.lock === "true";
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId && isLocked) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Distributor Access?",
+                                    message: "Are you sure you want to enable access for this distributor account? This will unlock their dashboard and services.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              disabled={!isLocked}
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                }`}
+                              title={
+                                isLocked
+                                  ? "Click to enable access for this account"
+                                  : "Account access is enabled"
+                              }
+                            >
+                              {isLocked ? "Enable Access" : "Access Enabled"}
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this distributor?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Re-send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Deactivation - Send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Send Deactivation Request?",
+                                    message: "Are you sure you want to send a deactivation request for this distributor?",
+                                    type: "warning",
+                                    confirmText: "Yes, Send",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
+                        {row.onboardingTokenExpiresAt ? new Date(row.onboardingTokenExpiresAt).toLocaleDateString("en-GB").replaceAll("/", "-") : "N/A"}
                       </td>
                       {/* Date */}
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">

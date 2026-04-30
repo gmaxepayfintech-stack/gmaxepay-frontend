@@ -1121,6 +1121,15 @@ const RetailerOnboarding = ({
                     Lock Status
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Onboarding
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Token Expire
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -1276,42 +1285,20 @@ const RetailerOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // Handle both cases: active → inactive and inactive → active
-                                  if (isActive) {
-                                    // Toggling from active to inactive (OFF)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    // Toggling from inactive to active (ON)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
-
-                                  // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                        kycStatus: "pending",
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 6,
-                                      },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
-                                    };
-                                    dispatch(useListAction(payload));
-                                  }, 500);
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate User?" : "Activate User?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this user? This will affect their ability to access the platform.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1331,8 +1318,6 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
-                          // Check multiple possible formats for lock status
-                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
                           const lockValue =
                             row?.lock !== undefined && row?.lock !== null
                               ? row.lock
@@ -1341,7 +1326,6 @@ const RetailerOnboarding = ({
                                 : row?.isLocked !== undefined && row?.isLocked !== null
                                   ? row.isLocked
                                   : row?.lockStatus;
-                          // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&
                             lockValue !== null &&
@@ -1352,12 +1336,21 @@ const RetailerOnboarding = ({
                           return (
                             <button
                               onClick={() => {
-                                // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  // The useEffect hook will automatically refresh the table
-                                  // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Account Access?",
+                                    message: "Are you sure you want to enable access for this account? This will unlock the user's dashboard and services.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               disabled={!isLocked}
@@ -1375,6 +1368,71 @@ const RetailerOnboarding = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this user?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Re-send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Deactivation - Send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Send Deactivation Request?",
+                                    message: "Are you sure you want to send a deactivation request for this user?",
+                                    type: "warning",
+                                    confirmText: "Yes, Send",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
+                                }
+                              }}
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        {formatDate(row.onboardingTokenExpiresAt)}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {formatDate(row.date)}
