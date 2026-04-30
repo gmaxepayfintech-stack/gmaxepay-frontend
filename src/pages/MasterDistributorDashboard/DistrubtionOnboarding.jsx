@@ -32,6 +32,9 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
+
+
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -51,6 +54,10 @@ const DistrubtionOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
+  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+  const [revertPayload, setRevertPayload] = useState(null);
+  const [isReverting, setIsReverting] = useState(false);
+
 
   const kycModalRef = useRef(null);
 
@@ -152,22 +159,26 @@ const DistrubtionOnboarding = ({
 
   // Refresh KYC data when revert succeeds
   useEffect(() => {
-    if (
-      kycRevertResponse?.status === "SUCCESS" &&
-      selectedUserId &&
-      showKycModal
-    ) {
-      // Clear current data to force re-render
-      setSelectedKycData(null);
-      // Small delay to ensure backend has processed the revert
-      const timer = setTimeout(() => {
-        // Force update by incrementing refresh key
-        setKycDataRefreshKey((prev) => prev + 1);
-        // Refresh KYC data after revert
-        dispatch(kycDataUser(selectedUserId));
-      }, 500);
-
-      return () => clearTimeout(timer);
+    if (kycRevertResponse) {
+      if (kycRevertResponse.status === "SUCCESS") {
+        setIsReverting(false);
+        setShowRevertConfirm(false);
+        setRevertPayload(null);
+        if (selectedUserId && showKycModal) {
+          // Clear current data to force re-render
+          setSelectedKycData(null);
+          // Small delay to ensure backend has processed the revert
+          const timer = setTimeout(() => {
+            // Force update by incrementing refresh key
+            setKycDataRefreshKey((prev) => prev + 1);
+            // Refresh KYC data after revert
+            dispatch(kycDataUser(selectedUserId));
+          }, 500);
+          return () => clearTimeout(timer);
+        }
+      } else if (kycRevertResponse.status === "FAILED") {
+        setIsReverting(false);
+      }
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
@@ -1227,19 +1238,16 @@ const DistrubtionOnboarding = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        aadhar: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ aadhar: "true", step: "Aadhar" });
+                                  setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert Aadhar
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
@@ -1357,19 +1365,16 @@ const DistrubtionOnboarding = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        pan: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ pan: "true", step: "PAN" });
+                                  setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert PAN
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
@@ -1573,19 +1578,16 @@ const DistrubtionOnboarding = ({
                             {selectedUserId && (
                               <button
                                 onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        bankVerification: "true",
-                                      }),
-                                    );
-                                  }
+                                  setRevertPayload({ bankVerification: "true", step: "Bank Details" });
+                                  setShowRevertConfirm(true);
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
                               >
-                                Revert
+                                <FaTimesCircle />
+                                Revert Bank Details
                               </button>
                             )}
+
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
@@ -1908,7 +1910,76 @@ const DistrubtionOnboarding = ({
         </div>
       )}
 
+      {/* Revert Confirmation Modal - Standardized Premium UI */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[80] animate-fadeIn p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slideUp border border-gray-100">
+            {/* Header */}
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800">
+                Confirm Revert
+              </h3>
+              <button 
+                onClick={() => {
+                  setShowRevertConfirm(false);
+                  setRevertPayload(null);
+                }}
+                disabled={isReverting}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="p-8">
+              {/* Simple Icon Section */}
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <FaTimesCircle className="text-red-500 text-2xl" />
+              </div>
+              
+              <p className="text-center text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed">
+                Are you sure you want to revert the <span className="text-red-600 font-[Gilroy-Semibold]">{revertPayload?.step}</span> section?
+              </p>
+              
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    if (selectedUserId && revertPayload) {
+                      setIsReverting(true);
+                      const { step, ...apiPayload } = revertPayload;
+                      dispatch(kycRevert(selectedUserId, apiPayload));
+                    }
+                  }}
+                  disabled={isReverting}
+                  className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isReverting ? (
+                    <>
+                      <ButtonLoader size={18} thickness={3} color="#ffffff" />
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    "Yes, Revert"
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="w-full px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all font-[Gilroy-Semibold]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Image Zoom Modal */}
+
       {zoomedImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] animate-fadeIn"
