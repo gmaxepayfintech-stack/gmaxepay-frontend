@@ -58,6 +58,18 @@ const MasterDistribution = ({
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
+  // Unified Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    title: "",
+    message: "",
+    type: "danger", // danger, success, warning, info
+    onConfirm: null,
+    confirmText: "Confirm",
+    cancelText: "Cancel",
+    isProcessing: false,
+  });
+
   // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
     (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
@@ -616,23 +628,20 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // Handle both cases: active → inactive and inactive → active
-                                  if (isActive) {
-                                    // Toggling from active to inactive (OFF)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    // Toggling from inactive to active (ON)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
-                                  // Refresh will be handled by useEffect watching kycStatusCheckResponse
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate Master Distributor?" : "Activate Master Distributor?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this master distributor account? This will affect their ability to manage distribution networks.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -659,9 +668,20 @@ const MasterDistribution = ({
                               onClick={() => {
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  dispatch(kycUnlock(userId));
-                                  // Refresh will be handled by useEffect watching kycStatusCheckResponse
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Master Distributor Access?",
+                                    message: "Are you sure you want to enable access for this account? This will unlock their dashboard and services.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               disabled={!isLocked}
@@ -688,7 +708,20 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this master distributor?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -706,7 +739,20 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Request Deactivation?",
+                                    message: "Are you sure you want to request deactivation for this master distributor? This will initiate the account closure process.",
+                                    type: "warning",
+                                    confirmText: "Yes, Send Request",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1056,23 +1102,20 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // Handle both cases: active → inactive and inactive → active
-                                  if (isActive) {
-                                    // Toggling from active to inactive (OFF)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    // Toggling from inactive to active (ON)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
-                                  // Refresh will be handled by useEffect watching kycStatusCheckResponse
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate Master Distributor?" : "Activate Master Distributor?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this master distributor account? This will affect their ability to manage distribution networks.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1097,11 +1140,21 @@ const MasterDistribution = ({
                           return (
                             <button
                               onClick={() => {
-                                // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  dispatch(kycUnlock(userId));
-                                  // Refresh will be handled by useEffect watching kycStatusCheckResponse
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Master Distributor Access?",
+                                    message: "Are you sure you want to enable access for this account? This will unlock their dashboard and services.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               disabled={!isLocked}
@@ -1128,7 +1181,20 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this master distributor?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1146,7 +1212,20 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Request Deactivation?",
+                                    message: "Are you sure you want to request deactivation for this master distributor? This will initiate the account closure process.",
+                                    type: "warning",
+                                    confirmText: "Yes, Send Request",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -2158,21 +2237,95 @@ const MasterDistribution = ({
                 disabled={isReverting}
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="p-8">
-              {/* Simple Icon Section */}
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-                <FaTimesCircle className="text-red-500 text-2xl" />
+      {/* Unified Confirmation Modal */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-fadeIn p-4">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp"
+          >
+            <div className="p-8 text-center">
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border-4 ${
+                confirmModal.type === 'danger' ? 'bg-red-50 border-red-100 text-red-500' :
+                confirmModal.type === 'success' ? 'bg-green-50 border-green-100 text-green-500' :
+                confirmModal.type === 'warning' ? 'bg-orange-50 border-orange-100 text-orange-500' :
+                'bg-blue-50 border-blue-100 text-blue-500'
+              }`}>
+                {confirmModal.type === 'danger' ? <FaTimesCircle className="text-4xl" /> :
+                 confirmModal.type === 'success' ? <FaCheckCircle className="text-4xl" /> :
+                 confirmModal.type === 'warning' ? <FaTimesCircle className="text-4xl" /> :
+                 <FaUser className="text-4xl" />}
               </div>
-              
-              <p className="text-center text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed">
-                Are you sure you want to revert the <span className="text-red-600 font-[Gilroy-Semibold]">{revertPayload?.step}</span> section?
+              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
+                {confirmModal.title}
+              </h3>
+              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
+                {confirmModal.message}
               </p>
-              
-              <div className="flex flex-col gap-3">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setConfirmModal({ ...confirmModal, show: false })}
+                  disabled={confirmModal.isProcessing}
+                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
+                >
+                  {confirmModal.cancelText}
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  disabled={confirmModal.isProcessing}
+                  className={`flex-1 px-6 py-3 text-white rounded-xl transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg ${
+                    confirmModal.type === 'danger' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' :
+                    confirmModal.type === 'success' ? 'bg-green-600 hover:bg-green-700 shadow-green-200' :
+                    confirmModal.type === 'warning' ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-200' :
+                    'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                  }`}
+                >
+                  {confirmModal.isProcessing ? (
+                    <ButtonLoader size={20} color="#ffffff" />
+                  ) : (
+                    confirmModal.confirmText
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revert Confirmation Modal */}
+      {showRevertConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-fadeIn p-4">
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slideUp"
+          >
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
+                <FaTimesCircle className="text-red-500 text-4xl" />
+              </div>
+              <h3 className="text-2xl font-[Gilroy-Bold] text-gray-900 mb-3">
+                Revert {revertPayload?.step}?
+              </h3>
+              <p className="text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed px-4">
+                Are you sure you want to revert this document? This will notify the user to re-upload their {revertPayload?.step} document for verification.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowRevertConfirm(false);
+                    setRevertPayload(null);
+                  }}
+                  disabled={isReverting}
+                  className="flex-1 px-6 py-3 border-2 border-gray-100 text-gray-600 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-[Gilroy-Semibold] disabled:opacity-50"
+                >
+                  No, Cancel
+                </button>
                 <button
                   onClick={() => {
                     if (selectedUserId && revertPayload) {
@@ -2182,26 +2335,13 @@ const MasterDistribution = ({
                     }
                   }}
                   disabled={isReverting}
-                  className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] disabled:opacity-50 flex items-center justify-center shadow-lg shadow-red-200"
                 >
                   {isReverting ? (
-                    <>
-                      <ButtonLoader size={18} thickness={3} color="#ffffff" />
-                      <span>Processing...</span>
-                    </>
+                    <ButtonLoader size={20} color="#ffffff" />
                   ) : (
                     "Yes, Revert"
                   )}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowRevertConfirm(false);
-                    setRevertPayload(null);
-                  }}
-                  disabled={isReverting}
-                  className="w-full px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all font-[Gilroy-Semibold]"
-                >
-                  Cancel
                 </button>
               </div>
             </div>

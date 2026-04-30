@@ -852,9 +852,11 @@ const MasterDistributionOnboarding = ({
                     Onboarding
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
-
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
@@ -1014,24 +1016,20 @@ const MasterDistributionOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // Handle both cases: active → inactive and inactive → active
-                                  if (isActive) {
-                                    // Toggling from active to inactive (OFF)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "false",
-                                      }),
-                                    );
-                                  } else {
-                                    // Toggling from inactive to active (ON)
-                                    dispatch(
-                                      kycStatusCheck(userId, {
-                                        isActive: "true",
-                                      }),
-                                    );
-                                  }
-
-                                  // Refresh will be handled by useEffect watching kycStatusCheckResponse
+                                  setConfirmModal({
+                                    show: true,
+                                    title: isActive ? "Deactivate User?" : "Activate User?",
+                                    message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this user? This will affect their ability to manage master distribution networks.`,
+                                    type: isActive ? "danger" : "success",
+                                    confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                    onConfirm: () => {
+                                      dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1057,12 +1055,21 @@ const MasterDistributionOnboarding = ({
                           return (
                             <button
                               onClick={() => {
-                                // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  dispatch(kycUnlock(userId));
-
-                                  // Refresh will be handled by useEffect watching kycLockStatusResponse
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Enable Account Access?",
+                                    message: "Are you sure you want to enable access for this account? This will unlock the master distributor's dashboard.",
+                                    type: "success",
+                                    confirmText: "Yes, Enable Access",
+                                    onConfirm: () => {
+                                      dispatch(kycUnlock(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               disabled={!isLocked}
@@ -1089,7 +1096,20 @@ const MasterDistributionOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Resend Onboarding?",
+                                    message: "Are you sure you want to resend the onboarding invitation to this user?",
+                                    type: "info",
+                                    confirmText: "Yes, Resend",
+                                    onConfirm: () => {
+                                      dispatch(rescendOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1107,7 +1127,20 @@ const MasterDistributionOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
+                                  setConfirmModal({
+                                    show: true,
+                                    title: "Send Deactivation Request?",
+                                    message: "Are you sure you want to send a deactivation request for this user?",
+                                    type: "warning",
+                                    confirmText: "Yes, Send",
+                                    onConfirm: () => {
+                                      dispatch(deActiveOnboarding(userId));
+                                      setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                      setTimeout(() => {
+                                        setConfirmModal({ show: false, isProcessing: false });
+                                      }, 800);
+                                    }
+                                  });
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1116,6 +1149,9 @@ const MasterDistributionOnboarding = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        {row.onboardingTokenExpiresAt ? new Date(row.onboardingTokenExpiresAt).toLocaleDateString("en-GB").replaceAll("/", "-") : "N/A"}
                       </td>
                       {/* Date */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
