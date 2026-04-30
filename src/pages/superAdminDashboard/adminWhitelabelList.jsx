@@ -826,6 +826,15 @@ const AdminWhitelabelList = ({
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Lock Status
                   </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Onboarding
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Deactivation
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    Token Expire
+                  </th>
                 </tr>
               </thead>
               <tbody className="text-center">
@@ -952,19 +961,20 @@ const AdminWhitelabelList = ({
                           <button
                             onClick={() => {
                               if (userId) {
-                                if (isActive) {
-                                  dispatch(
-                                    kycStatusCheck(userId, {
-                                      isActive: "false",
-                                    }),
-                                  );
-                                } else {
-                                  dispatch(
-                                    kycStatusCheck(userId, {
-                                      isActive: "true",
-                                    }),
-                                  );
-                                }
+                                setConfirmModal({
+                                  show: true,
+                                  title: isActive ? "Deactivate Whitelabel?" : "Activate Whitelabel?",
+                                  message: `Are you sure you want to ${isActive ? "deactivate" : "activate"} this whitelabel account? This will affect their ability to manage services.`,
+                                  type: isActive ? "danger" : "success",
+                                  confirmText: isActive ? "Yes, Deactivate" : "Yes, Activate",
+                                  onConfirm: () => {
+                                    dispatch(kycStatusCheck(userId, { isActive: isActive ? "false" : "true" }));
+                                    setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                    setTimeout(() => {
+                                      setConfirmModal({ show: false, isProcessing: false });
+                                    }, 800);
+                                  }
+                                });
                               }
                             }}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -991,7 +1001,20 @@ const AdminWhitelabelList = ({
                           <button
                             onClick={() => {
                               if (userId && isLocked) {
-                                dispatch(kycUnlock(userId));
+                                setConfirmModal({
+                                  show: true,
+                                  title: "Enable Whitelabel Access?",
+                                  message: "Are you sure you want to enable access for this whitelabel account? This will unlock their dashboard and management tools.",
+                                  type: "success",
+                                  confirmText: "Yes, Enable Access",
+                                  onConfirm: () => {
+                                    dispatch(kycUnlock(userId));
+                                    setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                    setTimeout(() => {
+                                      setConfirmModal({ show: false, isProcessing: false });
+                                    }, 800);
+                                  }
+                                });
                               }
                             }}
                             disabled={!isLocked}
@@ -1007,6 +1030,71 @@ const AdminWhitelabelList = ({
                           </button>
                         );
                       })()}
+                    </td>
+                    {/* Onboarding - Re-send Button */}
+                    <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[#121216] text-[14px]">
+                      {(() => {
+                        const userId = row.id || row.originalItem?.id;
+                        return (
+                          <button
+                            onClick={() => {
+                              if (userId) {
+                                setConfirmModal({
+                                  show: true,
+                                  title: "Resend Onboarding?",
+                                  message: "Are you sure you want to resend the onboarding invitation to this whitelabel user?",
+                                  type: "info",
+                                  confirmText: "Yes, Resend",
+                                  onConfirm: () => {
+                                    dispatch(rescendOnboarding(userId));
+                                    setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                    setTimeout(() => {
+                                      setConfirmModal({ show: false, isProcessing: false });
+                                    }, 800);
+                                  }
+                                });
+                              }
+                            }}
+                            className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                          >
+                            Re-send
+                          </button>
+                        );
+                      })()}
+                    </td>
+                    {/* Deactivation - Send Button */}
+                    <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[#121216] text-[14px]">
+                      {(() => {
+                        const userId = row.id || row.originalItem?.id;
+                        return (
+                          <button
+                            onClick={() => {
+                              if (userId) {
+                                setConfirmModal({
+                                  show: true,
+                                  title: "Send Deactivation Request?",
+                                  message: "Are you sure you want to send a deactivation request for this whitelabel account?",
+                                  type: "warning",
+                                  confirmText: "Yes, Send",
+                                  onConfirm: () => {
+                                    dispatch(deActiveOnboarding(userId));
+                                    setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                    setTimeout(() => {
+                                      setConfirmModal({ show: false, isProcessing: false });
+                                    }, 800);
+                                  }
+                                });
+                              }
+                            }}
+                            className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
+                          >
+                            Send
+                          </button>
+                        );
+                      })()}
+                    </td>
+                    <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
+                      {formatDate(row.onboardingTokenExpiresAt)}
                     </td>
                   </tr>
                 ))}
