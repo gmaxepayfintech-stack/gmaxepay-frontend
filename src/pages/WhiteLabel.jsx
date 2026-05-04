@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader, { ButtonLoader } from "../widgets/layout/loader";
 import { useNotification } from "../context/NotificationContext";
 import { FiChevronDown } from "react-icons/fi";
-
+import KycModal from "./superAdminDashboard/KycModal";
 const WhiteLabel = ({ onBack }) => {
   const dispatch = useDispatch();
   const { showNotification, success, error } = useNotification();
