@@ -38,8 +38,6 @@ const RetailerOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [zoomedImage, setZoomedImage] = useState(null);
 
   // Get KYC details from Redux state
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -105,13 +103,6 @@ const RetailerOnboarding = ({
     refreshTable();
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-  // Refresh KYC data when revert succeeds
-  useEffect(() => {
-    if (kycRevertResponse?.status === "SUCCESS" && selectedUserId && showKycModal) {
-      setKycDataRefreshKey((prev) => prev + 1);
-      dispatch(employeeKycData(selectedUserId));
-    }
-  }, [kycRevertResponse]);
 
   // Refresh table when kycStatusCheck or unlock succeeds
   useEffect(() => {
@@ -388,20 +379,10 @@ const RetailerOnboarding = ({
         onClose={() => {
           setShowKycModal(false);
           setSelectedUserId(null);
-          setActiveTab("overview");
-          setZoomedImage(null);
         }}
-        kycData={kycRetrieved}
-        selectedUserId={selectedUserId}
-        isLoading={kycDetailsState?.loading}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        zoomedImage={zoomedImage}
-        setZoomedImage={setZoomedImage}
-        revertAction={employeeKycRevert}
-        kycDataAction={employeeKycData}
-        kycDataRefreshKey={kycDataRefreshKey}
-        setKycDataRefreshKey={setKycDataRefreshKey}
+        userId={selectedUserId}
+        refreshKey={kycDataRefreshKey}
+        onRevertSuccess={() => setKycDataRefreshKey((prev) => prev + 1)}
       />
     </div>
   );

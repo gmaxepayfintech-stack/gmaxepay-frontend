@@ -18,7 +18,7 @@ import {
     Layers
 } from "lucide-react";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { kycRevert, employeeKycData } from "../../../redux/action/whiteLabelAction";
+import { employeeKycRevert, employeeKycData } from "../../../redux/action/whiteLabelAction";
 
 const KycModal = ({
     isOpen,
@@ -124,7 +124,7 @@ const KycModal = ({
                                     KYC Verification Portal
                                 </h2>
                                 <div className="flex items-center gap-3 mt-0.5">
-                                    <p className="text-xs font-[Gilroy-Medium] text-slate-500 uppercase tracking-wider">User ID: {user.userId || user.userCode || data.userId || selectedUserId || 'N/A'}</p>
+                                    <p className="text-xs font-[Gilroy-Medium] text-slate-500 uppercase tracking-wider">User ID: {user.userId || user.userCode || data.userId || userId || 'N/A'}</p>
                                     <div className="w-1 h-1 bg-slate-200 rounded-full" />
                                     <div className="flex items-center gap-1">
                                         <Layers className="w-3 h-3 text-slate-400" />
@@ -140,7 +140,7 @@ const KycModal = ({
                                 <span className="text-sm font-[Gilroy-Bold] text-slate-900">{user.name || 'User'}</span>
                             </div>
                             <button
-                                onClick={handleClose}
+                                onClick={onClose}
                                 className={`absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-xl ${primaryBg} hover:opacity-90 transition shadow-lg shadow-emerald-200/50`}
                             >
                                 <X className="w-6 h-6 text-white rounded-full border-[2.5px] border-white p-0.5" />
@@ -175,8 +175,9 @@ const KycModal = ({
                     {/* Content Area */}
                     <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 scrollbar-hide relative z-10">
                         {(() => {
-                            const hasFailed = kycStatus === "FAILED" || kycStatus === "ERROR" || kycStatus === "FAILURE";
-                            const showLoader = loading || (selectedUserId && !effectiveKycData && !hasFailed);
+                            const kycStatusValue = data.kycStatus || 'PENDING';
+                            const hasFailed = kycStatusValue === "FAILED" || kycStatusValue === "ERROR" || kycStatusValue === "FAILURE";
+                            const showLoader = loading || (userId && !effectiveKycData && !hasFailed);
 
                             if (showLoader) {
                                 return (
@@ -542,11 +543,10 @@ const KycModal = ({
                                 </button>
                                 <button
                                     onClick={() => {
-                                        if (selectedUserId && revertPayload) {
+                                        if (userId && revertPayload) {
                                             setIsReverting(true);
                                             const { step, ...apiPayload } = revertPayload;
-                                            const actionToDispatch = revertAction || kycRevert;
-                                            dispatch(actionToDispatch(selectedUserId, apiPayload));
+                                            dispatch(employeeKycRevert(userId, apiPayload));
                                         }
                                     }}
                                     disabled={isReverting}
@@ -560,57 +560,6 @@ const KycModal = ({
                 </div>
             )}
 
-            {/* Integrated Unified Confirmation Modal */}
-            {confirmModal?.show && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center z-[130] animate-fadeIn p-4 overflow-y-auto font-[Gilroy]">
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] overflow-hidden animate-slideUp border border-slate-100"
-                    >
-                        <div className="p-6">
-                            <div className="flex items-start gap-4 mb-6">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600' :
-                                        confirmModal.type === 'success' ? 'bg-emerald-50 text-[#039155]' :
-                                            'bg-emerald-50 text-[#039155]'
-                                    }`}>
-                                    {confirmModal.type === 'danger' ? <RotateCcw className="w-6 h-6" /> :
-                                        confirmModal.type === 'success' ? <FaCheckCircle className="w-6 h-6" /> :
-                                            <Info className="w-6 h-6" />}
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-1">
-                                        {confirmModal.title}
-                                    </h3>
-                                    <p className="text-slate-500 text-sm leading-relaxed">
-                                        {confirmModal.message}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-end gap-3 pt-2">
-                                <button
-                                    onClick={() => setConfirmModal({ ...confirmModal, show: false })}
-                                    disabled={confirmModal.isProcessing}
-                                    className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    {confirmModal.cancelText || 'Cancel'}
-                                </button>
-                                <button
-                                    onClick={confirmModal.onConfirm}
-                                    disabled={confirmModal.isProcessing}
-                                    className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 flex items-center gap-2 ${confirmModal.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700' :
-                                            confirmModal.type === 'success' ? 'bg-[#039155] hover:opacity-90 shadow-emerald-200/50' :
-                                                'bg-[#039155] hover:opacity-90 shadow-emerald-200/50'
-                                        }`}
-                                >
-                                    {confirmModal.isProcessing && <ButtonLoader size={14} color="#ffffff" thickness={2} />}
-                                    {confirmModal.confirmText || 'Continue'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Integrated Image Zoom */}
             {zoomedImage && (

@@ -38,20 +38,12 @@ const MasterDistribution = ({
   const [toDate, setToDate] = useState(
     () => new Date().toISOString().split("T")[0],
   );
-  const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
-  const [isKycModalLoading, setIsKycModalLoading] = useState(false);
 
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
-  // Revert confirmation state
-  const [showRevertConfirm, setShowRevertConfirm] = useState(false);
-  const [revertPayload, setRevertPayload] = useState(null);
-  const [isReverting, setIsReverting] = useState(false);
 
   // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
@@ -235,74 +227,6 @@ const MasterDistribution = ({
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
-  // Update selectedKycData when Redux state changes
-  useEffect(() => {
-    if (kycRetrieved && showKycModal) {
-      // Force update by creating a deep copy to ensure React detects the change
-      try {
-        const deepCopy = structuredClone(kycRetrieved);
-        setSelectedKycData(deepCopy);
-        setIsKycModalLoading(false);
-      } catch (error) {
-        // Fallback to shallow copy if deep copy fails
-        console.warn(
-          "Failed to deep clone KYC data, using shallow copy:",
-          error,
-        );
-        setSelectedKycData({ ...kycRetrieved });
-        setIsKycModalLoading(false);
-      }
-    }
-  }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
-
-  // Refresh KYC data when revert succeeds
-  useEffect(() => {
-    if (
-      kycRevertResponse?.status === "SUCCESS" &&
-      selectedUserId &&
-      showKycModal
-    ) {
-      setIsReverting(false);
-      setShowRevertConfirm(false);
-      setRevertPayload(null);
-      // Clear current data to force re-render
-      setSelectedKycData(null);
-      // Small delay to ensure backend has processed the revert
-      const timer = setTimeout(() => {
-        // Force update by incrementing refresh key
-        setKycDataRefreshKey((prev) => prev + 1);
-        // Refresh KYC data after revert
-        dispatch(employeeKycData(selectedUserId));
-      }, 500);
-
-      return () => clearTimeout(timer);
-    } else if (kycRevertResponse?.status === "ERROR" || kycRevertResponse?.status === "FAILED") {
-      setIsReverting(false);
-      setShowRevertConfirm(false);
-      setRevertPayload(null);
-    }
-  }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
-
-  // Handle click outside modal
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (kycModalRef.current && !kycModalRef.current.contains(event.target)) {
-        setShowKycModal(false);
-        setSelectedKycData(null);
-        setSelectedUserId(null);
-        setActiveTab("overview");
-        setZoomedImage(null);
-      }
-    };
-
-    if (showKycModal) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showKycModal]);
 
   if (showProfileDetails) {
     return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
@@ -580,16 +504,8 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              setIsKycModalLoading(true);
-                              dispatch(employeeKycData(userId));
-
-                              // Small delay to allow Redux state update then show modal
-                              setTimeout(() => {
-                                setIsKycModalLoading(false);
-                                setShowKycModal(true);
-                                setActiveTab("overview");
-                                setZoomedImage(null);
-                              }, 500);
+                              setSelectedUserId(userId);
+                              setShowKycModal(true);
                             }
                           }}
                           className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1217,19 +1133,10 @@ const MasterDistribution = ({
         onClose={() => {
           setShowKycModal(false);
           setSelectedUserId(null);
-          setSelectedKycData(null);
         }}
-        kycData={selectedKycData}
-        isLoading={isKycModalLoading}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        zoomedImage={zoomedImage}
-        setZoomedImage={setZoomedImage}
-        selectedUserId={selectedUserId}
-        revertAction={employeeKycRevert}
-        kycDataAction={employeeKycData}
-        kycDataRefreshKey={kycDataRefreshKey}
-        setKycDataRefreshKey={setKycDataRefreshKey}
+        userId={selectedUserId}
+        refreshKey={kycDataRefreshKey}
+        onRevertSuccess={() => setKycDataRefreshKey((prev) => prev + 1)}
       />
     </div>
   );

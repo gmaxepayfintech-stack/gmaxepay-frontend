@@ -76,8 +76,6 @@ const CreateWhiteLabel = () => {
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
-  const prevResponseRef = useRef(undefined);
-  const kycModalRef = useRef(null);
   const tableContainerRef = useRef(null);
 
   // Loader component for table body
@@ -300,7 +298,6 @@ const CreateWhiteLabel = () => {
     if (!reduxLoading && responseForTableRaw !== undefined) {
       // Data has arrived (could be empty array), hide loader
       setIsTableLoading(false);
-      prevResponseRef.current = responseForTableRaw;
     }
   }, [reduxLoading, responseForTableRaw]);
 
@@ -1362,11 +1359,9 @@ const CreateWhiteLabel = () => {
           setKycDataRefreshKey((prev) => prev + 1);
         }}
         userId={selectedUserId}
-        kycData={kycRetrieved}
         refreshKey={kycDataRefreshKey}
         onRevertSuccess={() => {
           setKycDataRefreshKey((prev) => prev + 1);
-          dispatch(employeeKycData(selectedUserId));
           // Refresh table data
           const userRole = getRoleNumber(activeNav);
           const payload = {
