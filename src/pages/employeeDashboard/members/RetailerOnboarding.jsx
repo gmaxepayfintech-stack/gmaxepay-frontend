@@ -1,32 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ChevronLeft, ChevronRight, User, Search, Upload } from "lucide-react";
+import {
+  FaSearch,
+  FaUpload,
+} from "react-icons/fa";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { User, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import * as XLSX from "xlsx";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-
 import {
   employeeUseList,
   employeeKycData,
-  employeeKycStatusCheck,
   employeeKycUnlock,
-  employeeKycRevert,
   employeeRescendOnboarding,
   employeeDeActiveOnboarding,
+  checkEmployeeAepsStatus,
 } from "../../../redux/action/whiteLabelAction";
 import {
   employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
 import ProfileDetails from "./ProfileDetails";
-import { checkEmployeeAepsStatus } from "../../../redux/action/whiteLabelAction";
 import { useNotification } from "../../../context/NotificationContext";
 import KycModal from "./KycModal";
 
 const RetailerOnboarding = ({
   embedded = false,
   tableData: propTableData = [],
+  isLoading: propIsLoading = false,
 }) => {
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -39,43 +43,45 @@ const RetailerOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
-  // Get KYC details from Redux state
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
-  const kycRetrieved = kycDetailsState?.data || null;
+  // Loader component for table body
+  const TableBodyLoader = ({ colSpan }) => (
+    <tr>
+      <td colSpan={colSpan} className="relative h-[100px] ">
+        <div className="flex flex-col items-center ">
+          <ButtonLoader size={28} thickness={3} />
+        </div>
+      </td>
+    </tr>
+  );
 
   // Get response states
   const kycStatusCheckResponse = useSelector(
     (state) => state?.whitelabel?.kycStatusCheck,
   );
-  const kycRevertResponse = useSelector(
-    (state) => state?.whitelabel?.kycRevert,
-  );
   const kycLockStatusResponse = useSelector(
     (state) => state?.whitelabel?.kycLockStatus,
   );
-  const employeeAepsStatusResponse = useSelector(
-    (state) => state?.whitelabel?.employeeAepsStatus
+  const employeeAepsStatus = useSelector(
+    (state) => state?.whitelabel?.employeeAepsStatus,
   );
-
-  const { showNotification } = useNotification();
 
   // Refresh table when AEPS status check succeeds
   useEffect(() => {
-    if (employeeAepsStatusResponse?.status === "SUCCESS") {
+    if (employeeAepsStatus?.status === "SUCCESS") {
       showNotification({
-        message: employeeAepsStatusResponse?.message || "AEPS Status updated successfully",
+        message: employeeAepsStatus.message || "AEPS status updated successfully",
         type: "success",
         isCritical: true
       });
       refreshTable();
-    } else if (employeeAepsStatusResponse?.status === "FAILURE" || employeeAepsStatusResponse?.status === "Error") {
+    } else if (employeeAepsStatus?.status === "FAILURE" || employeeAepsStatus?.status === "Error") {
       showNotification({
-        message: employeeAepsStatusResponse?.message || "Failed to update AEPS status",
+        message: employeeAepsStatus.message || "Failed to check AEPS status",
         type: "error",
         isCritical: true
       });
     }
-  }, [employeeAepsStatusResponse]);
+  }, [employeeAepsStatus]);
 
   const refreshTable = () => {
     const payload = {
@@ -103,7 +109,6 @@ const RetailerOnboarding = ({
     refreshTable();
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-
   // Refresh table when kycStatusCheck or unlock succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS" || kycLockStatusResponse?.status === "SUCCESS") {
@@ -112,28 +117,42 @@ const RetailerOnboarding = ({
   }, [kycStatusCheckResponse, kycLockStatusResponse]);
 
   // Use Redux data when search is active, otherwise use prop data
-  const reduxTableData = useSelector(
+  const responseForTable = useSelector(
     (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
   );
-  const finalTableData = debouncedSearchTerm.trim() ? reduxTableData : propTableData;
-  
+
+  // Use API data or prop data
+  const allTableData = debouncedSearchTerm.trim() && responseForTable.length > 0 
+    ? responseForTable 
+    : propTableData;
+  const isLoading = propIsLoading;
+
+  // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     return response?.totalCount || response?.total || 0;
   });
 
-  const finalTotalCount = debouncedSearchTerm.trim() && totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
-  const finalTotalPages = finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
-  const displayTableData = finalTableData.slice(0, 5); // Assuming the API handles pagination for redux data
+  const totalCount =
+    debouncedSearchTerm.trim() && totalCountFromRedux > 0
+      ? totalCountFromRedux
+      : allTableData.length;
+
+  const totalPages = totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
+
+  // Slice data to show only 5 records per page
+  const startIndex = (currentPage - 1) * 5;
+  const endIndex = startIndex + 5;
+  const tableData = allTableData.slice(startIndex, endIndex);
 
   // Export to Excel function
   const handleExportToExcel = () => {
-    if (!finalTableData || finalTableData.length === 0) {
+    if (!allTableData || allTableData.length === 0) {
       showNotification({ message: "No data available to export", type: "error" });
       return;
     }
 
-    const excelData = finalTableData.map((row) => ({
+    const excelData = allTableData.map((row) => ({
       ID: row.id || "N/A",
       Date: row.date || "N/A",
       "User ID": row.userId || "N/A",
@@ -197,181 +216,445 @@ const RetailerOnboarding = ({
     return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
   }
 
-  return (
-    <div className={`text-[#1B1717] ${embedded ? "" : "min-h-screen p-4 sm:p-6"}`}>
-      <div className={`flex flex-col ${embedded ? "min-h-[calc(100vh-300px)]" : "bg-white rounded-xl shadow-sm p-6"}`}>
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-            Retailer Onboarding List
-          </h1>
+  const tableHeaders = [
+    "ID", "User", "User ID", "Name", "User Role", "Mobile No", "Email Id", "Parent Name", "Parent Role", "Company", "KYC Status", "KYC Steps", "Main Wallet", "AEPS Status", "AEPS1 Wallet", "AEPS2 Wallet", "Status", "KYC Details", "Action", "Lock Status", "Onboarding", "Date"
+  ];
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#039155] outline-none"
-            />
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              min={fromDate}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#039155] outline-none"
-            />
-            <div className="relative w-full sm:w-64">
-              <input
-                type="text"
-                placeholder="Search by Mobile or Name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 pr-10 py-2 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#039155] outline-none"
-              />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+  return (
+    <div className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}>
+      {embedded ? (
+        <div className="flex flex-col min-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
+            <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
+              Retailer Onboarding List
+            </h2>
+
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
+              <div className="flex flex-col xs:flex-row gap-3">
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => { setFromDate(e.target.value); setCurrentPage(1); }}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }}
+                  min={fromDate || undefined}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
+              </div>
+
+              <div className="relative w-full sm:w-48">
+                <input
+                  type="text"
+                  placeholder="Search by Mobile No or Name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
+                />
+                <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+              </div>
+
+              <button
+                onClick={handleExportToExcel}
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
+              >
+                Export <FaUpload className="text-xs" />
+              </button>
             </div>
+          </div>
+
+          {/* Table */}
+          <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <table className="min-w-[1200px] sm:min-w-full divide-y">
+              <thead className="bg-white text-center">
+                <tr>
+                  {tableHeaders.map(header => (
+                    <th key={header} className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
+                {isLoading ? (
+                  <TableBodyLoader colSpan={tableHeaders.length} />
+                ) : !tableData || tableData.length === 0 ? (
+                  <tr>
+                    <td colSpan={tableHeaders.length} className="py-12 text-center">
+                      <p className="text-gray-500 text-lg font-[Gilroy-Medium]">No data available</p>
+                    </td>
+                  </tr>
+                ) : (
+                  tableData.map((row, index) => (
+                    <tr key={row.id || index} className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.id)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-center">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(setSelectedUserRole(row.userRole || "R"));
+                              dispatch(employeeGetAdminProfileDetails(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.userId)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.name)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.userRole)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.mobileNo)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.email)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.parentName)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.parentRole)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.company)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <span className={`px-2 py-1 rounded text-xs font-[Gilroy-Medium] ${
+                          row.kycStatus?.toLowerCase() === "completed" ? "bg-green-100 text-green-700" :
+                          row.kycStatus?.toLowerCase() === "pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
+                        }`}>
+                          {safeString(row.kycStatus)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">{safeString(row.kycSteps, "0")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">₹{getWalletValue(row, "mainWallet")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                        <button
+                          onClick={() => row.id && dispatch(checkEmployeeAepsStatus(row.id))}
+                          disabled={row.aepsOnboardingStatus === true}
+                          className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                            row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400" : "hover:bg-indigo-50"
+                          }`}
+                        >
+                          {row.aepsOnboardingStatus === true ? "Onboarded" : "Check Status"}
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">{getWalletValue(row, "apes1Wallet")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">{getWalletValue(row, "apes2Wallet")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <span className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active" ? "bg-green-600" : "bg-red-600"}`}>
+                          {safeString(row.status, "Active")}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              setSelectedUserId(userId);
+                              setShowKycModal(true);
+                            }
+                          }}
+                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
+                        >
+                          KYC Details
+                        </button>
+                      </td>
+                      {/* Action - Toggle Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isActive = row.status?.toLowerCase() === "active";
+                          return (
+                            <button
+                              onClick={() => { if (userId) { /* status check dispatch */ } }}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"}`}
+                              role="switch"
+                              aria-checked={isActive}
+                            >
+                              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`} />
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Lock Status - Colored Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isLocked = row.lock === true || row.lock === "true";
+                          return (
+                            <button
+                              onClick={() => { if (userId && isLocked) dispatch(employeeKycUnlock(userId)); }}
+                              disabled={!isLocked}
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer" : "bg-green-500 text-white cursor-not-allowed opacity-75"}`}
+                            >
+                              {isLocked ? "Enable Access" : "Access Enabled"}
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <button
+                          onClick={() => { if (row.id) dispatch(employeeRescendOnboarding(row.id)); }}
+                          className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                        >
+                          Re-send
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{formatDate(row.date)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
-              onClick={handleExportToExcel}
-              className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition-colors shadow-sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1 || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0 ? "text-gray-400 cursor-not-allowed bg-gray-100" : "text-gray-500 hover:bg-gray-100"}`}
             >
-              Export <Upload className="w-4 h-4" />
+              <IoIosArrowBack />
+            </button>
+            {totalPages > 0 ? (
+              Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage ? "bg-green-600 text-white" : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"}`}
+                >
+                  {page}
+                </button>
+              ))
+            ) : (
+              <span className="w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] flex items-center justify-center text-gray-500">0</span>
+            )}
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0 ? "text-gray-400 cursor-not-allowed bg-gray-100" : "text-gray-500 hover:bg-gray-100"}`}
+            >
+              <IoIosArrowForward />
             </button>
           </div>
         </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
+            <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
+              Retailer Onboarding List
+            </h2>
 
-        {/* Table Container */}
-        <div className="flex-1 overflow-x-auto rounded-xl border border-gray-100 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <table className="w-full text-center border-collapse">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {["ID", "User", "User ID", "Name", "Role", "Mobile", "Email", "Parent", "Company", "KYC Status", "KYC Steps", "Wallet", "AEPS Status", "Action", "Lock Status", "Date"].map((header) => (
-                  <th key={header} className="py-4 px-4 text-sm font-[Gilroy-SemiBold] text-gray-600 whitespace-nowrap uppercase tracking-wider">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {displayTableData.length === 0 ? (
-                <tr>
-                  <td colSpan={16} className="py-20 text-center text-gray-500 font-[Gilroy-Medium]">
-                    No data available
-                  </td>
-                </tr>
-              ) : (
-                displayTableData.map((row, index) => (
-                  <tr key={row.id || index} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-4 text-sm font-[Gilroy-Medium] text-gray-800">{safeString(row.id)}</td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => {
-                          const userId = row.id || row.originalItem?.id;
-                          if (userId) {
-                            dispatch(setSelectedUserRole(row.userRole || "R"));
-                            dispatch(employeeGetAdminProfileDetails(userId));
-                            setShowProfileDetails(true);
-                          }
-                        }}
-                        className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 hover:bg-green-100 transition-colors mx-auto"
-                      >
-                        <User className="w-5 h-5" />
-                      </button>
-                    </td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{safeString(row.userId)}</td>
-                    <td className="py-4 px-4 text-sm font-[Gilroy-Medium] text-gray-800">{safeString(row.name)}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{safeString(row.userRole)}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{safeString(row.mobileNo)}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{safeString(row.email)}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{safeString(row.parentName)}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{safeString(row.company)}</td>
-                    <td className="py-4 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-[Gilroy-SemiBold] ${
-                        row.kycStatus?.toLowerCase() === "completed" ? "bg-green-100 text-green-700" :
-                        row.kycStatus?.toLowerCase() === "pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
-                      }`}>
-                        {safeString(row.kycStatus)}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-sm font-[Gilroy-Medium]">{safeString(row.kycSteps, "0")}</td>
-                    <td className="py-4 px-4 text-sm font-[Gilroy-Medium] text-green-600">₹{getWalletValue(row, "mainWallet")}</td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => row.id && dispatch(checkEmployeeAepsStatus(row.id))}
-                        disabled={row.aepsOnboardingStatus === true}
-                        className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-SemiBold] border transition-all ${
-                          row.aepsOnboardingStatus === true ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed" : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"
-                        }`}
-                      >
-                        {row.aepsOnboardingStatus === true ? "Onboarded" : "Check AEPS"}
-                      </button>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => {
-                          const userId = row.id || row.originalItem?.id;
-                          if (userId) {
-                            setSelectedUserId(userId);
-                            dispatch(employeeKycData(userId));
-                            setShowKycModal(true);
-                          }
-                        }}
-                        className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-[Gilroy-SemiBold] hover:bg-green-700 transition-colors shadow-sm"
-                      >
-                        KYC Details
-                      </button>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => {
-                          const isLocked = row.lock === true || row.lock === "true";
-                          if (row.id && isLocked) dispatch(employeeKycUnlock(row.id));
-                        }}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-[Gilroy-SemiBold] transition-all ${
-                          (row.lock === true || row.lock === "true") ? "bg-red-500 text-white hover:bg-red-600" : "bg-green-500 text-white opacity-75 cursor-not-allowed"
-                        }`}
-                      >
-                        {(row.lock === true || row.lock === "true") ? "Enable Access" : "Access Enabled"}
-                      </button>
-                    </td>
-                    <td className="py-4 px-4 text-sm text-gray-500">{formatDate(row.date)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
+              <div className="flex flex-col xs:flex-row gap-3">
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => { setFromDate(e.target.value); setCurrentPage(1); }}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }}
+                  min={fromDate || undefined}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
+              </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1 || finalTotalPages === 0}
-            className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="flex gap-1">
-            {Array.from({ length: finalTotalPages }, (_, i) => i + 1).map(page => (
+              <div className="relative w-full sm:w-48">
+                <input
+                  type="text"
+                  placeholder="Search by Mobile No or Name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
+                />
+                <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+              </div>
+
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-lg text-sm font-[Gilroy-Medium] transition-all ${
-                  page === currentPage ? "bg-[#039155] text-white shadow-md" : "hover:bg-gray-50 text-gray-600 border border-gray-200"
-                }`}
+                onClick={handleExportToExcel}
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
               >
-                {page}
+                Export <FaUpload className="text-xs" />
               </button>
-            ))}
+            </div>
           </div>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(finalTotalPages, prev + 1))}
-            disabled={currentPage === finalTotalPages || finalTotalPages === 0}
-            className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+
+          {/* Table */}
+          <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <table className="min-w-[1200px] sm:min-w-full divide-y">
+              <thead className="bg-gray-100 text-center">
+                <tr>
+                  {tableHeaders.map(header => (
+                    <th key={header} className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
+                {isLoading ? (
+                  <TableBodyLoader colSpan={tableHeaders.length} />
+                ) : !tableData || tableData.length === 0 ? (
+                  <tr>
+                    <td colSpan={tableHeaders.length} className="py-12 text-center">
+                      <p className="text-gray-500 text-lg font-[Gilroy-Medium]">No data available</p>
+                    </td>
+                  </tr>
+                ) : (
+                  tableData.map((row, index) => (
+                    <tr key={row.id || index} className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.id)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-center">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(setSelectedUserRole(row.userRole || "R"));
+                              dispatch(employeeGetAdminProfileDetails(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.userId)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.name)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.userRole)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.mobileNo)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.email)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.parentName)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.parentRole)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{safeString(row.company)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <span className={`px-2 py-1 rounded text-xs font-[Gilroy-Medium] ${
+                          row.kycStatus?.toLowerCase() === "completed" ? "bg-green-100 text-green-700" :
+                          row.kycStatus?.toLowerCase() === "pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
+                        }`}>
+                          {safeString(row.kycStatus)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">{safeString(row.kycSteps, "0")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">₹{getWalletValue(row, "mainWallet")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                        <button
+                          onClick={() => row.id && dispatch(checkEmployeeAepsStatus(row.id))}
+                          disabled={row.aepsOnboardingStatus === true}
+                          className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${
+                            row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400" : "hover:bg-indigo-50"
+                          }`}
+                        >
+                          {row.aepsOnboardingStatus === true ? "Onboarded" : "Check Status"}
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">{getWalletValue(row, "apes1Wallet")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">{getWalletValue(row, "apes2Wallet")}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <span className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active" ? "bg-green-600" : "bg-red-600"}`}>
+                          {safeString(row.status, "Active")}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              setSelectedUserId(userId);
+                              setShowKycModal(true);
+                            }
+                          }}
+                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
+                        >
+                          KYC Details
+                        </button>
+                      </td>
+                      {/* Action - Toggle Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isActive = row.status?.toLowerCase() === "active";
+                          return (
+                            <button
+                              onClick={() => { if (userId) { /* status check dispatch */ } }}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"}`}
+                              role="switch"
+                              aria-checked={isActive}
+                            >
+                              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`} />
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Lock Status - Colored Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isLocked = row.lock === true || row.lock === "true";
+                          return (
+                            <button
+                              onClick={() => { if (userId && isLocked) dispatch(employeeKycUnlock(userId)); }}
+                              disabled={!isLocked}
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer" : "bg-green-500 text-white cursor-not-allowed opacity-75"}`}
+                            >
+                              {isLocked ? "Enable Access" : "Access Enabled"}
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        <button
+                          onClick={() => { if (row.id) dispatch(employeeRescendOnboarding(row.id)); }}
+                          className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                        >
+                          Re-send
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">{formatDate(row.date)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1 || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0 ? "text-gray-400 cursor-not-allowed bg-gray-100" : "text-gray-500 hover:bg-gray-100"}`}
+            >
+              <IoIosArrowBack />
+            </button>
+            {totalPages > 0 ? (
+              Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage ? "bg-green-600 text-white" : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"}`}
+                >
+                  {page}
+                </button>
+              ))
+            ) : (
+              <span className="w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] flex items-center justify-center text-gray-500">0</span>
+            )}
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0 ? "text-gray-400 cursor-not-allowed bg-gray-100" : "text-gray-500 hover:bg-gray-100"}`}
+            >
+              <IoIosArrowForward />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Standardized KYC Modal */}
       <KycModal
@@ -382,8 +665,29 @@ const RetailerOnboarding = ({
         }}
         userId={selectedUserId}
         refreshKey={kycDataRefreshKey}
-        onRevertSuccess={() => setKycDataRefreshKey((prev) => prev + 1)}
+        onRevertSuccess={() => {
+          setKycDataRefreshKey((prev) => prev + 1);
+          refreshTable();
+        }}
       />
+
+      {/* Add CSS animations */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        .animate-slideUp {
+          animation: slideUp 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
