@@ -35,8 +35,6 @@ const MasterDistributionOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [zoomedImage, setZoomedImage] = useState(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -133,40 +131,6 @@ const MasterDistributionOnboarding = ({
     }
   }, [kycLockStatusResponse, currentPage, dispatch]);
 
-  // Update selectedKycData when Redux state changes
-  useEffect(() => {
-    if (kycRetrieved && showKycModal) {
-      // Force update by creating a deep copy to ensure React detects the change
-      try {
-        const deepCopy = structuredClone(kycRetrieved);
-        setSelectedKycData(deepCopy);
-      } catch (error) {
-        // Fallback to shallow copy if deep copy fails
-        console.warn(
-          "Failed to deep clone KYC data, using shallow copy:",
-          error,
-        );
-        setSelectedKycData({ ...kycRetrieved });
-      }
-    }
-  }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
-
-  // Refresh KYC data when revert succeeds
-  useEffect(() => {
-    if (kycRevertResponse?.status === "SUCCESS" && selectedUserId && showKycModal) {
-      // Clear current data to force re-render
-      setSelectedKycData(null);
-      // Small delay to ensure backend has processed the revert
-      const timer = setTimeout(() => {
-        // Force update by incrementing refresh key
-        setKycDataRefreshKey((prev) => prev + 1);
-        // Refresh KYC data after revert
-        dispatch(employeeKycData(selectedUserId));
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
 
 
@@ -1035,22 +999,11 @@ const MasterDistributionOnboarding = ({
         isOpen={showKycModal}
         onClose={() => {
           setShowKycModal(false);
-          setSelectedKycData(null);
           setSelectedUserId(null);
-          setActiveTab("overview");
-          setZoomedImage(null);
         }}
-        kycData={selectedKycData}
-        selectedUserId={selectedUserId}
-        isLoading={kycDetailsState?.loading}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        zoomedImage={zoomedImage}
-        setZoomedImage={setZoomedImage}
-        revertAction={employeeKycRevert}
-        kycDataAction={employeeKycData}
-        kycDataRefreshKey={kycDataRefreshKey}
-        setKycDataRefreshKey={setKycDataRefreshKey}
+        userId={selectedUserId}
+        refreshKey={kycDataRefreshKey}
+        onRevertSuccess={() => setKycDataRefreshKey((prev) => prev + 1)}
       />
     </div>
   );

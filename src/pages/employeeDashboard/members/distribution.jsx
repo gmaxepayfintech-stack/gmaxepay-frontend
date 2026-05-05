@@ -49,8 +49,6 @@ const Distribution = ({
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [showKycModal, setShowKycModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
 
@@ -490,9 +488,6 @@ const Distribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              dispatch(employeeKycData(userId));
-                              setActiveTab("overview");
-                              setZoomedImage(null);
                               setShowKycModal(true);
                             }
                           }}
@@ -902,9 +897,6 @@ const Distribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              dispatch(employeeKycData(userId));
-                              setActiveTab("overview");
-                              setZoomedImage(null);
                               setShowKycModal(true);
                             }
                           }}
@@ -1033,23 +1025,16 @@ const Distribution = ({
         </div>
       )}
 
-      {showKycModal && (
-        <KycModal
-          isOpen={showKycModal}
-          onClose={() => {
-            setShowKycModal(false);
-            setSelectedUserId(null);
-          }}
-          selectedUserId={selectedUserId}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          zoomedImage={zoomedImage}
-          setZoomedImage={setZoomedImage}
-          kycDataRefreshKey={kycDataRefreshKey}
-          revertAction={employeeKycRevert}
-          kycDataAction={employeeKycData}
-        />
-      )}
+      <KycModal
+        isOpen={showKycModal}
+        onClose={() => {
+          setShowKycModal(false);
+          setSelectedUserId(null);
+        }}
+        userId={selectedUserId}
+        refreshKey={kycDataRefreshKey}
+        onRevertSuccess={() => setKycDataRefreshKey((prev) => prev + 1)}
+      />
 
       {showProfileDetails && (
         <ProfileDetails
