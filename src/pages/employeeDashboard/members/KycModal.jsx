@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
     FaIdCard,
     FaBuilding,
@@ -17,55 +18,80 @@ import {
     Layers
 } from "lucide-react";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { kycRevert } from "../../../redux/action/whiteLabelAction";
+import { kycRevert, employeeKycData } from "../../../redux/action/whiteLabelAction";
 
 const KycModal = ({
     isOpen,
-    showKycModal,
     onClose,
-    setShowKycModal,
-    kycData,
-    selectedKycData,
-    selectedUserId,
-    activeTab,
-    setActiveTab,
-    isLoading,
-    isKycModalLoading,
-    revertAction,
-    showRevertConfirm,
-    setShowRevertConfirm,
-    revertPayload,
-    setRevertPayload,
-    isReverting,
-    setIsReverting,
-    confirmModal,
-    setConfirmModal,
-    zoomedImage,
-    setZoomedImage,
-    dispatch,
-    kycModalRef,
-    kycStatus
+    userId,
+    onRevertSuccess,
+    refreshKey = 0
 }) => {
+    const dispatch = useDispatch();
+    const kycModalRef = useRef(null);
+    
+    // Internal UI State
+    const [activeTab, setActiveTab] = useState("overview");
+    const [zoomedImage, setZoomedImage] = useState(null);
+    const [showRevertConfirm, setShowRevertConfirm] = useState(false);
+    const [revertPayload, setRevertPayload] = useState(null);
+    const [isReverting, setIsReverting] = useState(false);
 
-    const visible = isOpen !== undefined ? isOpen : showKycModal;
-    const handleClose = onClose || (() => setShowKycModal(false));
-    const rawKycData = kycData || selectedKycData;
-    const loading = isLoading !== undefined ? isLoading : isKycModalLoading;
+    // Get KYC details from Redux state
+    const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
+    const kycRevertResponse = useSelector((state) => state?.whitelabel?.kycRevert);
+    
+    const rawKycData = kycDetailsState?.data || null;
+    const loading = kycDetailsState?.loading || false;
 
-    if (!visible) return null;
+    // Fetch data when modal opens or userId/refreshKey changes
+    useEffect(() => {
+        if (isOpen && userId) {
+            dispatch(employeeKycData(userId));
+        }
+    }, [isOpen, userId, refreshKey, dispatch]);
 
+    // Handle revert success
+    useEffect(() => {
+        if (kycRevertResponse?.status === "SUCCESS" && isReverting) {
+            setIsReverting(false);
+            setShowRevertConfirm(false);
+            setRevertPayload(null);
+            if (onRevertSuccess) onRevertSuccess();
+            // Re-fetch data after revert
+            dispatch(employeeKycData(userId));
+        } else if (kycRevertResponse?.status === "FAILURE" || kycRevertResponse?.status === "Error") {
+            setIsReverting(false);
+        }
+    }, [kycRevertResponse, isReverting, userId, onRevertSuccess, dispatch]);
+
+    // Reset state when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            setActiveTab("overview");
+            setZoomedImage(null);
+            setShowRevertConfirm(false);
+            setRevertPayload(null);
+            setIsReverting(false);
+        }
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    // Data normalization
     const data = rawKycData?.data?.userDetails ? rawKycData.data : 
                  (rawKycData?.userDetails ? rawKycData : 
                  (rawKycData?.data || rawKycData || {}));
     
     const user = data.userDetails || {};
     
+    // Validate if retrieved data matches requested userId
     const possibleResponseIds = [
         user.userId, user.id, user._id, user.userCode,
         data.userId, data.id, data.userCode
     ].map(id => String(id || "").toLowerCase().trim()).filter(id => id !== "");
 
-    const requestedIdLower = String(selectedUserId || "").toLowerCase().trim();
+    const requestedIdLower = String(userId || "").toLowerCase().trim();
     const isMatch = requestedIdLower && possibleResponseIds.includes(requestedIdLower);
     const effectiveKycData = isMatch ? data : null;
     
