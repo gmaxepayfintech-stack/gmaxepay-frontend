@@ -194,13 +194,13 @@ const KycModal = ({
                                             </div>
                                         </div>
                                         <div className={`px-4 py-1.5 rounded-full text-xs font-[Gilroy-Bold] border ${
-                                            user.kycStatus === 'verified' 
+                                            (user.kycStatus === 'verified' || user.kycStatus === 'FULL_KYC' || data.completedSteps === 7)
                                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                                                 : user.kycStatus === 'rejected'
                                                 ? 'bg-rose-50 text-rose-600 border-rose-100'
                                                 : 'bg-amber-50 text-amber-600 border-amber-100'
                                         }`}>
-                                            {user.kycStatus?.toUpperCase() || 'PENDING'}
+                                            {data.completedSteps === 7 ? 'COMPLETED' : (user.kycStatus?.toUpperCase() || 'PENDING')}
                                         </div>
                                     </div>
 
@@ -220,13 +220,13 @@ const KycModal = ({
                                                         <span className="text-slate-500 text-sm font-[Gilroy-Medium]">{item.label}</span>
                                                         {item.isBadge ? (
                                                             <div className={`px-4 py-1.5 rounded-full text-xs font-[Gilroy-Bold] border ${
-                                                                user.kycStatus === 'verified' 
+                                                                (user.kycStatus === 'verified' || user.kycStatus === 'FULL_KYC' || data.completedSteps === 7)
                                                                     ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                                                                     : user.kycStatus === 'rejected'
-                                                                    ? 'bg-rose-50 text-rose-600 border-rose-100'
+                                                                    ? 'bg-rose-600/10 text-rose-600 border-rose-100'
                                                                     : 'bg-amber-50 text-amber-600 border-amber-100'
                                                             }`}>
-                                                                {user.kycStatus?.toUpperCase() || 'PENDING'}
+                                                                {data.completedSteps === 7 ? 'COMPLETED' : (user.kycStatus?.toUpperCase() || 'PENDING')}
                                                             </div>
                                                         ) : (
                                                             <span className="text-slate-900 text-sm font-[Gilroy-Bold]">{item.value || 'N/A'}</span>
@@ -275,6 +275,16 @@ const KycModal = ({
                                                     </div>
                                                 </div>
                                             </div>
+                                            <button
+                                                onClick={() => {
+                                                    setRevertPayload({ step: 'Aadhaar', aadhar: true });
+                                                    setShowRevertConfirm(true);
+                                                }}
+                                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-[Gilroy-Bold] text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                Revert
+                                            </button>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -315,6 +325,16 @@ const KycModal = ({
                                                     <p className="text-[10px] text-slate-400 font-[Gilroy-Bold] uppercase tracking-wider mt-1">Verification Status: {pan.status || 'Unknown'}</p>
                                                 </div>
                                             </div>
+                                            <button
+                                                onClick={() => {
+                                                    setRevertPayload({ step: 'PAN', pan: true });
+                                                    setShowRevertConfirm(true);
+                                                }}
+                                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-[Gilroy-Bold] text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                Revert
+                                            </button>
                                         </div>
 
                                         <div className="space-y-6">
@@ -370,6 +390,16 @@ const KycModal = ({
                                                         <p className="text-[10px] text-slate-400 font-[Gilroy-Bold] uppercase tracking-wider mt-1">Category: {outlet.shopCategory || 'General'}</p>
                                                     </div>
                                                 </div>
+                                                <button
+                                                    onClick={() => {
+                                                        setRevertPayload({ step: 'Shop', shop: true });
+                                                        setShowRevertConfirm(true);
+                                                    }}
+                                                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-[Gilroy-Bold] text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all"
+                                                >
+                                                    <RotateCcw className="w-3.5 h-3.5" />
+                                                    Revert
+                                                </button>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -433,6 +463,16 @@ const KycModal = ({
                                                     <p className="text-[10px] text-slate-400 font-[Gilroy-Bold] uppercase tracking-wider mt-1">Beneficiary: {bank.beneficiaryName || 'N/A'}</p>
                                                 </div>
                                             </div>
+                                            <button
+                                                onClick={() => {
+                                                    setRevertPayload({ step: 'Bank', bank: true });
+                                                    setShowRevertConfirm(true);
+                                                }}
+                                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-[Gilroy-Bold] text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                Revert
+                                            </button>
                                         </div>
 
                                         {bank.accountNumber ? (
