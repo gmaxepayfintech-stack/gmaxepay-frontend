@@ -216,8 +216,9 @@ const RetailerOnboarding = ({
 
   return (
     <div className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}>
-      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-8">
+      <div className={`${embedded ? "" : "bg-white rounded-xl shadow-sm p-4 sm:p-6"}`}>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
           <h2 className="text-xl sm:text-2xl font-normal text-gray-800">Retailer Onboarding</h2>
           <div className="flex flex-wrap items-center justify-end gap-3 flex-1">
             <div className="flex items-center gap-2">
@@ -253,7 +254,8 @@ const RetailerOnboarding = ({
           </div>
         </div>
 
-        <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* Table Section */}
+        <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <table className="min-w-[1200px] sm:min-w-full divide-y">
             <thead className="bg-gray-100 text-center">
               <tr>
@@ -375,7 +377,8 @@ const RetailerOnboarding = ({
           </table>
         </div>
 
-        <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
+        {/* Pagination Section */}
+        <div className="flex justify-center items-center mt-6 space-x-2">
           <button 
             onClick={() => handlePageChange(Math.max(1, currentPage - 1))} 
             disabled={currentPage === 1 || totalPages === 0} 
