@@ -1,23 +1,19 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  Calendar,
   ChevronLeft,
   ChevronRight,
   User,
   X,
-  ZoomIn,
+  Upload,
+  Search,
 } from "lucide-react";
 import {
-  FaCheckCircle,
-  FaTimesCircle,
-  FaUser,
   FaIdCard,
-  FaBuilding,
-  FaUniversity,
-  FaExpand,
   FaUpload,
+  FaCheckCircle,
 } from "react-icons/fa";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import * as XLSX from "xlsx";
 import {
   kycStatusCheck,
@@ -33,6 +29,7 @@ import ProfileDetails from "./ProfileDetails";
 import { roleDataCompanyUser } from "../../redux/action/roleAction";
 import { useNotification } from "../../context/NotificationContext";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import KycModal from "./KycModal";
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -54,6 +51,7 @@ const DistrubtionOnboarding = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ show: false });
 
   const kycModalRef = useRef(null);
 
@@ -168,12 +166,6 @@ const DistrubtionOnboarding = ({
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
-  // Handle click outside modal - DISABLED as per user request to prevent accidental closure
-  useEffect(() => {
-    // Logic removed to prevent closing on outside click
-    return () => {};
-  }, []);
-
   const handleExportToExcel = () => {
     if (!allTableData || allTableData.length === 0) {
       alert("No data available to export");
@@ -215,32 +207,45 @@ const DistrubtionOnboarding = ({
 
   return (
     <div className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}>
-      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">Distributor Onboarding List</h1>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <select value={selectedKyc} onChange={(e) => setSelectedKyc(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white">
-              <option value="">Select KYC</option>
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-slate-100">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <h1 className="text-xl sm:text-2xl font-[Gilroy-Bold] text-slate-900">Distributor Onboarding</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <select 
+              value={selectedKyc} 
+              onChange={(e) => setSelectedKyc(e.target.value)} 
+              className="px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] bg-slate-50 font-[Gilroy-Medium]"
+            >
+              <option value="">Filter KYC</option>
               <option value="pending">Pending</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
             </select>
-            <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white w-full sm:w-auto" />
-            <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white w-full sm:w-auto" />
-            <button onClick={handleExportToExcel} className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm">Export <FaUpload className="text-xs" /></button>
+            <div className="flex items-center gap-2">
+              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-[#039155] focus:outline-none font-[Gilroy-Medium]" />
+              <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-[#039155] focus:outline-none font-[Gilroy-Medium]" />
+            </div>
+            <button 
+              onClick={handleExportToExcel} 
+              className="flex items-center justify-center gap-2 bg-[#039155] text-white px-5 py-2.5 rounded-xl font-[Gilroy-Bold] hover:opacity-90 shadow-lg shadow-emerald-100 transition-all text-sm"
+            >
+              Export <Upload className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <table className="min-w-[1200px] sm:min-w-full divide-y">
-            <thead className="bg-white">
+        <div className="mb-4 overflow-x-auto rounded-2xl border border-slate-100 bg-white scrollbar-hide">
+          <table className="min-w-[1200px] sm:min-w-full divide-y divide-slate-100">
+            <thead className="bg-slate-50/50">
               <tr>
-                {TableHeaders.map(h => <th key={h} className="py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap text-center">{h}</th>)}
+                {TableHeaders.map(h => (
+                  <th key={h} className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-500 uppercase tracking-wider text-center">{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="text-center">
+            <tbody className="text-center divide-y divide-slate-50">
               {!tableData || tableData.length === 0 ? (
-                <tr><td colSpan={22} className="py-12 text-center text-gray-500 font-[Gilroy-Medium]">No data available</td></tr>
+                <tr><td colSpan={22} className="py-20 text-center text-slate-400 font-[Gilroy-Medium]">No onboarding records found</td></tr>
               ) : (
                 tableData.map((row, index) => {
                   const userId = row.id || row.originalItem?.id;
@@ -248,53 +253,101 @@ const DistrubtionOnboarding = ({
                   const isLocked = row?.originalItem?.lock === true || row?.originalItem?.lock === "true";
                   
                   return (
-                    <tr key={index} className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}>
-                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular]">{row.id || "N/A"}</td>
+                    <tr key={index} className={`hover:bg-slate-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"}`}>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">{row.id || "N/A"}</td>
                       <td className="px-4 py-4 text-center">
-                        <button onClick={() => { if (userId) { dispatch(getCompanyAdmin(userId)); setShowProfileDetails(true); } }} className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"><User className="w-4 h-4 text-gray-600" /></button>
-                      </td>
-                      <td className="py-3 px-4 text-xs">{row.userId || row.userAgentCode || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">{row.name || row.userName || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">{row.userRole || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">{row.mobileNo || row.mobile || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">{row.emailId || row.email || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">{row.parentName || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">{row.parentRole || "N/A"}</td>
-                      <td className="py-3 px-4 text-xs">
-                        <span className={`px-2 py-1 rounded text-[10px] font-[Gilroy-Semibold] ${row.kycStatus?.toLowerCase() === "completed" || row.kycStatus?.toLowerCase() === "full_kyc" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                          {row.kycStatus || "N/A"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-xs">{row.kycSteps || "0"}</td>
-                      <td className="py-3 px-4 text-xs">{row.wallet?.mainWallet || "0"}</td>
-                      <td className="px-4 py-4 text-center">
-                        <button onClick={() => userId && dispatch(checkCompanyAepsStatus(userId))} disabled={row.aepsOnboardingStatus === true} className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-[10px] font-[Gilroy-Medium] ${row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed" : "hover:bg-indigo-50"}`}>Check Status</button>
-                      </td>
-                      <td className="py-3 px-4 text-xs">{row.wallet?.apes1Wallet || "0"}</td>
-                      <td className="py-3 px-4 text-xs">{row.wallet?.apes2Wallet || "0"}</td>
-                      <td className="py-3 px-4 text-xs">
-                        <span className={`px-3 py-1 rounded-lg text-white text-[10px] ${isActive ? "bg-green-600" : "bg-red-600"}`}>{row.status || "Active"}</span>
-                      </td>
-                      <td className="py-3 px-4 text-xs">
-                        <button onClick={() => { if (userId) { setSelectedUserId(userId); setIsKycModalLoading(true); dispatch(kycDataCompany(userId)); setShowKycModal(true); } }} className="px-3 py-1 border border-green-500 text-green-600 rounded-lg text-[10px] font-[Gilroy-Medium] hover:bg-green-50">KYC Details</button>
-                      </td>
-                      <td className="py-3 px-4 text-xs">
-                        <button onClick={() => userId && dispatch(kycStatusCheck(userId, { isActive: String(!isActive) }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isActive ? "bg-green-600" : "bg-gray-300"}`}>
-                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`} />
+                        <button 
+                          onClick={() => { if (userId) { dispatch(getCompanyAdmin(userId)); setShowProfileDetails(true); } }} 
+                          className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center hover:bg-emerald-100 transition-all border border-emerald-100 shadow-sm group"
+                        >
+                          <User className="w-5 h-5 text-[#039155] group-hover:scale-110 transition-transform" />
                         </button>
                       </td>
-                      <td className="py-3 px-4 text-xs">
-                        <button onClick={() => userId && isLocked && dispatch(kycUnlock(userId))} disabled={!isLocked} className={`px-4 py-2 rounded-lg text-[10px] font-[Gilroy-Semibold] ${isLocked ? "bg-red-500 text-white hover:bg-red-600" : "bg-green-500 text-white opacity-75 cursor-not-allowed"}`}>
-                          {isLocked ? "Enable Access" : "Access Enabled"}
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-[#039155]">{row.userId || row.userAgentCode || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">{row.name || row.userName || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.userRole || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.mobileNo || row.mobile || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.emailId || row.email || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.parentName || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.parentRole || "N/A"}</td>
+                      <td className="py-4 px-4">
+                        {(() => {
+                          const status = row.kycStatus?.toLowerCase();
+                          if (status === "completed" || status === "full_kyc" || row.kycSteps === 7) {
+                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Bold] bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">COMPLETED</span>;
+                          } else if (status === "pending") {
+                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Bold] bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">PENDING</span>;
+                          } else {
+                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Bold] bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wider">{row.kycStatus || "PENDING"}</span>;
+                          }
+                        })()}
+                      </td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">{row.kycSteps || "0"}/7</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">₹{row.wallet?.mainWallet || "0"}</td>
+                      <td className="px-4 py-4 text-center">
+                        <button 
+                          onClick={() => userId && dispatch(checkCompanyAepsStatus(userId))} 
+                          disabled={row.aepsOnboardingStatus === true} 
+                          className={`px-3 py-1.5 border rounded-lg text-[10px] font-[Gilroy-Bold] transition-all uppercase tracking-wider ${
+                            row.aepsOnboardingStatus === true 
+                              ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed" 
+                              : "border-emerald-100 text-[#039155] bg-emerald-50 hover:bg-[#039155] hover:text-white"
+                          }`}
+                        >
+                          {row.aepsOnboardingStatus === true ? "Verified" : "Check Status"}
                         </button>
                       </td>
-                      <td className="py-3 px-4 text-xs">
-                        <button onClick={() => userId && dispatch(rescendOnboarding(userId))} className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg text-[10px] font-[Gilroy-Medium] hover:bg-blue-50">Re-send</button>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">₹{row.wallet?.apes1Wallet || "0"}</td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">₹{row.wallet?.apes2Wallet || "0"}</td>
+                      <td className="py-4 px-4 text-xs">
+                        <span className={`px-3 py-1 rounded-full text-white text-[10px] font-[Gilroy-Bold] uppercase tracking-wider shadow-sm ${isActive ? "bg-emerald-600" : "bg-rose-600"}`}>{row.status || "Active"}</span>
                       </td>
-                      <td className="py-3 px-4 text-xs">
-                        <button onClick={() => userId && dispatch(deActiveOnboarding(userId))} className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg text-[10px] font-[Gilroy-Medium] hover:bg-orange-50">Send</button>
+                      <td className="py-4 px-4 text-xs">
+                        <button 
+                          onClick={() => { if (userId) { setSelectedUserId(userId); setIsKycModalLoading(true); dispatch(kycDataCompany(userId)); setShowKycModal(true); } }} 
+                          className="px-3 py-1.5 bg-white border border-[#039155] text-[#039155] rounded-lg text-[10px] font-[Gilroy-Bold] uppercase tracking-wider hover:bg-emerald-50 transition-all shadow-sm"
+                        >
+                          KYC Details
+                        </button>
                       </td>
-                      <td className="py-3 px-4 text-xs">{row.date || "N/A"}</td>
+                      <td className="py-4 px-4 text-xs">
+                        <button 
+                          onClick={() => userId && dispatch(kycStatusCheck(userId, { isActive: String(!isActive) }))} 
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${isActive ? "bg-emerald-600" : "bg-slate-200"}`}
+                        >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-md ${isActive ? "translate-x-6" : "translate-x-1"}`} />
+                        </button>
+                      </td>
+                      <td className="py-4 px-4 text-xs">
+                        <button 
+                          onClick={() => userId && isLocked && dispatch(kycUnlock(userId))} 
+                          disabled={!isLocked} 
+                          className={`px-4 py-2 rounded-lg text-[10px] font-[Gilroy-Bold] transition-all uppercase tracking-wider ${
+                            isLocked 
+                              ? "bg-rose-600 text-white hover:opacity-90 shadow-lg shadow-rose-100" 
+                              : "bg-emerald-600 text-white opacity-40 cursor-not-allowed"
+                          }`}
+                        >
+                          {isLocked ? "Unlock" : "Unlocked"}
+                        </button>
+                      </td>
+                      <td className="py-4 px-4 text-xs">
+                        <button 
+                          onClick={() => userId && dispatch(rescendOnboarding(userId))} 
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-100 text-blue-600 bg-blue-50 rounded-lg text-[10px] font-[Gilroy-Bold] uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
+                        >
+                          Resend
+                        </button>
+                      </td>
+                      <td className="py-4 px-4 text-xs">
+                        <button 
+                          onClick={() => userId && dispatch(deActiveOnboarding(userId))} 
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-amber-100 text-amber-600 bg-amber-50 rounded-lg text-[10px] font-[Gilroy-Bold] uppercase tracking-wider hover:bg-amber-600 hover:text-white transition-all"
+                        >
+                          Deactivate
+                        </button>
+                      </td>
+                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-500">{row.date || "N/A"}</td>
                     </tr>
                   );
                 })
@@ -303,236 +356,69 @@ const DistrubtionOnboarding = ({
           </table>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <button onClick={() => handlePageChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-gray-300 disabled:opacity-50"><ChevronLeft className="w-5 h-5" /></button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-            <button key={p} onClick={() => handlePageChange(p)} className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] ${p === currentPage ? "bg-[#039155] text-white" : "bg-white border border-gray-300"}`}>{p}</button>
-          ))}
-          <button onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg border border-gray-300 disabled:opacity-50"><ChevronRight className="w-5 h-5" /></button>
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <button 
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))} 
+            disabled={currentPage === 1} 
+            className="p-2 rounded-xl border border-slate-100 text-slate-400 hover:text-[#039155] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <IoIosArrowBack className="text-xl" />
+          </button>
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button 
+                key={p} 
+                onClick={() => handlePageChange(p)} 
+                className={`w-10 h-10 rounded-xl font-[Gilroy-Bold] text-sm transition-all ${
+                  p === currentPage 
+                    ? "bg-[#039155] text-white shadow-lg shadow-emerald-100" 
+                    : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <button 
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} 
+            disabled={currentPage === totalPages} 
+            className="p-2 rounded-xl border border-slate-100 text-slate-400 hover:text-[#039155] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <IoIosArrowForward className="text-xl" />
+          </button>
         </div>
       </div>
 
-      {/* KYC Details Modal */}
-      {showKycModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-          <div ref={kycModalRef} className="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden animate-slideUp">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><FaIdCard className="text-green-600" /></div>
-                <h2 className="text-xl font-[Gilroy-Semibold] text-gray-800">KYC Details</h2>
-              </div>
-              <button onClick={() => { setShowKycModal(false); setSelectedKycData(null); }} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
-            </div>
-            
-            <div className="flex border-b border-gray-200 bg-gray-50 px-6">
-              {["overview", "aadhar", "pan", "details", "bankDetails", "verification"].map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-3 text-sm font-[Gilroy-Medium] capitalize ${activeTab === tab ? "text-green-600 border-b-2 border-green-600" : "text-gray-600"}`}>{tab.replace(/([A-Z])/g, ' $1')}</button>
-              ))}
-            </div>
-
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)]">
-              {isKycModalLoading ? (
-                <div className="flex flex-col items-center justify-center py-20"><ButtonLoader color="#039155" size={40} /></div>
-              ) : selectedKycData ? (
-                <div className="space-y-6 animate-fadeIn">
-                  {activeTab === "overview" && (
-                    <div className="space-y-6">
-                      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-100 flex justify-between items-center">
-                        <h3 className="font-[Gilroy-Semibold]">Status: <span className="text-green-600">{selectedKycData.kycStatus}</span></h3>
-                        <div className="text-sm font-[Gilroy-Medium]">{selectedKycData.kycSteps || 0} / 7 Steps</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(selectedKycData.userDetails || {}).map(([k, v]) => (
-                          typeof v === 'string' && !v.includes('http') && <div key={k} className="flex flex-col"><span className="text-xs text-gray-500 capitalize">{k.replace(/([A-Z])/g, ' $1')}</span><span className="text-sm font-[Gilroy-Medium]">{v}</span></div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "aadhar" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-[Gilroy-Semibold]">Aadhar Info</h3>
-                        <button
-                          onClick={() => {
-                            setRevertPayload({ aadharVerification: "true", step: "Aadhar" });
-                            setShowRevertConfirm(true);
-                          }}
-                          className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
-                        >
-                          <FaTimesCircle />
-                          Revert Aadhar
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <img src={selectedKycData.userDetails?.aadharFrontImage} onClick={() => setZoomedImage(selectedKycData.userDetails?.aadharFrontImage)} className="w-full h-40 object-contain rounded-lg border cursor-pointer" alt="Front" />
-                        <img src={selectedKycData.userDetails?.aadharBackImage} onClick={() => setZoomedImage(selectedKycData.userDetails?.aadharBackImage)} className="w-full h-40 object-contain rounded-lg border cursor-pointer" alt="Back" />
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "pan" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-[Gilroy-Semibold]">PAN Info</h3>
-                        <button
-                          onClick={() => {
-                            setRevertPayload({ panVerification: "true", step: "PAN" });
-                            setShowRevertConfirm(true);
-                          }}
-                          className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
-                        >
-                          <FaTimesCircle />
-                          Revert PAN
-                        </button>
-                      </div>
-                      <img src={selectedKycData.userDetails?.panCardFrontImage} onClick={() => setZoomedImage(selectedKycData.userDetails?.panCardFrontImage)} className="w-full h-40 object-contain rounded-lg border cursor-pointer" alt="PAN" />
-                    </div>
-                  )}
-
-                  {activeTab === "details" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-[Gilroy-Semibold]">Shop Info</h3>
-                        <button
-                          onClick={() => {
-                            setRevertPayload({ shopImage: "true", step: "Outlet Details" });
-                            setShowRevertConfirm(true);
-                          }}
-                          className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
-                        >
-                          <FaTimesCircle />
-                          Revert Outlet Details
-                        </button>
-                      </div>
-                      <img src={selectedKycData.outletDetails?.shopImage} onClick={() => setZoomedImage(selectedKycData.outletDetails?.shopImage)} className="w-full h-40 object-contain rounded-lg border cursor-pointer" alt="Shop" />
-                    </div>
-                  )}
-
-                  {activeTab === "bankDetails" && (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-[Gilroy-Semibold]">Bank Info</h3>
-                        <button
-                          onClick={() => {
-                            setRevertPayload({ bankVerification: "true", step: "Bank Details" });
-                            setShowRevertConfirm(true);
-                          }}
-                          className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-[Gilroy-Medium] flex items-center gap-2 border border-red-100"
-                        >
-                          <FaTimesCircle />
-                          Revert Bank Details
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(selectedKycData.customerBankDetails || {}).map(([k, v]) => (
-                          <div key={k} className="flex flex-col"><span className="text-xs text-gray-500 capitalize">{k}</span><span className="text-sm font-[Gilroy-Medium]">{v}</span></div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "verification" && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {["mobileVerify", "emailVerify", "aadharVerify", "panVerify", "shopDetailsVerify", "imageVerify", "bankDetailsVerify"].map(key => (
-                        <div key={key} className={`flex items-center justify-between p-4 rounded-lg border-2 ${selectedKycData.userDetails?.[key] ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
-                          <span className="text-sm font-[Gilroy-Medium] capitalize">{key.replace('Verify', '')}</span>
-                          <span className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails?.[key] ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{selectedKycData.userDetails?.[key] ? "Verified" : "Pending"}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : <div className="text-center py-8 text-gray-500">No details available</div>}
-            </div>
-            <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
-              <button onClick={() => setShowKycModal(false)} className="px-6 py-2 bg-green-600 text-white rounded-lg font-[Gilroy-Medium]">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Revert Confirmation Modal - Simple & Stable Design */}
-      {showRevertConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[80] animate-fadeIn p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slideUp border border-gray-100">
-            {/* Header */}
-            <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800">
-                Confirm Revert
-              </h3>
-              <button 
-                onClick={() => {
-                  setShowRevertConfirm(false);
-                  setRevertPayload(null);
-                }}
-                disabled={isReverting}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-
-            <div className="p-8">
-              {/* Simple Icon Section */}
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-                <FaTimesCircle className="text-red-500 text-2xl" />
-              </div>
-              
-              <p className="text-center text-gray-600 mb-8 font-[Gilroy-Medium] leading-relaxed">
-                Are you sure you want to revert the <span className="text-red-600 font-[Gilroy-Semibold]">{revertPayload?.step}</span> section?
-              </p>
-              
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => {
-                    if (selectedUserId && revertPayload) {
-                      setIsReverting(true);
-                      const { step, ...apiPayload } = revertPayload;
-                      dispatch(kycRevertCompany(selectedUserId, apiPayload));
-                    }
-                  }}
-                  disabled={isReverting}
-                  className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-[Gilroy-Semibold] shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isReverting ? (
-                    <>
-                      <ButtonLoader size={18} thickness={3} color="#ffffff" />
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    "Yes, Revert"
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowRevertConfirm(false);
-                    setRevertPayload(null);
-                  }}
-                  disabled={isReverting}
-                  className="w-full px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all font-[Gilroy-Semibold]"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {zoomedImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[80] animate-fadeIn" onClick={() => setZoomedImage(null)}>
-          <button className="absolute top-4 right-4 text-white"><X className="w-8 h-8" /></button>
-          <img src={zoomedImage} className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg" alt="Zoomed" />
-        </div>
-      )}
-
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
-        .animate-slideUp { animation: slideUp 0.3s ease-out; }
-      `}</style>
+      {/* Shared KYC Modal Component */}
+      <KycModal
+        isOpen={showKycModal}
+        onClose={() => {
+          setShowKycModal(false);
+          setSelectedUserId(null);
+          setActiveTab("overview");
+        }}
+        kycData={kycRetrieved}
+        selectedUserId={selectedUserId}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isLoading={isKycModalLoading}
+        kycStatus={kycDetailsState?.status}
+        onRevert={(userId, step, payload) => {
+          setRevertPayload({ step, ...payload });
+          setShowRevertConfirm(true);
+        }}
+        showRevertConfirm={showRevertConfirm}
+        setShowRevertConfirm={setShowRevertConfirm}
+        revertPayload={revertPayload}
+        setRevertPayload={setRevertPayload}
+        isReverting={isReverting}
+        setIsReverting={setIsReverting}
+        confirmModal={confirmModal}
+        setConfirmModal={setConfirmModal}
+        dispatch={dispatch}
+        kycModalRef={kycModalRef}
+        revertAction={kycRevertCompany}
+      />
     </div>
   );
 };

@@ -550,7 +550,7 @@ const Retailers = ({
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-[#039155] focus:border-[#039155] text-center cursor-pointer"
                 />
 
                 <input
@@ -558,7 +558,7 @@ const Retailers = ({
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                   min={fromDate || undefined}
-                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-[#039155] focus:border-[#039155] text-center cursor-pointer"
                 />
               </div>
 
@@ -568,14 +568,14 @@ const Retailers = ({
                   placeholder="Search by Mobile No or Name"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-[#039155] focus:border-[#039155]"
                 />
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
 
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:opacity-90 shadow-md text-sm sm:text-base transition-all"
               >
                 Export <FaUpload className="text-xs" />
               </button>
@@ -673,10 +673,10 @@ const Retailers = ({
                 ) : (
                   tableData.map((row, index) => {
                     return (
-                      <tr
-                        key={row.id || index}
-                        className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
-                      >
+                        <tr
+                          key={row.id || index}
+                          className={`text-sm ${index % 2 === 0 ? "bg-slate-50/50" : "bg-white"}`}
+                        >
                         <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                           {safeString(row.id, "N/A")}
                         </td>
@@ -733,16 +733,16 @@ const Retailers = ({
                             const status = row.kycStatus?.toLowerCase();
                             let className =
                               "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
-                            if (status === "completed" || status === "full_kyc") {
-                              className += "bg-green-100 text-green-700";
+                            if (status === "completed" || status === "full_kyc" || status === "verified" || row.kycSteps === 7) {
+                              className += "bg-emerald-50 text-emerald-600 border border-emerald-100";
                             } else if (status === "pending") {
-                              className += "bg-yellow-100 text-yellow-700";
+                              className += "bg-yellow-50 text-yellow-700 border border-yellow-100";
                             } else {
-                              className += "bg-red-100 text-red-700";
+                              className += "bg-rose-50 text-rose-700 border border-rose-100";
                             }
                             return (
                               <span className={className}>
-                                {safeString(row.kycStatus, "N/A")}
+                                {status === "completed" || status === "full_kyc" || status === "verified" || row.kycSteps === 7 ? "COMPLETED" : safeString(row.kycStatus, "N/A")}
                               </span>
                             );
                           })()}
@@ -781,10 +781,10 @@ const Retailers = ({
                           {getWalletValue(row, "apes2Wallet")}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                          <span
+                           <span
                             className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                              ? "bg-emerald-600"
+                              : "bg-rose-600"
                               }`}
                           >
                             {safeString(row.status, "Active")}
@@ -877,38 +877,39 @@ const Retailers = ({
 
                             return (
                               <button
-                                onClick={() => {
-                                  if (userId && isLocked) {
-                                    setConfirmModal({
-                                      show: true,
-                                      title: "Enable Retailer Access?",
-                                      message: "Are you sure you want to enable access for this retailer account? This will unlock their dashboard and services.",
-                                      type: "success",
-                                      confirmText: "Yes, Enable Access",
-                                      cancelText: "Cancel",
-                                      onConfirm: () => {
-                                        dispatch(kycUnlock(userId));
-                                        setConfirmModal(prev => ({ ...prev, isProcessing: true }));
-                                        setTimeout(() => {
-                                          setConfirmModal({ show: false, isProcessing: false });
-                                        }, 800);
-                                      }
-                                    });
-                                  }
-                                }}
-                                disabled={!isLocked}
-                                className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                                  }`}
-                                title={
-                                  isLocked
-                                    ? "Click to enable access for this account"
-                                    : "Account access is enabled"
-                                }
-                              >
-                                {isLocked ? "Enable Access" : "Access Enabled"}
-                              </button>
+                               onClick={() => {
+                                 // Only trigger API when button is in "Locked" state
+                                 if (userId && isLocked) {
+                                   setConfirmModal({
+                                     show: true,
+                                     title: "Enable Retailer Access?",
+                                     message: "Are you sure you want to enable access for this retailer account? This will unlock their dashboard and services.",
+                                     type: "success",
+                                     confirmText: "Yes, Enable Access",
+                                     cancelText: "Cancel",
+                                     onConfirm: () => {
+                                       dispatch(kycUnlock(userId));
+                                       setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                       setTimeout(() => {
+                                         setConfirmModal({ show: false, isProcessing: false });
+                                       }, 800);
+                                     }
+                                   });
+                                 }
+                               }}
+                               disabled={!isLocked}
+                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
+                                 ? "bg-rose-500 text-white hover:bg-rose-600 cursor-pointer shadow-md shadow-rose-100"
+                                 : "bg-emerald-500 text-white cursor-not-allowed opacity-75"
+                                 }`}
+                               title={
+                                 isLocked
+                                   ? "Click to enable access for this account"
+                                   : "Account access is enabled"
+                               }
+                             >
+                               {isLocked ? "Enable Access" : "Access Enabled"}
+                             </button>
                             );
                           })()}
                         </td>
@@ -1001,43 +1002,38 @@ const Retailers = ({
             >
               <IoIosArrowBack />
             </button>
-            {totalPages > 0 ? (
-              Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => {
-                      setCurrentPage(page);
-                      if (embedded && onPageChange) onPageChange(page);
-                    }}
-                    className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
-                      ? "bg-green-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                      }`}
-                  >
-                    {page}
-                  </button>
-                ),
-              )
-            ) : (
-              <span className="w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] flex items-center justify-center text-gray-500">
-                0
-              </span>
-            )}
-            <button
-              onClick={() => {
-                const newPage = Math.min(totalPages, currentPage + 1);
-                setCurrentPage(newPage);
-                if (embedded && onPageChange) onPageChange(newPage);
-              }}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
-                ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                : "text-gray-500 hover:bg-gray-100"
-                }`}
-            >
-              <IoIosArrowForward />
-            </button>
+             {totalPages > 0 ? (
+               Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                 (page) => (
+                   <button
+                     key={page}
+                     onClick={() => setCurrentPage(page)}
+                     className={`w-10 h-10 rounded-xl text-sm font-[Gilroy-Bold] transition-all ${page === currentPage
+                       ? "bg-[#039155] text-white shadow-lg shadow-emerald-100"
+                       : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
+                       }`}
+                   >
+                     {page}
+                   </button>
+                 ),
+               )
+             ) : (
+               <span className="w-10 h-10 rounded-xl text-sm font-[Gilroy-Medium] flex items-center justify-center text-slate-400">
+                 0
+               </span>
+             )}
+             <button
+               onClick={() =>
+                 setCurrentPage(Math.min(totalPages, currentPage + 1))
+               }
+               disabled={currentPage === totalPages || totalPages === 0}
+               className={`p-2 border border-slate-100 rounded-xl transition-all ${currentPage === totalPages || totalPages === 0
+                 ? "text-slate-300 cursor-not-allowed"
+                 : "text-slate-500 hover:text-[#039155] hover:bg-slate-50"
+                 }`}
+             >
+               <IoIosArrowForward className="text-xl" />
+             </button>
           </div>
         </div>
       ) : (
