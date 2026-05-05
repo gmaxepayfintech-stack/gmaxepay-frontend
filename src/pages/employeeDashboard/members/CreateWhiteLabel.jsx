@@ -76,6 +76,7 @@ const CreateWhiteLabel = () => {
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
+  const prevResponseRef = useRef(undefined);
   const kycModalRef = useRef(null);
   const tableContainerRef = useRef(null);
 
