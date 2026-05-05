@@ -209,7 +209,7 @@ const RetailerOnboarding = ({
     <div className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}>
       <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-slate-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <h1 className="text-xl sm:text-2xl font-[Gilroy-Bold] text-slate-900">Retailer Onboarding</h1>
+          <h1 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717]">Retailer Onboarding</h1>
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -227,7 +227,7 @@ const RetailerOnboarding = ({
             </div>
             <button 
               onClick={handleExportToExcel} 
-              className="flex items-center justify-center gap-2 bg-[#039155] text-white px-5 py-2.5 rounded-xl font-[Gilroy-Bold] hover:opacity-90 shadow-lg shadow-emerald-100 transition-all text-sm"
+              className="flex items-center justify-center gap-2 bg-[#039155] text-white px-5 py-2.5 rounded-xl font-[Gilroy-Medium] hover:opacity-90 shadow-lg shadow-emerald-100 transition-all text-sm"
             >
               Export <Upload className="w-4 h-4" />
             </button>
@@ -236,10 +236,10 @@ const RetailerOnboarding = ({
 
         <div className="mb-4 overflow-x-auto rounded-2xl border border-slate-100 bg-white scrollbar-hide">
           <table className="min-w-[1200px] sm:min-w-full divide-y divide-slate-100">
-            <thead className="bg-slate-50/50">
+            <thead className="bg-[#FFFFFF] border-b border-[#1B1717]/50">
               <tr>
                 {TableHeaders.map(h => (
-                  <th key={h} className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-500 uppercase tracking-wider text-center">{h}</th>
+                  <th key={h} className="px-4 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap text-center">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -254,7 +254,7 @@ const RetailerOnboarding = ({
                   
                   return (
                     <tr key={index} className={`hover:bg-slate-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"}`}>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">{row.id || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.id || "N/A"}</td>
                       <td className="px-4 py-4 text-center">
                         <button 
                           onClick={() => { if (userId) { dispatch(getCompanyAdmin(userId)); setShowProfileDetails(true); } }} 
@@ -263,32 +263,32 @@ const RetailerOnboarding = ({
                           <User className="w-5 h-5 text-[#039155] group-hover:scale-110 transition-transform" />
                         </button>
                       </td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-[#039155]">{row.userId || row.userAgentCode || "N/A"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">{row.name || row.userName || "N/A"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.userRole || "N/A"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.mobileNo || row.mobile || "N/A"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.emailId || row.email || "N/A"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.parentName || "N/A"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">{row.parentRole || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#039155] font-[Gilroy-Medium]">{row.userId || row.userAgentCode || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.name || row.userName || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.userRole || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.mobileNo || row.mobile || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.emailId || row.email || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.parentName || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.parentRole || "N/A"}</td>
                       <td className="py-4 px-4">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           if (status === "completed" || status === "full_kyc" || row.kycSteps === 7) {
-                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Bold] bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">COMPLETED</span>;
+                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Medium] bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">COMPLETED</span>;
                           } else if (status === "pending") {
-                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Bold] bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">PENDING</span>;
+                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Medium] bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">PENDING</span>;
                           } else {
-                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Bold] bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wider">{row.kycStatus || "PENDING"}</span>;
+                            return <span className="px-3 py-1 rounded-full text-[10px] font-[Gilroy-Medium] bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wider">{row.kycStatus || "PENDING"}</span>;
                           }
                         })()}
                       </td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">{row.kycSteps || "0"}/7</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Bold] text-slate-900">₹{row.wallet?.mainWallet || "0"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.kycSteps || "0"}/7</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">₹{row.wallet?.mainWallet || "0"}</td>
                       <td className="px-4 py-4 text-center">
                         <button 
                           onClick={() => userId && dispatch(checkCompanyAepsStatus(userId))} 
                           disabled={row.aepsOnboardingStatus === true} 
-                          className={`px-3 py-1.5 border rounded-lg text-[10px] font-[Gilroy-Bold] transition-all uppercase tracking-wider ${
+                          className={`px-3 py-1.5 border rounded-lg text-[10px] font-[Gilroy-Medium] transition-all uppercase tracking-wider ${
                             row.aepsOnboardingStatus === true 
                               ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed" 
                               : "border-emerald-100 text-[#039155] bg-emerald-50 hover:bg-[#039155] hover:text-white"
@@ -297,15 +297,15 @@ const RetailerOnboarding = ({
                           {row.aepsOnboardingStatus === true ? "Verified" : "Check Status"}
                         </button>
                       </td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">₹{row.wallet?.apes1Wallet || "0"}</td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-600">₹{row.wallet?.apes2Wallet || "0"}</td>
-                      <td className="py-4 px-4 text-xs">
-                        <span className={`px-3 py-1 rounded-full text-white text-[10px] font-[Gilroy-Bold] uppercase tracking-wider shadow-sm ${isActive ? "bg-emerald-600" : "bg-rose-600"}`}>{row.status || "Active"}</span>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">₹{row.wallet?.apes1Wallet || "0"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">₹{row.wallet?.apes2Wallet || "0"}</td>
+                      <td className="py-4 px-4">
+                        <span className={`px-3 py-1 rounded-full text-white text-[10px] font-[Gilroy-Medium] uppercase tracking-wider shadow-sm ${isActive ? "bg-emerald-600" : "bg-rose-600"}`}>{row.status || "Active"}</span>
                       </td>
-                      <td className="py-4 px-4 text-xs">
+                      <td className="py-4 px-4">
                         <button 
                           onClick={() => { if (userId) { setSelectedUserId(userId); setIsKycModalLoading(true); dispatch(kycDataCompany(userId)); setShowKycModal(true); } }} 
-                          className="px-3 py-1.5 bg-white border border-[#039155] text-[#039155] rounded-lg text-[10px] font-[Gilroy-Bold] uppercase tracking-wider hover:bg-emerald-50 transition-all shadow-sm"
+                          className="px-3 py-1.5 bg-white border border-[#039155] text-[#039155] rounded-lg text-[10px] font-[Gilroy-Medium] uppercase tracking-wider hover:bg-emerald-50 transition-all shadow-sm"
                         >
                           KYC Details
                         </button>
@@ -318,11 +318,11 @@ const RetailerOnboarding = ({
                           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-md ${isActive ? "translate-x-6" : "translate-x-1"}`} />
                         </button>
                       </td>
-                      <td className="py-4 px-4 text-xs">
+                      <td className="py-4 px-4">
                         <button 
                           onClick={() => userId && isLocked && dispatch(kycUnlock(userId))} 
                           disabled={!isLocked} 
-                          className={`px-4 py-2 rounded-lg text-[10px] font-[Gilroy-Bold] transition-all uppercase tracking-wider ${
+                          className={`px-4 py-2 rounded-lg text-[10px] font-[Gilroy-Medium] transition-all uppercase tracking-wider ${
                             isLocked 
                               ? "bg-rose-600 text-white hover:opacity-90 shadow-lg shadow-rose-100" 
                               : "bg-emerald-600 text-white opacity-40 cursor-not-allowed"
@@ -331,23 +331,23 @@ const RetailerOnboarding = ({
                           {isLocked ? "Unlock" : "Unlocked"}
                         </button>
                       </td>
-                      <td className="py-4 px-4 text-xs">
+                      <td className="py-4 px-4">
                         <button 
                           onClick={() => userId && dispatch(rescendOnboarding(userId))} 
-                          className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-100 text-blue-600 bg-blue-50 rounded-lg text-[10px] font-[Gilroy-Bold] uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-100 text-blue-600 bg-blue-50 rounded-lg text-[10px] font-[Gilroy-Medium] uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
                         >
                           Resend
                         </button>
                       </td>
-                      <td className="py-4 px-4 text-xs">
+                      <td className="py-4 px-4">
                         <button 
                           onClick={() => userId && dispatch(deActiveOnboarding(userId))} 
-                          className="flex items-center gap-1.5 px-3 py-1.5 border border-amber-100 text-amber-600 bg-amber-50 rounded-lg text-[10px] font-[Gilroy-Bold] uppercase tracking-wider hover:bg-amber-600 hover:text-white transition-all"
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-amber-100 text-amber-600 bg-amber-50 rounded-lg text-[10px] font-[Gilroy-Medium] uppercase tracking-wider hover:bg-amber-600 hover:text-white transition-all"
                         >
                           Deactivate
                         </button>
                       </td>
-                      <td className="py-4 px-4 text-xs font-[Gilroy-Medium] text-slate-500">{row.date || "N/A"}</td>
+                      <td className="py-4 px-4 font-[Gilroy-Regular] text-[14px] text-[#121216]">{row.date || "N/A"}</td>
                     </tr>
                   );
                 })
@@ -369,10 +369,10 @@ const RetailerOnboarding = ({
               <button 
                 key={p} 
                 onClick={() => handlePageChange(p)} 
-                className={`w-10 h-10 rounded-xl font-[Gilroy-Bold] text-sm transition-all ${
+                className={`w-10 h-10 rounded-xl font-[Gilroy-Medium] text-sm transition-all ${
                   p === currentPage 
                     ? "bg-[#039155] text-white shadow-lg shadow-emerald-100" 
-                    : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
+                    : "bg-white text-[#1B1717] border border-slate-100 hover:bg-slate-50"
                 }`}
               >
                 {p}
