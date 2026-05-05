@@ -389,9 +389,9 @@ const Distribution = ({
                       <td className="px-4 py-4 whitespace-nowrap">{row.kycSteps || "0"}</td>
                       <td className="px-4 py-4 whitespace-nowrap">{row.wallet?.mainWallet || "0"}</td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                         <button onClick={() => { const userId = row.id || row.originalItem?.id; if (userId) dispatch(checkCompanyAepsStatus(userId)); }} disabled={row.aepsOnboardingStatus === true} className={`px-3 py-1 border border-emerald-100 text-[#039155] rounded-lg text-xs font-[Gilroy-Medium] transition-all ${row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400" : "hover:bg-emerald-50"}`}>
-                           Check Status
-                         </button>
+                        <button onClick={() => { const userId = row.id || row.originalItem?.id; if (userId) dispatch(checkCompanyAepsStatus(userId)); }} disabled={row.aepsOnboardingStatus === true} className={`px-3 py-1 border border-emerald-100 text-[#039155] rounded-lg text-xs font-[Gilroy-Medium] transition-all ${row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400" : "hover:bg-emerald-50"}`}>
+                          Check Status
+                        </button>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">{row.wallet?.apes1Wallet || "0"}</td>
                       <td className="px-4 py-4 whitespace-nowrap">{row.wallet?.apes2Wallet || "0"}</td>
@@ -521,7 +521,7 @@ const Distribution = ({
                       <td className="px-4 py-4 whitespace-nowrap">{row.kycSteps || "0"}</td>
                       <td className="px-4 py-4 whitespace-nowrap">{row.wallet?.mainWallet || "0"}</td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                         <button onClick={() => { const userId = row.id || row.originalItem?.id; if (userId) dispatch(checkCompanyAepsStatus(userId)); }} disabled={row.aepsOnboardingStatus === true} className={`px-3 py-1 border border-emerald-100 text-[#039155] rounded-lg text-xs font-[Gilroy-Medium] transition-all ${row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400" : "hover:bg-emerald-50"}`}>Check Status</button>
+                        <button onClick={() => { const userId = row.id || row.originalItem?.id; if (userId) dispatch(checkCompanyAepsStatus(userId)); }} disabled={row.aepsOnboardingStatus === true} className={`px-3 py-1 border border-emerald-100 text-[#039155] rounded-lg text-xs font-[Gilroy-Medium] transition-all ${row.aepsOnboardingStatus === true ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400" : "hover:bg-emerald-50"}`}>Check Status</button>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">{row.wallet?.apes1Wallet || "0"}</td>
                       <td className="px-4 py-4 whitespace-nowrap">{row.wallet?.apes2Wallet || "0"}</td>
