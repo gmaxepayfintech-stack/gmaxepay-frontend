@@ -4,7 +4,6 @@ import {
     FaBuilding,
     FaUniversity,
     FaCheckCircle,
-    FaTimesCircle
 } from "react-icons/fa";
 import {
     X,
@@ -17,33 +16,22 @@ import {
     ShoppingBag,
     Layers
 } from "lucide-react";
-import { ButtonLoader } from "../../widgets/layout/loader";
-import { kycRevert } from "../../redux/action/whiteLabelAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
+import { kycRevert } from "../../../redux/action/whiteLabelAction";
 
 const KycModal = ({
-    // Support both isOpen (new) and showKycModal (old)
     isOpen,
     showKycModal,
     onClose,
     setShowKycModal,
-    
-    // Data props
     kycData,
-    selectedKycData, // old name
+    selectedKycData,
     selectedUserId,
-    
-    // State management props
     activeTab,
     setActiveTab,
     isLoading,
-    isKycModalLoading, // old name
-    
-    // Action handlers
-    onVerify,
-    onRevert,
+    isKycModalLoading,
     revertAction,
-    
-    // Modals & State
     showRevertConfirm,
     setShowRevertConfirm,
     revertPayload,
@@ -54,14 +42,11 @@ const KycModal = ({
     setConfirmModal,
     zoomedImage,
     setZoomedImage,
-    
-    // Utils
     dispatch,
     kycModalRef,
     kycStatus
 }) => {
 
-    // Determine effective props
     const visible = isOpen !== undefined ? isOpen : showKycModal;
     const handleClose = onClose || (() => setShowKycModal(false));
     const rawKycData = kycData || selectedKycData;
@@ -69,7 +54,6 @@ const KycModal = ({
 
     if (!visible) return null;
 
-    // Robust data normalization
     const data = rawKycData?.data?.userDetails ? rawKycData.data : 
                  (rawKycData?.userDetails ? rawKycData : 
                  (rawKycData?.data || rawKycData || {}));
@@ -90,8 +74,7 @@ const KycModal = ({
     const aadhaar = data.aadhaarDoc || {};
     const pan = data.panDoc || {};
 
-    // Professional Premium Green Theme constants
-    const primaryColor = "#039155"; // Premium Green
+    const primaryColor = "#039155";
     const primaryBg = "bg-[#039155]";
     const primaryText = "text-[#039155]";
     const primaryLight = "bg-emerald-50";
