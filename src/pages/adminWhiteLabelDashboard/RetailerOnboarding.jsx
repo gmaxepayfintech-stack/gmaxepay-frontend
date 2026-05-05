@@ -219,16 +219,10 @@ const RetailerOnboarding = ({
       <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-8">
           <h2 className="text-xl sm:text-2xl font-normal text-gray-800">Retailer Onboarding</h2>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search by name/mobile..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                className="pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 font-[Gilroy-Medium] w-full" 
-              />
+          <div className="flex flex-wrap items-center justify-end gap-3 flex-1">
+            <div className="flex items-center gap-2">
+              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
+              <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} min={fromDate || undefined} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
             </div>
             <select 
               value={selectedKyc} 
@@ -240,9 +234,15 @@ const RetailerOnboarding = ({
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
             </select>
-            <div className="flex items-center gap-2">
-              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
-              <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} min={fromDate || undefined} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
+            <div className="relative w-full md:w-64">
+              <input 
+                type="text" 
+                placeholder="Search by Mobile No..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="pr-10 pl-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 font-[Gilroy-Medium] w-full" 
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             </div>
             <button 
               onClick={handleExportToExcel} 
