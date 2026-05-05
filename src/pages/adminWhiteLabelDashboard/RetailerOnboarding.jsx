@@ -41,6 +41,7 @@ const RetailerOnboarding = ({
   const { showNotification } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedKyc, setSelectedKyc] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
@@ -101,14 +102,22 @@ const RetailerOnboarding = ({
     const payload = {
       query: {
         userRole: 5, // Retailer
-        kycStatus: "pending",
-        ...(fromDate && toDate && { startDate: fromDate.replace(/-/g, "/"), endDate: toDate.replace(/-/g, "/") }),
+        ...(selectedKyc && { kycStatus: selectedKyc }),
+        ...(fromDate && toDate && { date: { $gte: fromDate, $lte: toDate } }),
       },
       options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
-      customSearch: searchTerm.trim() ? { mobileNo: searchTerm.trim(), name: searchTerm.trim() } : {},
+      customSearch: {
+        ...(searchTerm && { 
+          $or: [
+            { name: { $regex: searchTerm, $options: "i" } },
+            { mobileNo: { $regex: searchTerm, $options: "i" } },
+            { userId: { $regex: searchTerm, $options: "i" } }
+          ]
+        })
+      },
     };
     dispatch(roleDataCompanyUser(payload));
-  }, [searchTerm, fromDate, toDate, currentPage, dispatch, embedded]);
+  }, [searchTerm, selectedKyc, fromDate, toDate, currentPage, dispatch, embedded]);
 
   const allTableData = useMemo(() => {
     if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
@@ -208,11 +217,11 @@ const RetailerOnboarding = ({
   return (
     <div className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}>
       <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <h1 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717]">Retailer Onboarding</h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-8">
+          <h2 className="text-xl sm:text-2xl font-normal text-gray-800">Retailer Onboarding</h2>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input 
                 type="text" 
                 placeholder="Search by name/mobile..." 
@@ -221,6 +230,16 @@ const RetailerOnboarding = ({
                 className="pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 font-[Gilroy-Medium] w-full" 
               />
             </div>
+            <select 
+              value={selectedKyc} 
+              onChange={(e) => setSelectedKyc(e.target.value)} 
+              className="px-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white font-[Gilroy-Medium]"
+            >
+              <option value="">All KYC Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
             <div className="flex items-center gap-2">
               <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
               <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} min={fromDate || undefined} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
