@@ -32,7 +32,7 @@ import {
 import ProfileDetails from "./ProfileDetails";
 import { checkEmployeeAepsStatus } from "../../../redux/action/whiteLabelAction";
 import { useNotification } from "../../../context/NotificationContext";
-
+import KycModal from "./KycModal";
 
 const Retailers = ({
   embedded = false,
