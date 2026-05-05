@@ -8,11 +8,6 @@ import {
   Upload,
   Search,
 } from "lucide-react";
-import {
-  FaIdCard,
-  FaUpload,
-  FaCheckCircle,
-} from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import * as XLSX from "xlsx";
 import {
@@ -216,14 +211,25 @@ const DistrubtionOnboarding = ({
 
   return (
     <div className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}>
-      <div className={`${embedded ? "" : "bg-white rounded-xl shadow-sm p-4 sm:p-6"}`}>
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
+      {/* Header Section */}
+      <div className={`${embedded ? "" : "bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6"}`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-xl sm:text-2xl font-normal text-gray-800">Distributor Onboarding</h2>
           <div className="flex flex-wrap items-center justify-end gap-3 flex-1">
             <div className="flex items-center gap-2">
-              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
-              <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} min={fromDate || undefined} className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" />
+              <input 
+                type="date" 
+                value={fromDate} 
+                onChange={(e) => setFromDate(e.target.value)} 
+                className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" 
+              />
+              <input 
+                type="date" 
+                value={toDate} 
+                onChange={(e) => setToDate(e.target.value)} 
+                min={fromDate || undefined} 
+                className="px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:outline-none font-[Gilroy-Medium] text-center cursor-pointer" 
+              />
             </div>
             <select 
               value={selectedKyc} 
@@ -253,9 +259,11 @@ const DistrubtionOnboarding = ({
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Table Section */}
-        <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Table Section */}
+      <div className={`${embedded ? "" : "bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6"}`}>
+        <div className="overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <table className="min-w-[1200px] sm:min-w-full divide-y">
             <thead className="bg-gray-100 text-center">
               <tr>
@@ -376,9 +384,11 @@ const DistrubtionOnboarding = ({
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* Pagination Section */}
-        <div className="flex justify-center items-center mt-6 space-x-2">
+      {/* Pagination Section */}
+      <div className={`${embedded ? "" : "bg-white rounded-xl shadow-sm p-4 sm:p-6"}`}>
+        <div className="flex justify-center items-center space-x-2">
           <button 
             onClick={() => handlePageChange(Math.max(1, currentPage - 1))} 
             disabled={currentPage === 1 || totalPages === 0} 

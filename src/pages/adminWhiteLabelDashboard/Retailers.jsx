@@ -63,10 +63,10 @@ const Retailers = ({
 
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
-  const { 
-    success: notifySuccess, 
+  const {
+    success: notifySuccess,
     error: notifyError,
-    showNotification 
+    showNotification
   } = useNotification();
   const [debouncedFromDate, setDebouncedFromDate] = useState("");
   const [debouncedToDate, setDebouncedToDate] = useState("");
