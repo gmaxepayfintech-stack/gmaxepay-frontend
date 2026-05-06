@@ -103,7 +103,7 @@ const CMSHistory = ({ onBack }) => {
     const handleExportToExcel = () => {
         if (!transactions || transactions.length === 0) { alert("No data available to export"); return; }
         const excelData = transactions.map((row, index) => ({
-            "SR No": startIndex + index + 1, "Date": `${row.createdAt} ${row.createdAtTime}`,
+            "SR No": String(index + 1).padStart(2, "0"), "Date": `${row.createdAt} ${row.createdAtTime}`,
             "TXN User": row.txnUser, "User ID": row.userId, "Mobile No": row.mobileNo,
             "Event": row.event, "Biller Name": row.billerName,
             "TXN ID": row.transactionId, "UTR / Ackno": row.refNo,
