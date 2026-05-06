@@ -191,7 +191,8 @@ const PayoutHistory = ({ onBack, type }) => {
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => ({
+    const excelData = filteredTransactions.map((row, index) => ({
+      "SR No": String(index + 1).padStart(2, "0"),
       "Transaction ID": row.transactionID,
       "Ref ID": row.refId,
       "Mobile No": row.mobileNo,

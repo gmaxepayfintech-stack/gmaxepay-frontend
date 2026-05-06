@@ -280,7 +280,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
         }
 
         const excelData = filteredTransactions.map((row, index) => ({
-            "SR No": index + 1,
+            "SR No": String(index + 1).padStart(2, "0"),
             "Created At": `${row.createdAt} ${row.createdAtTime}`,
             "TXN User": row.txnUser,
             "User Role": row.userRole,
