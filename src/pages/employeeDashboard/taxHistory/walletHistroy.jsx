@@ -213,8 +213,8 @@ const WalletHistory = ({ onBack, type }) => {
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => ({
-      ID: row.id,
+    const excelData = filteredTransactions.map((row, index) => ({
+      "SR No": String(index + 1).padStart(2, "0"),
       "Transaction ID": row.transactionId,
       "User ID": row.refId,
       Mobile: row.mobileNo,

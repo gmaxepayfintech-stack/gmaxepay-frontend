@@ -216,8 +216,8 @@ const DTHReport = ({ onBack }) => {
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => ({
-      "SR No": row.srNo,
+    const excelData = filteredTransactions.map((row, index) => ({
+      "SR No": String(index + 1).padStart(2, "0"),
       "Transaction ID": row.transactionId,
       "Order ID": row.orderId,
       "Name": row.name,

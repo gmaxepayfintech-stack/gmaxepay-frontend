@@ -329,8 +329,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => ({
-      "SR No": row.id,
+    const excelData = filteredTransactions.map((row, index) => ({
+      "SR No": String(index + 1).padStart(2, "0"),
       "Name": row.name,
       "User Role": row.userRole,
       "Mobile": row.mobileNo,
