@@ -196,6 +196,7 @@ const PayoutHistory = ({ onBack, type }) => {
 
     const excelData = filteredTransactions.map((row, index) => ({
       "SR No": String(index + 1).padStart(2, "0"),
+      "Name": row.beneficiaryName,
       "Transaction ID": row.transactionID,
       "Ref ID": row.refId,
       "Mobile No": row.mobileNo,
@@ -203,7 +204,6 @@ const PayoutHistory = ({ onBack, type }) => {
       "IFSC Code": row.ifscCode,
       "Bank Name": row.bankName,
       "Payout Type": row.payoutType,
-      "Beneficiary Name": row.beneficiaryName,
       "Amount": row.amount,
       "Status": row.status,
       "Type": row.type,
@@ -377,6 +377,9 @@ const PayoutHistory = ({ onBack, type }) => {
                   SR No
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Name
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Transaction ID
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
@@ -384,9 +387,6 @@ const PayoutHistory = ({ onBack, type }) => {
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Mobile
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Beneficiary
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Account Number
@@ -427,9 +427,7 @@ const PayoutHistory = ({ onBack, type }) => {
               <tbody className="bg-white divide-y divide-gray-200 text-center">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const currentPosition = startIndex + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
-                    const srNo = String(reverseSrNo).padStart(2, "0");
+                    const srNo = String(startIndex + index + 1).padStart(2, "0");
 
                     return (
                       <tr
@@ -441,7 +439,13 @@ const PayoutHistory = ({ onBack, type }) => {
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.id}
+                            {srNo}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
+                            {transaction.beneficiaryName}
                           </span>
                         </td>
 
@@ -460,12 +464,6 @@ const PayoutHistory = ({ onBack, type }) => {
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.mobileNo}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
-                            {transaction.beneficiaryName}
                           </span>
                         </td>
 

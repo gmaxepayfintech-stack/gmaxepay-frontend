@@ -57,6 +57,7 @@ const CMSHistory = ({ onBack }) => {
     const transformApiData = (dataArray) => {
         if (!Array.isArray(dataArray) || dataArray.length === 0) return [];
         return dataArray.map((item, index) => {
+            let formattedDate = "N/A";
             if (item.createdAt) {
                 const date = new Date(item.createdAt);
                 const datePart = date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-");
