@@ -396,6 +396,9 @@ const PayoutHistory = ({ onBack, type }) => {
                   User Role
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Beneficiary Name
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Transaction ID
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
@@ -468,6 +471,12 @@ const PayoutHistory = ({ onBack, type }) => {
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.userRole}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
+                            {transaction.beneficiaryName}
                           </span>
                         </td>
 
@@ -566,7 +575,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={17} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={18} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
