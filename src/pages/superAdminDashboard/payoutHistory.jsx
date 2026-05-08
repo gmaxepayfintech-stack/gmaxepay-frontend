@@ -78,6 +78,17 @@ const PayoutHistory = ({ onBack, type }) => {
         return "Internal";
       };
 
+      // Get User Role Display
+      const getUserRoleDisplay = (role) => {
+        const roleNum = Number(role);
+        if (roleNum === 1) return "Super Admin";
+        if (roleNum === 2) return "White Label";
+        if (roleNum === 3) return "Master Distributor";
+        if (roleNum === 4) return "Distributor";
+        if (roleNum === 5) return "Retailer";
+        return "N/A";
+      };
+
       return {
         id: item.id,
         transactionID: item.transactionID || "N/A",
@@ -88,6 +99,8 @@ const PayoutHistory = ({ onBack, type }) => {
         bankName: item.bankName || "N/A",
         payoutType: item.payoutType || "N/A",
         beneficiaryName: item.beneficiaryName || "N/A",
+        userName: item.userName || "N/A",
+        userRole: getUserRoleDisplay(item.userRole),
         amount: formattedAmount,
         status: getStatusDisplay(item.status),
         type: item.type || "N/A",
@@ -166,6 +179,7 @@ const PayoutHistory = ({ onBack, type }) => {
       transaction.transactionID.toLowerCase().includes(searchLower) ||
       transaction.refId.toString().includes(searchLower) ||
       transaction.mobileNo.includes(searchLower) ||
+      transaction.userName.toLowerCase().includes(searchLower) ||
       transaction.beneficiaryName.toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
@@ -196,7 +210,9 @@ const PayoutHistory = ({ onBack, type }) => {
 
     const excelData = filteredTransactions.map((row, index) => ({
       "SR No": String(index + 1).padStart(2, "0"),
-      "Name": row.beneficiaryName,
+      "User Name": row.userName,
+      "User Role": row.userRole,
+      "Beneficiary Name": row.beneficiaryName,
       "Transaction ID": row.transactionID,
       "Ref ID": row.refId,
       "Mobile No": row.mobileNo,
@@ -377,7 +393,10 @@ const PayoutHistory = ({ onBack, type }) => {
                   SR No
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Name
+                  User Name
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  User Role
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Transaction ID
@@ -445,7 +464,13 @@ const PayoutHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
-                            {transaction.beneficiaryName}
+                            {transaction.userName}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.userRole}
                           </span>
                         </td>
 
@@ -544,7 +569,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={17} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
