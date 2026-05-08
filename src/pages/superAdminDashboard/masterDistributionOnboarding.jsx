@@ -2,19 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { 
   User, 
-  X, 
-  ZoomIn,
-  ShieldAlert,
-  CheckCircle2,
-  Info,
-  RotateCcw,
-  Search,
-  Download,
-  IdCard,
-  Building2,
-  Landmark,
-  Maximize2,
-  History,
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
@@ -58,62 +45,49 @@ const MasterDistributionOnboarding = ({
   const [isReverting, setIsReverting] = useState(false);
   const revertConfirmRef = useRef(null);
 
-  // Unified Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
     show: false,
     title: "",
     message: "",
-    type: "danger", // danger, success, warning, info
+    type: "danger", 
     onConfirm: null,
     confirmText: "Confirm",
     cancelText: "Cancel",
     isProcessing: false,
   });
 
-  // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   const kycRetrieved = kycDetailsState?.data || null;
 
-  // Get kycStatusCheck success state to refresh table after update
   const kycStatusCheckResponse = useSelector(
     (state) => state?.whitelabel?.kycStatusCheck,
   );
 
-  // Get kycUnlock success state to refresh table after unlock
   const kycLockStatusResponse = useSelector(
     (state) => state?.whitelabel?.kycLockStatus,
   );
 
-  // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
     (state) => state?.whitelabel?.kycRevert,
   );
-
-  // Use prop data from API - no dummy data
   const allTableData =
     Array.isArray(propTableData) && propTableData.length > 0
       ? propTableData
       : [];
 
-  // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     return response?.totalCount || response?.total || 0;
   });
-
-  // Use Redux total count if available, otherwise use current data length
   const totalCount =
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (5 records per page)
   const totalPages = Math.ceil(totalCount / 6) || 1;
 
-  // Slice data to show only 5 records per page
   const startIndex = (currentPage - 1) * 5;
   const endIndex = startIndex + 5;
   const tableData = allTableData.slice(startIndex, endIndex);
 
-  // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
     <tr>
       <td colSpan={colSpan} className="relative h-[100px] ">
@@ -124,25 +98,20 @@ const MasterDistributionOnboarding = ({
     </tr>
   );
 
-  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedFromDate(fromDate);
       setDebouncedToDate(toDate);
       setCurrentPage(1);
-    }, 1500); // 1.5 seconds delay
+    }, 1500); 
 
     return () => clearTimeout(timer);
   }, [fromDate, toDate]);
-
-  // Reset pagination when KYC filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedKyc]);
 
-  // Fetch data from API when search term or filters change
   useEffect(() => {
-    // Only fetch if both dates are provided, or if both dates are empty
     const bothDatesSelected = debouncedFromDate && debouncedToDate;
     const bothDatesNull = !debouncedFromDate && !debouncedToDate;
 
@@ -152,9 +121,7 @@ const MasterDistributionOnboarding = ({
 
     const payload = {
       query: {
-        userRole: 3, // Master Distributor role
-        // For onboarding, default to pending if not explicitly selected, 
-        // but if selectedKyc exists, use that.
+        userRole: 3,
         ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
         ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       },
@@ -169,10 +136,8 @@ const MasterDistributionOnboarding = ({
     dispatch(useListAction(payload));
   }, [selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
-  // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Only fetch if both dates are provided, or if both dates are empty
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const bothDatesNull = !debouncedFromDate && !debouncedToDate;
 
@@ -182,7 +147,7 @@ const MasterDistributionOnboarding = ({
 
       const payload = {
         query: {
-          userRole: 3, // Master Distributor role
+          userRole: 3,
           ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
           ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
@@ -197,10 +162,8 @@ const MasterDistributionOnboarding = ({
     }
   }, [kycStatusCheckResponse, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
-  // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Only fetch if both dates are provided, or if both dates are empty
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const bothDatesNull = !debouncedFromDate && !debouncedToDate;
 
@@ -210,7 +173,7 @@ const MasterDistributionOnboarding = ({
 
       const payload = {
         query: {
-          userRole: 3, // Master Distributor role
+          userRole: 3, 
           ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
           ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
@@ -226,7 +189,6 @@ const MasterDistributionOnboarding = ({
   }, [kycLockStatusResponse, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
 
-  // Refresh KYC data when revert succeeds
   useEffect(() => {
     if (kycRevertResponse?.status === "SUCCESS") {
       setIsReverting(false);
@@ -234,12 +196,8 @@ const MasterDistributionOnboarding = ({
       setRevertPayload(null);
 
       if (selectedUserId && showKycModal) {
-        // Clear current data to force re-render
-        // Small delay to ensure backend has processed the revert
         const timer = setTimeout(() => {
-          // Force update by incrementing refresh key
           setKycDataRefreshKey((prev) => prev + 1);
-          // Refresh KYC data after revert
           dispatch(kycDataAction(selectedUserId));
         }, 500);
 
@@ -254,9 +212,7 @@ const MasterDistributionOnboarding = ({
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
-  // Handle click outside modal - DISABLED as per user request to prevent accidental closure
   useEffect(() => {
-    // Logic removed to prevent closing on outside click
     return () => {};
   }, []);
 
@@ -415,16 +371,12 @@ const MasterDistributionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              // Set role code for ProfileDetails badge (Master Distributor)
                               const roleFromRow =
                                 row.userRole ||
                                 row.originalItem?.userRole ||
                                 "MD";
                               dispatch(setSelectedUserRole(roleFromRow));
-
-                              // Use only admin profile details API (same as CreateWhiteLabel)
                               dispatch(getAdminProfileDetails(userId));
-
                               setShowProfileDetails(true);
                             }
                           }}
@@ -879,14 +831,12 @@ const MasterDistributionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              // Set role code for ProfileDetails badge (Master Distributor)
                               const roleFromRow =
                                 row.userRole ||
                                 row.originalItem?.userRole ||
                                 "MD";
                               dispatch(setSelectedUserRole(roleFromRow));
 
-                              // Use only admin profile details API (same as CreateWhiteLabel)
                               dispatch(getAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
@@ -898,19 +848,15 @@ const MasterDistributionOnboarding = ({
                         </button>
                       </td>
 
-                      {/* User ID */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
-                      {/* Name */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.name || row.userName || "N/A"}
                       </td>
-                      {/* User Role */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.userRole || "N/A"}
                       </td>
-                      {/* Mobile No */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.mobileNo ||
                           row.mobile ||

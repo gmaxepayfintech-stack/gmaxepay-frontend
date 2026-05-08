@@ -74,19 +74,12 @@ const RoleUpgradeWhiteLabel = () => {
         };
         return statusMap[filter] || 'completed';
     };
-
-    // Get data from Redux
-    // Try both 'role' and 'roles' in case the reducer is registered differently
     const roleDataResponse = useSelector((state) => {
         const roleState = state?.roles || state?.role;
         return roleState?.roleDataComp?.roleDataComp;
     });
-    //console.log('roleDataResponse', roleDataResponse);
 
-    // roleDataResponse is already the array of companies
     const roleDataComp = Array.isArray(roleDataResponse) ? roleDataResponse : [];
-    //console.log('roleDataComp', roleDataComp);
-    //console.log('roleDataComp length:', roleDataComp.length);
 
     const isLoading = useSelector((state) => {
         const roleState = state?.roles || state?.role;
@@ -95,9 +88,6 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Extract and flatten users from all companies
     const roleDataList = useMemo(() => {
-       // console.log('roleDataComp:', roleDataComp);
-        //console.log('roleDataComp is array:', Array.isArray(roleDataComp));
-        //console.log('roleDataComp length:', roleDataComp?.length);
 
         if (!Array.isArray(roleDataComp) || roleDataComp.length === 0) {
             console.log('No companies found in roleDataComp');
@@ -116,11 +106,9 @@ const RoleUpgradeWhiteLabel = () => {
             }
         });
 
-        //console.log('Total users extracted:', allUsers.length);
         return allUsers;
     }, [roleDataComp]);
 
-    // Debounce search query
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchQuery(searchQuery);
@@ -128,29 +116,23 @@ const RoleUpgradeWhiteLabel = () => {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    // Log Redux response whenever it changes
     useEffect(() => {
-        //console.log('Full roleDataResponse:', roleDataResponse);
-       // console.log('roleDataComp (raw):', roleDataComp);
-        //console.log('roleDataList (flattened users):', roleDataList);
-        //console.log('roleDataList length:', roleDataList?.length);
         if (roleDataList && roleDataList.length > 0) {
             console.log('First user in roleDataList:', roleDataList[0]);
         }
     }, [roleDataResponse, roleDataComp, roleDataList, isLoading]);
 
-    // Fetch data when filter or search changes
     useEffect(() => {
         const kycStatus = getKycStatusFromFilter(activeFilter);
         const payload = {
             query: {
-                userRole: "", // Default userRole
+                userRole: "", 
                 kycStatus: kycStatus
             },
             options: {
-                sort: { id: -1 }, // Default sort
-                page: 1, // Default page
-                paginate: 10 // Default paginate
+                sort: { id: -1 },
+                page: 1,
+                paginate: 10
             },
             customSearch: debouncedSearchQuery.trim() ? {
                 name: debouncedSearchQuery.trim(),
@@ -158,28 +140,17 @@ const RoleUpgradeWhiteLabel = () => {
             } : {}
         };
 
-        //console.log('=== Sending API Request ===');
-        //console.log('Payload being sent:', JSON.stringify(payload, null, 2));
-        //console.log('Active Filter:', activeFilter);
-        //console.log('KYC Status:', kycStatus);
-        //console.log('Search Query:', debouncedSearchQuery);
-
         dispatch(roleDataCompanyUser(payload));
     }, [activeFilter, debouncedSearchQuery, dispatch]);
 
-    // Format table data from API response
     const formatTableData = () => {
-        ///console.log('=== Formatting Table Data ===');
-        //console.log('roleDataList type:', Array.isArray(roleDataList) ? 'Array' : typeof roleDataList);
-        //console.log('roleDataList length:', roleDataList?.length);
+    
 
         if (!Array.isArray(roleDataList) || roleDataList.length === 0) {
-            console.log('No data to format - returning empty array');
             return [];
         }
 
         const formatted = roleDataList.map((user, index) => {
-            // Format date from "2025-12-15T10:27:30.248Z" to "15-12-25" (DD-MM-YY)
             let formattedDate = '-';
             if (user.date) {
                 try {
@@ -194,7 +165,6 @@ const RoleUpgradeWhiteLabel = () => {
                 }
             }
 
-            // Map userRole codes to readable names
             const roleMap = {
                 'DI': 'Distributor',
                 'RE': 'Retailer',
@@ -203,7 +173,6 @@ const RoleUpgradeWhiteLabel = () => {
             };
 
             const formattedItem = {
-                // Table display fields
                 id: user.id || user._id || `row-${index}`,
                 srNo: String(index + 1).padStart(2, '0'),
                 date: formattedDate,

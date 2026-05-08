@@ -24,9 +24,7 @@ const FundRequest = () => {
   const isFetchingRef = useRef(false);
   const itemsPerPage = 10;
 
-  // Fetch fund requests from API
   const fetchFundRequests = useCallback(async () => {
-    // Prevent duplicate calls
     if (isFetchingRef.current) {
       return;
     }
@@ -35,14 +33,12 @@ const FundRequest = () => {
       isFetchingRef.current = true;
       setLoading(true);
       
-      // Build customSearch object for search term
       const customSearch = {};
       if (searchTerm.trim()) {
         customSearch.referenceNo = searchTerm.trim();
         customSearch.transactionId = searchTerm.trim();
       }
 
-      // Build query object for date filters
       const query = {};
       if (fromDate) {
         query.startDate = fromDate;
@@ -51,7 +47,6 @@ const FundRequest = () => {
         query.endDate = toDate;
       }
 
-      // Build payload
       const payload = {
         query: query,
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
@@ -82,22 +77,17 @@ const FundRequest = () => {
     }
   }, [dispatch, searchTerm, fromDate, toDate, currentPage, itemsPerPage]);
 
-  // Reset isReloading when loading completes
   useEffect(() => {
     if (!loading && isReloading) {
       setIsReloading(false);
     }
   }, [loading, isReloading]);
 
-  // Fetch data on component mount and when filters change (excluding searchTerm which is debounced)
   useEffect(() => {
     fetchFundRequests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, fromDate, toDate]);
 
-  // Debounce search term
   useEffect(() => {
-    // Don't trigger if searchTerm is empty on initial mount
     if (!searchTerm.trim()) {
       return;
     }
@@ -109,7 +99,7 @@ const FundRequest = () => {
       if (currentPage === 1) {
         fetchFundRequests();
       } else {
-        setCurrentPage(1); // Reset to first page when searching
+        setCurrentPage(1); 
       }
     }, 500);
 
@@ -118,24 +108,20 @@ const FundRequest = () => {
         clearTimeout(debounceTimerRef.current);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
-  // Handle view details
   const handleViewDetails = (request) => {
     setSelectedRequest(request);
     setShowDetailsPanel(true);
     setApprovalRemarks("");
   };
 
-  // Handle close details panel
   const handleClosePanel = () => {
     setShowDetailsPanel(false);
     setSelectedRequest(null);
     setApprovalRemarks("");
   };
 
-  // Handle approve fund request
   const handleApprove = async () => {
     if (!selectedRequest?.id) {
       return;
@@ -152,12 +138,10 @@ const FundRequest = () => {
       const result = await dispatch(companyApproveRequest(payload));
       
       if (result?.status === "SUCCESS") {
-        // Close panel and refresh the list
         handleClosePanel();
         fetchFundRequests();
       }
     } catch (error) {
-      // Error is handled by Redux error reducer
       console.error("Failed to approve fund request:", error);
     } finally {
       setSubmitting(false);
@@ -169,7 +153,6 @@ const FundRequest = () => {
       return;
     }
 
-    // Format date helper
     const formatDate = (dateString) => {
       if (!dateString) return "";
       try {
@@ -184,7 +167,6 @@ const FundRequest = () => {
       }
     };
 
-    // Prepare data for export
     const exportData = fundRequests.map((item, index) => ({
       "SR No": index + 1,
       "Created At": formatDate(item.createdAt),
@@ -199,14 +181,11 @@ const FundRequest = () => {
       "Status": item.status || "PENDING",
     }));
 
-    // 2️⃣ Convert JSON to worksheet
     const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    // 3️⃣ Create workbook & append sheet
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Fund Requests");
 
-    // 4️⃣ Download Excel file
     XLSX.writeFile(workbook, "Fund_Request_List.xlsx");
   };
 
@@ -221,9 +200,7 @@ const FundRequest = () => {
       </h1>
       <div className="w-full mx-auto">
         <div className="mb-[28px] w-full">
-          {/* Small devices: Stacked layout */}
           <div className="block sm:hidden">
-            {/* Search Bar */}
             <div className="relative w-full mb-4">
               <svg
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 z-10"
@@ -246,7 +223,6 @@ const FundRequest = () => {
                 className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
               />
             </div>
-            {/* Date filters */}
             <div className="flex gap-3 mb-4">
               <div className="relative flex-1">
                 <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
@@ -271,7 +247,6 @@ const FundRequest = () => {
                 />
               </div>
             </div>
-            {/* Export and Reload buttons */}
             <div className="flex gap-3">
               <button
                 onClick={handleExport}
@@ -312,9 +287,7 @@ const FundRequest = () => {
             </div>
           </div>
 
-          {/* Medium and Large devices: Single row layout */}
           <div className="hidden sm:flex items-end gap-3 sm:gap-4">
-            {/* Search – takes remaining width */}
             <div className="relative flex-1">
               <svg
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 z-10"
@@ -338,7 +311,6 @@ const FundRequest = () => {
               />
             </div>
 
-            {/* Date filters */}
             <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
               <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
                 From Date
@@ -363,7 +335,6 @@ const FundRequest = () => {
               />
             </div>
 
-            {/* Export */}
             <div className="flex items-end">
               <button
                 onClick={handleExport}
@@ -386,7 +357,6 @@ const FundRequest = () => {
               </button>
             </div>
 
-            {/* Reload Button */}
             <div className="flex items-end">
               <button
                 onClick={() => {
@@ -409,7 +379,6 @@ const FundRequest = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="bg-white rounded-3xl shadow-sm overflow-hidden mt-4 sm:mt-[40px] md:mt-[40px] lg:mt-4">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1000px] rounded-3xl">
@@ -451,7 +420,6 @@ const FundRequest = () => {
                     const isApproved = item.status === "APPROVED";
                     const fundRequestId = item.id;
                     
-                    // Format date from ISO string
                     const formatDate = (dateString) => {
                       if (!dateString) return "";
                       try {
@@ -506,7 +474,6 @@ const FundRequest = () => {
                         <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
                           {item.paymentMode || "-"}
                         </td>
-                        {/* Status */}
                         <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
                           <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
                             item.status === "APPROVED" || isApproved
@@ -518,7 +485,6 @@ const FundRequest = () => {
                             {item.status || "PENDING"}
                           </span>
                         </td>
-                        {/* Action - View Button */}
                         <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
                           {formatDate(item.createdAt)}
                         </td>
@@ -545,7 +511,6 @@ const FundRequest = () => {
           </div>
         </div>
 
-        {/* Loading / Pagination */}
         {loading ? (
           <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
             <ButtonLoader color="#039155" size={24} thickness={3} />
@@ -582,7 +547,6 @@ const FundRequest = () => {
 
           {totalPages > 0 && [...Array(totalPages)].map((_, index) => {
             const page = index + 1;
-            // Show first page, last page, current page, and pages around current
             if (
               page === 1 ||
               page === totalPages ||
@@ -634,21 +598,17 @@ const FundRequest = () => {
         )}
       </div>
 
-      {/* Screen Freeze Overlay */}
       {submitting && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50"></div>
       )}
 
-      {/* Right Side Details Panel */}
       {showDetailsPanel && selectedRequest && (
         <div className="fixed inset-0 z-40 flex">
-          {/* Backdrop */}
           <div 
             className="flex-1 bg-black bg-opacity-50"
             onClick={handleClosePanel}
           ></div>
           
-          {/* Panel */}
           <div className="w-full md:w-[500px] lg:w-[600px] bg-white shadow-xl overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200">
               <div className="relative px-6 py-6">
@@ -680,13 +640,11 @@ const FundRequest = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Request Details */}
               <div>
                 <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
                   Transaction Details
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Left Column - Odd items (1, 3, 5) */}
                   <div className="space-y-3">
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Transaction ID</p>
@@ -722,7 +680,6 @@ const FundRequest = () => {
                     )}
                   </div>
                   
-                  {/* Right Column - Even items (2, 4, 6) */}
                   <div className="space-y-3">
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Reference Number</p>
@@ -752,13 +709,11 @@ const FundRequest = () => {
                 </div>
               </div>
 
-              {/* Requester Details */}
               <div className="border-t border-gray-200 pt-4">
                 <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
                   Requester Details
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Left Column - Odd items (1, 3) */}
                   <div className="space-y-3">
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Name</p>
@@ -774,7 +729,6 @@ const FundRequest = () => {
                     </div>
                   </div>
                   
-                  {/* Right Column - Even items (2) */}
                   <div className="space-y-3">
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Mobile</p>
@@ -786,13 +740,11 @@ const FundRequest = () => {
                 </div>
               </div>
 
-              {/* Bank Details */}
               <div className="border-t border-gray-200 pt-4">
                 <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
                   Bank Details
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Left Column - Odd items (1, 3) */}
                   <div className="space-y-3">
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Bank Name</p>
@@ -808,7 +760,6 @@ const FundRequest = () => {
                     </div>
                   </div>
                   
-                  {/* Right Column - Even items (2, 4) */}
                   <div className="space-y-3">
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Account Number</p>
@@ -826,7 +777,6 @@ const FundRequest = () => {
                 </div>
               </div>
 
-              {/* Payslip */}
               {selectedRequest.paySlip && (
                 <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
@@ -845,7 +795,6 @@ const FundRequest = () => {
                 </div>
               )}
 
-              {/* Approval Remarks Display */}
               {selectedRequest.approvalRemarks && (
                 <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
@@ -859,7 +808,6 @@ const FundRequest = () => {
                 </div>
               )}
 
-              {/* Approval Remarks Input (only show if status is PENDING) */}
               {selectedRequest.status === "PENDING" && (
                 <div className="border-t border-gray-200 pt-4">
                   <label className="block mb-2">
@@ -877,7 +825,6 @@ const FundRequest = () => {
                 </div>
               )}
 
-              {/* Approve Button (only show if status is PENDING) */}
               {selectedRequest.status === "PENDING" && (
                 <div className="border-t border-gray-200 pt-4">
                   <button

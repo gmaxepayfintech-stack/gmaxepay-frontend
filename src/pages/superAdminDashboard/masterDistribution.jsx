@@ -1,20 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { 
   User, 
-  X, 
-  ZoomIn,
-  ShieldAlert,
-  CheckCircle2,
-  Info,
-  RotateCcw,
   Search,
   Download,
-  IdCard,
-  Building2,
-  Landmark,
-  Maximize2,
-  History,
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
@@ -61,43 +50,36 @@ const MasterDistribution = ({
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
-  // Unified Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
     show: false,
     title: "",
     message: "",
-    type: "danger", // danger, success, warning, info
+    type: "danger",
     onConfirm: null,
     confirmText: "Confirm",
     cancelText: "Cancel",
     isProcessing: false,
   });
 
-  // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
     (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
   );
 
-  // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   const kycRetrieved = kycDetailsState?.data || null;
 
-  // Get kycStatusCheck success state to refresh table after update
   const kycStatusCheckResponse = useSelector(
     (state) => state?.whitelabel?.kycStatusCheck,
   );
 
-  // Get kycUnlock success state to refresh table after unlock
   const kycLockStatusResponse = useSelector(
     (state) => state?.whitelabel?.kycLockStatus,
   );
 
-  // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Redux data if search is active, otherwise use prop data
   const allTableData = debouncedSearchTerm.trim()
     ? Array.isArray(responseForTable) && responseForTable.length > 0
       ? responseForTable
@@ -106,29 +88,24 @@ const MasterDistribution = ({
       ? propTableData
       : [];
 
-  // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     return response?.totalCount || response?.total || 0;
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
   const totalCount =
     debouncedSearchTerm.trim() && totalCountFromRedux > 0
       ? totalCountFromRedux
       : allTableData.length;
 
-  // When embedded, use server-provided totalPages; otherwise compute locally (6/page)
   const totalPages = embedded && serverTotalPages > 0
     ? serverTotalPages
     : totalCount > 0 ? Math.ceil(totalCount / 6) : 0;
 
-  // When embedded, show all rows (already server-paginated); otherwise slice locally
   const tableData = embedded
     ? allTableData
     : allTableData.slice((currentPage - 1) * 6, currentPage * 6);
 
-  // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
     <tr>
       <td colSpan={colSpan} className="relative h-[100px] ">
@@ -139,30 +116,26 @@ const MasterDistribution = ({
     </tr>
   );
 
-  // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-      setCurrentPage(1); // Reset to first page when search changes
-    }, 500); // 500ms delay
+      setCurrentPage(1);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedFromDate(fromDate);
       setDebouncedToDate(toDate);
       setCurrentPage(1);
-    }, 1500); // 1.5 seconds delay
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [fromDate, toDate]);
 
-  // Fetch data from API based on role
   useEffect(() => {
-    // Only fetch if both dates are provided, or if both dates are empty
     const bothDatesSelected = debouncedFromDate && debouncedToDate;
     const bothDatesNull = !debouncedFromDate && !debouncedToDate;
 
@@ -172,7 +145,7 @@ const MasterDistribution = ({
 
     const payload = {
       query: {
-        userRole: 3, // Master Distributor role
+        userRole: 3,
         ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       },
       options: {
@@ -191,7 +164,6 @@ const MasterDistribution = ({
     dispatch(useListAction(payload));
   }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
-  // Export to Excel function
   const handleExportToExcel = () => {
     if (!allTableData || allTableData.length === 0) {
       alert("No data available to export");
@@ -214,7 +186,6 @@ const MasterDistribution = ({
       "Main Wallet": row.mainWallet || "0",
       "AEPS1 Wallet": row.aeps1Wallet || "0",
       "AEPS2 Wallet": row.aeps2Wallet || "0",
-      // "Remaining Days": row.remainingDays || "0",
       Status: row.status || "Active",
     }));
 
@@ -229,10 +200,8 @@ const MasterDistribution = ({
     XLSX.writeFile(workbook, fileName);
   };
 
-  // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Only fetch if both dates are provided, or if both dates are empty
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const bothDatesNull = !debouncedFromDate && !debouncedToDate;
 
@@ -242,7 +211,7 @@ const MasterDistribution = ({
 
       const payload = {
         query: {
-          userRole: 3, // Master Distributor role
+          userRole: 3, 
           ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
@@ -261,10 +230,8 @@ const MasterDistribution = ({
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
-  // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Only fetch if both dates are provided, or if both dates are empty
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
       const bothDatesNull = !debouncedFromDate && !debouncedToDate;
 
@@ -274,7 +241,7 @@ const MasterDistribution = ({
 
       const payload = {
         query: {
-          userRole: 3, // Master Distributor role
+          userRole: 3, 
           ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
@@ -294,7 +261,6 @@ const MasterDistribution = ({
   }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
 
-  // Refresh KYC data when revert succeeds
   useEffect(() => {
     if (kycRevertResponse?.status === "SUCCESS") {
       setIsReverting(false);
@@ -302,9 +268,7 @@ const MasterDistribution = ({
       setRevertPayload(null);
 
       if (selectedUserId && showKycModal) {
-        // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
-        // Refresh KYC data after revert
         dispatch(kycDataAction(selectedUserId));
       }
     } else if (kycRevertResponse?.status === "ERROR" || kycRevertResponse?.status === "FAILED") {
@@ -314,9 +278,7 @@ const MasterDistribution = ({
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
-  // Handle click outside modal - DISABLED as per user request to prevent accidental closure
   useEffect(() => {
-    // Logic removed to prevent closing on outside click
     return () => {};
   }, []);
 
@@ -330,7 +292,6 @@ const MasterDistribution = ({
     >
       {embedded ? (
         <div className="flex flex-col min-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
             <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
               Master Distributor
@@ -366,8 +327,6 @@ const MasterDistribution = ({
               </button>
             </div>
           </div>
-
-          {/* Table */}
           <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white text-center">
@@ -418,9 +377,6 @@ const MasterDistribution = ({
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS2 Wallet
                   </th>
-                  {/* <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Remaining Days
-                  </th> */}
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -463,7 +419,6 @@ const MasterDistribution = ({
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
                         }`}
                     >
-                      {/* ID */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.id || "N/A"}
                       </td>
@@ -472,16 +427,12 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              // Set role code for ProfileDetails badge
                               const roleFromRow =
                                 row.userRole ||
                                 row.originalItem?.userRole ||
-                                "MD"; // Master Distributor
+                                "MD";
                               dispatch(setSelectedUserRole(roleFromRow));
-
-                              // Use only admin profile details API (same as CreateWhiteLabel)
                               dispatch(getAdminProfileDetails(userId));
-
                               setShowProfileDetails(true);
                             }
                           }}
@@ -490,43 +441,33 @@ const MasterDistribution = ({
                           <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                         </button>
                       </td>
-
-                      {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
-                      {/* Name */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.name || row.userName || "N/A"}
                       </td>
-                      {/* User Role */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.userRole || "N/A"}
                       </td>
-                      {/* Mobile No */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
-                      {/* Email Id */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.emailId || row.email || "N/A"}
                       </td>
-                      {/* Parent Name */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.parentName || "N/A"}
                       </td>
-                      {/* Parent Role */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.parentRole || "N/A"}
                       </td>
-                      {/* Company Name */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.companyName || "N/A"}
                       </td>
-                      {/* KYC Status */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
@@ -546,27 +487,18 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* KYC Steps */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.kycSteps || "0"}
                       </td>
-                      {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.mainWallet || "0"}
                       </td>
-                      {/* AEPS1 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.aeps1Wallet || "0"}
                       </td>
-                      {/* AEPS2 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.aeps2Wallet || "0"}
                       </td>
-                      {/* Remaining Days */}
-                      {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                        {row.remainingDays || "0"}
-                      </td> */}
-                      {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
@@ -577,7 +509,6 @@ const MasterDistribution = ({
                           {row.status || "Active"}
                         </span>
                       </td>
-                      {/* KYC Details */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         <button
                           onClick={() => {
@@ -593,7 +524,6 @@ const MasterDistribution = ({
                           KYC Details
                         </button>
                       </td>
-                      {/* Action - Toggle Button */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -633,7 +563,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Lock Status - Colored Button */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -642,7 +571,6 @@ const MasterDistribution = ({
                           return (
                             <button
                               onClick={() => {
-                                // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   setConfirmModal({
                                     show: true,
@@ -676,7 +604,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Onboarding - Re-send Button */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -707,7 +634,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Deactivation - Send Button */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -738,7 +664,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Date */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.date || "N/A"}
                       </td>
@@ -749,7 +674,6 @@ const MasterDistribution = ({
             </table>
           </div>
 
-          {/* Pagination - Fixed at bottom */}
           {totalPages > 0 && (
             <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
               <button
@@ -802,7 +726,6 @@ const MasterDistribution = ({
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-          {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
             <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
               Master Distributor
@@ -838,8 +761,6 @@ const MasterDistribution = ({
               </button>
             </div>
           </div>
-
-          {/* Table */}
           <div className="mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white">
@@ -890,9 +811,6 @@ const MasterDistribution = ({
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS2 Wallet
                   </th>
-                  {/* <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Remaining Days
-                  </th> */}
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -935,7 +853,6 @@ const MasterDistribution = ({
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
                         }`}
                     >
-                      {/* ID */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.id || "N/A"}
                       </td>
@@ -944,7 +861,6 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              // Use only admin profile details API (same as CreateWhiteLabel)
                               const original = row.originalItem || {};
                               dispatch(getAdminProfileDetails(userId));
 
@@ -956,43 +872,33 @@ const MasterDistribution = ({
                           <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                         </button>
                       </td>
-
-                      {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
-                      {/* Name */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.name || row.userName || "N/A"}
                       </td>
-                      {/* User Role */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.userRole || "N/A"}
                       </td>
-                      {/* Mobile No */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
-                      {/* Email Id */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.emailId || row.email || "N/A"}
                       </td>
-                      {/* Parent Name */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.parentName || "N/A"}
                       </td>
-                      {/* Parent Role */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.parentRole || "N/A"}
                       </td>
-                      {/* Company Name */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.companyName || "N/A"}
                       </td>
-                      {/* KYC Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
@@ -1012,27 +918,18 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* KYC Steps */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.kycSteps || "0"}
                       </td>
-                      {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.mainWallet || "0"}
                       </td>
-                      {/* AEPS1 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.aeps1Wallet || "0"}
                       </td>
-                      {/* AEPS2 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.aeps2Wallet || "0"}
                       </td>
-                      {/* Remaining Days */}
-                      {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
-                        {row.remainingDays || "0"}
-                      </td> */}
-                      {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
@@ -1043,7 +940,6 @@ const MasterDistribution = ({
                           {row.status || "Active"}
                         </span>
                       </td>
-                      {/* KYC Details */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         <button
                           onClick={() => {
@@ -1059,7 +955,6 @@ const MasterDistribution = ({
                           KYC Details
                         </button>
                       </td>
-                      {/* Action - Toggle Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1099,7 +994,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Lock Status - Colored Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1141,7 +1035,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Onboarding - Re-send Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1172,7 +1065,6 @@ const MasterDistribution = ({
                           );
                         })()}
                       </td>
-                      {/* Deactivation - Send Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1303,7 +1195,6 @@ const MasterDistribution = ({
         kycModalRef={kycModalRef}
       />
 
-      {/* Add CSS animations */}
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }

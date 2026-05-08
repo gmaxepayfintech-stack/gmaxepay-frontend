@@ -37,12 +37,9 @@ const BankOtp = ({ onBack }) => {
       });
   }, [dispatch]);
 
-  // Format mobile number for display
   const formatPhoneNumber = (mobile) => {
     if (!mobile) return "+91 00000 00000";
-    // Remove any non-digit characters
     const digits = mobile.replace(/\D/g, "");
-    // Format as +91 XXXXX XXXXX
     if (digits.length === 10) {
       return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
     }
