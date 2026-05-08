@@ -157,15 +157,6 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
         const token = secureLocalStorage.getItem("onboardingToken");
         const companyId = getCompanyId();
         const companyDomain = getCompanyDomain();
-
-        // console.log("fetchPendingOnMount - companyData:", companyData);
-        // console.log("fetchPendingOnMount - companyId:", companyId);
-        // console.log("fetchPendingOnMount - companyDomain:", companyDomain);
-        // console.log(
-        //   "fetchPendingOnMount - token:",
-        //   token ? "present" : "missing",
-        // );
-
         if (
           token &&
           companyId &&
@@ -174,7 +165,6 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
           !getPendingResponse
         ) {
           setIsLoadingPending(true);
-          // Set a timeout to reset loading state if API takes too long (30 seconds)
           const timeoutId = setTimeout(() => {
             setIsLoadingPending(false);
           }, 30000);
@@ -220,13 +210,6 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
           mobileOtpResponse?.OTPResponse?.status === "verified" ||
           mobileOtpResponse?.OTPResponse?.data?.status === "verified" ||
           mobileOtpResponse?.status === "SUCCESS";
-
-        // console.log(
-        //   "checkAndFetchPending - isMobileVerified:",
-        //   isMobileVerified,
-        // );
-        // console.log("checkAndFetchPending - companyId:", companyId);
-        // console.log("checkAndFetchPending - companyDomain:", companyDomain);
 
         if (
           token &&

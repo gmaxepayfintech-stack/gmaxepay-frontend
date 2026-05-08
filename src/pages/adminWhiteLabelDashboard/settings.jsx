@@ -313,7 +313,6 @@ const Settings = ({ onBack }) => {
         });
       }
     } catch (error) {
-      console.error("Upload error:", error);
       showNotification({
         type: "error",
         message: error?.response?.data?.message || error?.message || "Unexpected error.",
@@ -354,7 +353,6 @@ const Settings = ({ onBack }) => {
         });
       }
     } catch (error) {
-      console.error("Upload error:", error);
       showNotification({
         type: "error",
         message: error?.response?.data?.message || error?.message || "Unexpected error.",
@@ -394,7 +392,6 @@ const Settings = ({ onBack }) => {
         });
       }
     } catch (error) {
-      console.error("Upload error:", error);
       showNotification({
         type: "error",
         message: error?.response?.data?.message || error?.message || "Unexpected error.",
@@ -417,7 +414,6 @@ const Settings = ({ onBack }) => {
           isCritical: true,
         });
         refreshCompany();
-        // Refresh local image list after success
         dispatch(getCompanySettingImages({
           query: { isActive: true },
           options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
@@ -430,7 +426,6 @@ const Settings = ({ onBack }) => {
         });
       }
     } catch (error) {
-      console.error("Delete error:", error);
       showNotification({
         type: "error",
         message: error?.response?.data?.message || error?.message || "An unexpected error occurred while deleting slider.",

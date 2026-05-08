@@ -182,12 +182,94 @@ const Retailers = ({
     }
   }, [embedded, activePage, currentPage]);
 
+  // Unified page change handler
   const handlePageChange = (newPage) => {
-    if (embedded && onPageChange) {
-      onPageChange(newPage);
-    } else {
-      setCurrentPage(newPage);
+    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+    setCurrentPage(newPage);
+    if (embedded && onPageChange) onPageChange(newPage);
+  };
+
+  // Logic to show a window of pages (e.g. 1 ... 4 5 6 ... 10)
+  const getVisiblePages = () => {
+    const delta = 1; // Number of pages to show around current
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+        range.push(i);
+      }
     }
+
+    for (let i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push("...");
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+    return rangeWithDots;
+  };
+
+  // Helper to render pagination controls (extracted to avoid duplication)
+  const renderPagination = () => {
+    if (totalPages <= 1 && totalCount <= 6) return null; // Hide if only one page or no data
+
+    const visiblePages = getVisiblePages();
+
+    return (
+      <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1 || totalPages === 0}
+          className={`p-2 border border-slate-100 rounded-xl transition-all ${
+            currentPage === 1 || totalPages === 0
+              ? "text-slate-300 cursor-not-allowed bg-gray-50"
+              : "text-slate-500 hover:text-[#039155] hover:bg-slate-50 shadow-sm"
+          }`}
+          title="Previous Page"
+        >
+          <IoIosArrowBack className="text-xl" />
+        </button>
+
+        {visiblePages.map((page, index) => (
+          <React.Fragment key={index}>
+            {page === "..." ? (
+              <span className="px-2 text-slate-400 font-medium">...</span>
+            ) : (
+              <button
+                onClick={() => handlePageChange(page)}
+                className={`w-10 h-10 rounded-xl text-sm font-[Gilroy-Bold] transition-all ${
+                  page === currentPage
+                    ? "bg-[#039155] text-white shadow-lg shadow-emerald-100"
+                    : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50 hover:border-emerald-200"
+                }`}
+              >
+                {page}
+              </button>
+            )}
+          </React.Fragment>
+        ))}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className={`p-2 border border-slate-100 rounded-xl transition-all ${
+            currentPage === totalPages || totalPages === 0
+              ? "text-slate-300 cursor-not-allowed bg-gray-50"
+              : "text-slate-500 hover:text-[#039155] hover:bg-slate-50 shadow-sm"
+          }`}
+          title="Next Page"
+        >
+          <IoIosArrowForward className="text-xl" />
+        </button>
+      </div>
+    );
   };
 
   // Debounce search term to avoid too many API calls

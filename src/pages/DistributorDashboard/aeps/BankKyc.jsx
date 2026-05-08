@@ -363,30 +363,22 @@ const BankKyc = () => {
     );
 
     if (!pidData) {
-      //console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
       lastPidDataRef.current = "";
       return;
     }
-
-    // Prevent duplicate API calls for the same pidData
     if (pidDataProcessedRef.current && lastPidDataRef.current === pidData) {
-      //console.log("⚠️ Already processed this pidData, skipping");
       return;
     }
 
-    //console.log("✅ Processing new pidData, dispatching API call...");
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
-    // Get location and IP first
     getLocationAndIP()
       .then(async (locationAndIP) => {
-       // console.log("📍 Location and IP retrieved:", locationAndIP);
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
 
-        // Prepare request data with biometric data, lat, and long
         const requestData = {
           biometricData: pidData,
           captureType: "FINGER",
@@ -404,38 +396,22 @@ const BankKyc = () => {
         return dispatch(aepsSubmitBiomatric(requestData));
       })
       .then((response) => {
-        //console.log("✅ Bank KYC biometric verification response:", response);
-
-        // Always call aepsStatusCheck after biometric verification dispatch
-        // console.log(
-        //   "🔄 Calling aepsStatusCheck after bank KYC biometric verification...",
-        // );
-
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
-            //console.log("✅ AEPS Status check response:", statusResponse);
 
-            // Extract status data from response
-            // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
             const aepsStatusData =
               statusResponse?.aepsStatus || statusResponse?.data;
 
             if (aepsStatusData) {
-              // Get next step based on status
               const nextStep = getNextStep(aepsStatusData);
 
               if (nextStep === "faVerification") {
-                // console.log(
-                //   "✅ Bank KYC biometric completed, moving to 2FA verification",
-                // );
                 setDeviceMessage("Bank KYC biometric verification successful");
                 setShow2FA(true);
               } else if (nextStep === "selectService") {
-                //console.log("✅ 2FA completed, moving to SelectService");
                 setDeviceMessage("Bank KYC biometric verification successful");
                 setShowSelectService(true);
               } else {
-                //console.log("📋 Staying on bank KYC biometric verification");
                 if (response?.status === "SUCCESS") {
                   setDeviceMessage(
                     "Bank KYC biometric verification successful",
@@ -448,7 +424,6 @@ const BankKyc = () => {
                 }
               }
             } else {
-              // If status data is not available, check response status
               if (response?.status === "SUCCESS") {
                 setDeviceMessage("Bank KYC biometric verification successful");
               } else {
@@ -461,7 +436,6 @@ const BankKyc = () => {
           })
           .catch((error) => {
             console.error("❌ AEPS Status check error:", error);
-            // Even if status check fails, check the biometric response
             if (response?.status === "SUCCESS") {
               setDeviceMessage("Bank KYC biometric verification successful");
             } else {
@@ -482,7 +456,6 @@ const BankKyc = () => {
         );
         pidDataProcessedRef.current = false;
 
-        // Still try to check status even on error
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check after error:", statusResponse);

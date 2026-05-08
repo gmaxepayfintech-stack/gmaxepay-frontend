@@ -3,25 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   FaSearch,
   FaUpload,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaUser,
-  FaIdCard,
-  FaBuilding,
-  FaUniversity,
-  FaExpand,
-  FaHistory,
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { 
-  User, 
-  X, 
-  ZoomIn,
-  ShieldAlert,
-  CheckCircle2,
-  Info,
-  RotateCcw,
-} from "lucide-react";
+import { User } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
   useList as useListAction,
@@ -42,7 +26,6 @@ import {
 import { checkAdminAepsStatus } from "../../redux/action/whiteLabelAction";
 import { useNotification } from "../../context/NotificationContext";
 import KycModal from "./KycModal";
-
 
 const Retailers = ({
   embedded = false,
@@ -175,11 +158,9 @@ const Retailers = ({
     }
   }, [lockCheck, lastClickedRowId]);
 
-  // Use Redux data if search is active, otherwise use prop data
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
-      ? responseForTable
-      : []
+  // Use Redux data if available, otherwise use prop data
+  const allTableData = Array.isArray(responseForTable) && responseForTable.length > 0
+    ? responseForTable
     : Array.isArray(propTableData) && propTableData.length > 0
       ? propTableData
       : [];
@@ -187,22 +168,116 @@ const Retailers = ({
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    return response?.totalCount || response?.total || response?.paginator?.totalCount || response?.paginator?.total || 0;
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
-  const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+  // Use Redux total count if available, otherwise use current data length
+  const totalCount = totalCountFromRedux > 0
+    ? totalCountFromRedux
+    : allTableData.length;
 
-  // When embedded, use server-provided totalPages; otherwise compute locally (6/page)
-  const totalPages = embedded && serverTotalPages > 0
+  // Check if internal filters (search/dates) are active - in embedded mode, this overrides prop data
+  const isInternalFilterActive = !!(debouncedSearchTerm.trim() || (debouncedFromDate && debouncedToDate));
+
+  // When embedded and NO internal filters, use server-provided totalPages; 
+  // otherwise compute locally (6/page) from current data source
+  const totalPages = (embedded && !isInternalFilterActive && serverTotalPages > 0)
     ? serverTotalPages
     : totalCount > 0 ? Math.ceil(totalCount / 6) : 0;
 
-  // When embedded, show all rows (already server-paginated); otherwise slice locally
-  const tableData = embedded
+  // Unified page change handler
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+    setCurrentPage(newPage);
+    if (embedded && onPageChange) onPageChange(newPage);
+  };
+
+  // Logic to show a window of pages (e.g. 1 ... 4 5 6 ... 10)
+  const getVisiblePages = () => {
+    const delta = 1; // Number of pages to show around current
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+        range.push(i);
+      }
+    }
+
+    for (let i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push("...");
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+    return rangeWithDots;
+  };
+
+  // Helper to render pagination controls (extracted to avoid duplication)
+  const renderPagination = () => {
+    if (totalPages <= 1 && totalCount <= 6) return null; // Hide if only one page or no data
+
+    const visiblePages = getVisiblePages();
+
+    return (
+      <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1 || totalPages === 0}
+          className={`p-2 border border-slate-100 rounded-xl transition-all ${
+            currentPage === 1 || totalPages === 0
+              ? "text-slate-300 cursor-not-allowed bg-gray-50"
+              : "text-slate-500 hover:text-[#039155] hover:bg-slate-50 shadow-sm"
+          }`}
+          title="Previous Page"
+        >
+          <IoIosArrowBack className="text-xl" />
+        </button>
+
+        {visiblePages.map((page, index) => (
+          <React.Fragment key={index}>
+            {page === "..." ? (
+              <span className="px-2 text-slate-400 font-medium">...</span>
+            ) : (
+              <button
+                onClick={() => handlePageChange(page)}
+                className={`w-10 h-10 rounded-xl text-sm font-[Gilroy-Bold] transition-all ${
+                  page === currentPage
+                    ? "bg-[#039155] text-white shadow-lg shadow-emerald-100"
+                    : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50 hover:border-emerald-200"
+                }`}
+              >
+                {page}
+              </button>
+            )}
+          </React.Fragment>
+        ))}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className={`p-2 border border-slate-100 rounded-xl transition-all ${
+            currentPage === totalPages || totalPages === 0
+              ? "text-slate-300 cursor-not-allowed bg-gray-50"
+              : "text-slate-500 hover:text-[#039155] hover:bg-slate-50 shadow-sm"
+          }`}
+          title="Next Page"
+        >
+          <IoIosArrowForward className="text-xl" />
+        </button>
+      </div>
+    );
+  };
+
+  // When using server-side pagination, do not slice the data again locally
+  // Only slice if we have a full list from props and no server data
+  const tableData = (responseForTable.length > 0 || embedded)
     ? allTableData
     : allTableData.slice((currentPage - 1) * 6, currentPage * 6);
 
@@ -238,10 +313,9 @@ const Retailers = ({
       return;
     }
 
-    // Only fetch if there is a search term OR if dates are selected
-    // Note: If you want dates to trigger API call even without search term, you should remove this if condition
-    // or modify it to check for dates as well.
-    if (debouncedSearchTerm.trim() || bothDatesSelected) {
+    // Fetch data if not embedded OR if search/dates are active
+    // This ensures initial fetch and pagination work for the main list
+    if (!embedded || debouncedSearchTerm.trim() || bothDatesSelected) {
       const payload = {
         query: {
           userRole: 5, // Retailer role
@@ -260,7 +334,7 @@ const Retailers = ({
 
       dispatch(useListAction(payload));
     }
-  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch, embedded]);
 
 
   // Refresh KYC data when revert succeeds
@@ -673,10 +747,10 @@ const Retailers = ({
                 ) : (
                   tableData.map((row, index) => {
                     return (
-                        <tr
-                          key={row.id || index}
-                          className={`text-sm ${index % 2 === 0 ? "bg-slate-50/50" : "bg-white"}`}
-                        >
+                      <tr
+                        key={row.id || index}
+                        className={`text-sm ${index % 2 === 0 ? "bg-slate-50/50" : "bg-white"}`}
+                      >
                         <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                           {safeString(row.id, "N/A")}
                         </td>
@@ -765,8 +839,8 @@ const Retailers = ({
                                 }}
                                 disabled={row.aepsOnboardingStatus === true}
                                 className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
-                                    ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
-                                    : "hover:bg-indigo-50"
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                  : "hover:bg-indigo-50"
                                   }`}
                               >
                                 Check Status
@@ -781,7 +855,7 @@ const Retailers = ({
                           {getWalletValue(row, "apes2Wallet")}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                           <span
+                          <span
                             className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-emerald-600"
                               : "bg-rose-600"
@@ -877,39 +951,39 @@ const Retailers = ({
 
                             return (
                               <button
-                               onClick={() => {
-                                 // Only trigger API when button is in "Locked" state
-                                 if (userId && isLocked) {
-                                   setConfirmModal({
-                                     show: true,
-                                     title: "Enable Retailer Access?",
-                                     message: "Are you sure you want to enable access for this retailer account? This will unlock their dashboard and services.",
-                                     type: "success",
-                                     confirmText: "Yes, Enable Access",
-                                     cancelText: "Cancel",
-                                     onConfirm: () => {
-                                       dispatch(kycUnlock(userId));
-                                       setConfirmModal(prev => ({ ...prev, isProcessing: true }));
-                                       setTimeout(() => {
-                                         setConfirmModal({ show: false, isProcessing: false });
-                                       }, 800);
-                                     }
-                                   });
-                                 }
-                               }}
-                               disabled={!isLocked}
-                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                 ? "bg-rose-500 text-white hover:bg-rose-600 cursor-pointer shadow-md shadow-rose-100"
-                                 : "bg-emerald-500 text-white cursor-not-allowed opacity-75"
-                                 }`}
-                               title={
-                                 isLocked
-                                   ? "Click to enable access for this account"
-                                   : "Account access is enabled"
-                               }
-                             >
-                               {isLocked ? "Enable Access" : "Access Enabled"}
-                             </button>
+                                onClick={() => {
+                                  // Only trigger API when button is in "Locked" state
+                                  if (userId && isLocked) {
+                                    setConfirmModal({
+                                      show: true,
+                                      title: "Enable Retailer Access?",
+                                      message: "Are you sure you want to enable access for this retailer account? This will unlock their dashboard and services.",
+                                      type: "success",
+                                      confirmText: "Yes, Enable Access",
+                                      cancelText: "Cancel",
+                                      onConfirm: () => {
+                                        dispatch(kycUnlock(userId));
+                                        setConfirmModal(prev => ({ ...prev, isProcessing: true }));
+                                        setTimeout(() => {
+                                          setConfirmModal({ show: false, isProcessing: false });
+                                        }, 800);
+                                      }
+                                    });
+                                  }
+                                }}
+                                disabled={!isLocked}
+                                className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
+                                  ? "bg-rose-500 text-white hover:bg-rose-600 cursor-pointer shadow-md shadow-rose-100"
+                                  : "bg-emerald-500 text-white cursor-not-allowed opacity-75"
+                                  }`}
+                                title={
+                                  isLocked
+                                    ? "Click to enable access for this account"
+                                    : "Account access is enabled"
+                                }
+                              >
+                                {isLocked ? "Enable Access" : "Access Enabled"}
+                              </button>
                             );
                           })()}
                         </td>
@@ -988,53 +1062,7 @@ const Retailers = ({
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
-            <button
-              onClick={() => {
-                const newPage = Math.max(1, currentPage - 1);
-                setCurrentPage(newPage);
-                if (embedded && onPageChange) onPageChange(newPage);
-              }}
-              className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
-                ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                : "text-gray-500 hover:bg-gray-100"
-                }`}
-            >
-              <IoIosArrowBack />
-            </button>
-             {totalPages > 0 ? (
-               Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                 (page) => (
-                   <button
-                     key={page}
-                     onClick={() => setCurrentPage(page)}
-                     className={`w-10 h-10 rounded-xl text-sm font-[Gilroy-Bold] transition-all ${page === currentPage
-                       ? "bg-[#039155] text-white shadow-lg shadow-emerald-100"
-                       : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
-                       }`}
-                   >
-                     {page}
-                   </button>
-                 ),
-               )
-             ) : (
-               <span className="w-10 h-10 rounded-xl text-sm font-[Gilroy-Medium] flex items-center justify-center text-slate-400">
-                 0
-               </span>
-             )}
-             <button
-               onClick={() =>
-                 setCurrentPage(Math.min(totalPages, currentPage + 1))
-               }
-               disabled={currentPage === totalPages || totalPages === 0}
-               className={`p-2 border border-slate-100 rounded-xl transition-all ${currentPage === totalPages || totalPages === 0
-                 ? "text-slate-300 cursor-not-allowed"
-                 : "text-slate-500 hover:text-[#039155] hover:bg-slate-50"
-                 }`}
-             >
-               <IoIosArrowForward className="text-xl" />
-             </button>
-          </div>
+          {renderPagination()}
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
@@ -1190,7 +1218,6 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              // Use only admin profile details API (same as CreateWhiteLabel)
                               const original = row.originalItem || {};
                               dispatch(getAdminProfileDetails(userId));
 
@@ -1202,7 +1229,6 @@ const Retailers = ({
                           <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                         </button>
                       </td>
-
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
@@ -1264,8 +1290,8 @@ const Retailers = ({
                               }}
                               disabled={row.aepsOnboardingStatus === true}
                               className={`px-3 py-1 border border-indigo-500 text-indigo-600 rounded-lg text-xs font-[Gilroy-Medium] transition-colors ${row.aepsOnboardingStatus === true
-                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
-                                  : "hover:bg-indigo-50"
+                                ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-300 text-gray-400"
+                                : "hover:bg-indigo-50"
                                 }`}
                             >
                               Check Status
@@ -1304,7 +1330,6 @@ const Retailers = ({
                           KYC Details
                         </button>
                       </td>
-                      {/* Action - Toggle Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1367,7 +1392,6 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      {/* Lock Status - Colored Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1428,7 +1452,6 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      {/* Onboarding - Re-send Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1460,7 +1483,6 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      {/* Deactivation - Send Button */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
@@ -1502,53 +1524,12 @@ const Retailers = ({
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1 || totalPages === 0}
-              className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
-                ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                : "text-gray-500 hover:bg-gray-100"
-                }`}
-            >
-              <IoIosArrowBack />
-            </button>
-            {totalPages > 0 ? (
-              Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
-                      ? "bg-green-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                      }`}
-                  >
-                    {page}
-                  </button>
-                ),
-              )
-            ) : (
-              <span className="w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] flex items-center justify-center text-gray-500">
-                0
-              </span>
-            )}
-            <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
-              disabled={currentPage === totalPages || totalPages === 0}
-              className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
-                }`}
-            >
-              <IoIosArrowForward />
-            </button>
-          </div>
+          {renderPagination()}
         </div>
       )}
 
       {/* KYC Details Portal */}
-      <KycModal 
+      <KycModal
         isOpen={showKycModal}
         onClose={() => {
           setShowKycModal(false);
