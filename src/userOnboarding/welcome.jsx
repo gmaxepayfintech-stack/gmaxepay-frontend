@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { referalCodeCheck } from "../redux/action/retailerOnboardingAction";
@@ -18,7 +18,6 @@ const Welcome = () => {
   const [referralCompleted, setReferralCompleted] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Check if skip parameter is in URL
   const shouldSkip = searchParams.get("skip") === "true";
 
   const companyFromRedux = useSelector((state) => state?.company?.company);
@@ -28,7 +27,6 @@ const Welcome = () => {
   const responseRefer = useSelector(
     (state) => state?.retailerOnboarding?.Success
   );
-  //console.log("responseRefer", responseRefer);
   const referralCodeResponse = useSelector(
     (state) => state?.retailerOnboarding?.referalResponse
   );
@@ -38,18 +36,14 @@ const Welcome = () => {
       const storedReferral = localStorage.getItem("referralCodeCompleted");
       const step1Completed = localStorage.getItem("step1Completed") === "true";
 
-      // Check if onboarding is already complete (steps data exists)
       const onboardingSteps = secureLocalStorage.getItem("onboardingSteps");
       if (onboardingSteps) {
         try {
           const stepsData = JSON.parse(onboardingSteps);
-          // If onboarding is complete, clear temporary onboarding storage
           if (stepsData?.allCompleted || stepsData?.kycStatus === "COMPLETED") {
             localStorage.removeItem("step1Completed");
             localStorage.removeItem("referralCodeFromUrl");
-            // console.log(
-            //   "Cleared temporary onboarding storage - onboarding already complete"
-            // );
+           
           }
         } catch (e) {
           console.error("Error parsing onboarding steps:", e);
