@@ -32,14 +32,11 @@ const OnBoardingAeps = () => {
     }
   }, [aepsStatus]);
 
-  // Determine which component to show based on status
   const getCurrentStep = () => {
-    // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
-    // Or it could be { status, message, data } from direct API response
     const statusData = aepsStatus?.aepsStatus || aepsStatus?.data;
 
     if (!statusData) {
-      return null; // Still loading or no data
+      return null;
     }
     const {
       aepsOnboarding,

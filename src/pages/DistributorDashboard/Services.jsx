@@ -23,6 +23,7 @@ const servicesData = [
   },
   { id: "Aeps-1", title: "AEPS-1", status: "available", logo: "/img/AEPS.svg" },
   { id: "Aeps-2", title: "AEPS-2", status: "available", logo: "/img/AEPS.svg" },
+  { id: "Aeps-3", title: "AEPS-3", status: "available", logo: "/img/AEPS.svg" },
   { id: "BBPS", title: "BBPS", status: "available", logo: "/img/BBPS.svg" },
   {
     id: "dth-recharge",
@@ -135,20 +136,20 @@ const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
   const [showBBPSServices, setShowBBPSServices] = useState(false);
   const [showAepsPopup, setShowAepsPopup] = useState(false);
+  const [showAepsSelectionPopup, setShowAepsSelectionPopup] = useState(false);
   const navigate = useNavigate();
-
-  // Note: Status check only happens when AEPS card is clicked, not mount
 
   const filtered = useMemo(() => {
     const key = activeTab.toLowerCase();
     return servicesData.filter((s) => s.status === key);
   }, [activeTab]);
 
-  // Handle AEPS-1 card click - show animated popup
   const handleAepsClick = () => {
+    navigate("/distributerDashboard/services/aeps1/onboarding");
+  };
+  const handleAepsThreeClick = () => {
     navigate("/distributerDashboard/services/aeps3/onboarding");
   };
-
   // Handle BBPS card click - show BBPS services component
   const handleBBPSClick = () => {
     navigate("/distributerDashboard/services/bbps-services");
@@ -243,9 +244,11 @@ const Services = () => {
               } else if (s.id === "Express Mobile Recharge") {
                 navigate("/distributerDashboard/services/express-recharge");
               } else if (s.id === "Aeps-1") {
-                handleAepsClick();
+                handleAepsThreeClick();
               } else if (s.id === "Aeps-2") {
-                handleAepsTwoClick();
+                setShowAepsSelectionPopup(true);
+              } else if (s.id === "Aeps-3") {
+                handleAepsThreeClick();
               } else if (s.id === "BBPS" || s.id === "bbps") {
                 handleBBPSClick();
               } else if (s.id === "dth-recharge") {
@@ -306,6 +309,62 @@ const Services = () => {
           </div>
         )}
       </AnimatePresence> */}
+      {/* AEPS Selection Modal */}
+      <AnimatePresence>
+        {showAepsSelectionPopup && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="bg-white rounded-[24px] w-full max-w-[400px] overflow-hidden shadow-2xl relative"
+            >
+              <div className="p-8 text-center">
+                <button
+                  onClick={() => setShowAepsSelectionPopup(false)}
+                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                </button>
+
+                <div className="w-[84px] h-[84px] bg-[#DBEAFE] rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border-[6px] border-white">
+                  <img src="/img/AEPS.svg" alt="AEPS" className="w-[42px] h-[42px]" />
+                </div>
+
+                <h3 className="text-[22px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-[10px]">
+                  Select AEPS Service
+                </h3>
+
+                <p className="text-[#64748B] font-['Gilroy-Medium'] text-[15px] leading-[1.6] mb-8">
+                  Please choose the AEPS service you would like to proceed with.
+                </p>
+
+                <div className="flex flex-col gap-4">
+                  <button
+                    onClick={() => {
+                      handleAepsClick();
+                      setShowAepsSelectionPopup(false);
+                    }}
+                    className="w-full py-[14px] px-6 bg-[#039155] hover:bg-[#027a48] text-white rounded-xl font-['Gilroy-SemiBold'] text-[16px] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    ICICI AEPS
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleAepsTwoClick();
+                      setShowAepsSelectionPopup(false);
+                    }}
+                    className="w-full py-[14px] px-6 bg-white border-2 border-[#039155] text-[#039155] hover:bg-[#F0FDF4] rounded-xl font-['Gilroy-SemiBold'] text-[16px] transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                  >
+                    NSDL AEPS
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
