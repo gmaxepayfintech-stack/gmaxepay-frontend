@@ -332,42 +332,50 @@ const Services = () => {
 
                 <div className="grid grid-cols-2 gap-4 w-full mt-2">
                   <button
-                    disabled={aepsActivationStatus?.aepsType !== "AEPS1" || !aepsActivationStatus?.isActive}
+                    disabled={
+                      !aepsActivationStatus?.isActive || 
+                      (aepsActivationStatus?.aepsType !== "AEPS1" && aepsActivationStatus?.name !== "ICICI")
+                    }
                     onClick={() => {
-                      handleAepsClick();
+                      if (aepsActivationStatus?.aepsType === "AEPS1") handleAepsClick();
+                      else if (aepsActivationStatus?.aepsType === "AEPS2") handleAepsTwoClick();
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative overflow-hidden py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-md 
-                      ${aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.isActive 
+                      ${aepsActivationStatus?.isActive && (aepsActivationStatus?.aepsType === "AEPS1" || aepsActivationStatus?.name === "ICICI")
                         ? "bg-[#039155] text-white hover:shadow-xl transform hover:-translate-y-1 active:scale-[0.98]" 
                         : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none"
                       }`}
                   >
                     <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.isActive ? "bg-white/20" : "bg-gray-200"}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aepsActivationStatus?.isActive && (aepsActivationStatus?.aepsType === "AEPS1" || aepsActivationStatus?.name === "ICICI") ? "bg-white/20" : "bg-gray-200"}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                       </div>
                       <span>ICICI AEPS</span>
                     </div>
-                    {aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.isActive && (
+                    {aepsActivationStatus?.isActive && (aepsActivationStatus?.aepsType === "AEPS1" || aepsActivationStatus?.name === "ICICI") && (
                       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                     )}
                   </button>
 
                   <button
-                    disabled={aepsActivationStatus?.aepsType !== "AEPS2" || !aepsActivationStatus?.isActive}
+                    disabled={
+                      !aepsActivationStatus?.isActive || 
+                      (aepsActivationStatus?.aepsType !== "AEPS2" && aepsActivationStatus?.name !== "NSDL")
+                    }
                     onClick={() => {
-                      handleAepsTwoClick();
+                      if (aepsActivationStatus?.aepsType === "AEPS2") handleAepsTwoClick();
+                      else if (aepsActivationStatus?.aepsType === "AEPS1") handleAepsClick();
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
-                      ${aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.isActive 
+                      ${aepsActivationStatus?.isActive && (aepsActivationStatus?.aepsType === "AEPS2" || aepsActivationStatus?.name === "NSDL")
                         ? "bg-white border-2 border-[#039155] text-[#039155] hover:bg-[#F0FDF4] hover:shadow-lg transform hover:-translate-y-1 active:scale-[0.98]" 
                         : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none"
                       }`}
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.isActive ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aepsActivationStatus?.isActive && (aepsActivationStatus?.aepsType === "AEPS2" || aepsActivationStatus?.name === "NSDL") ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                       </div>
                       <span>NSDL AEPS</span>
