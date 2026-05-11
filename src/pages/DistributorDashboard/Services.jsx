@@ -5,6 +5,7 @@ import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import BBPSServices from "./services/BBPSServices";
 import { motion, AnimatePresence } from "framer-motion";
+import { checkAepsActivation } from "../../redux/action/whiteLabelAction";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -271,8 +272,10 @@ const Services = () => {
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
-                dispatch(checkAepsActivation());
-                setShowAepsSelectionPopup(true);
+                (async () => {
+                  await dispatch(checkAepsActivation());
+                  setShowAepsSelectionPopup(true);
+                })();
               } else if (s.id === "Aeps-3") {
                 handleAepsThreeClick();
               } else if (s.id === "BBPS" || s.id === "bbps") {
