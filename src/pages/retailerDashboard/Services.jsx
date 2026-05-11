@@ -144,10 +144,6 @@ const Services = () => {
 
   const { aepsActivationStatus } = useSelector((state) => state.whitelabel);
 
-  useEffect(() => {
-    dispatch(checkAepsActivation());
-  }, [dispatch]);
-
   // Note: Status check only happens when AEPS card is clicked, not mount
 
   const filtered = useMemo(() => {
@@ -156,16 +152,22 @@ const Services = () => {
   }, [activeTab]);
 
   // Handle AEPS-1 card click
-  const handleAepsClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.isActive) {
+  const handleAepsClick = async () => {
+    const result = await dispatch(checkAepsActivation());
+    const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
+
+    if (statusData?.aepsType === "AEPS1" && statusData?.isActive) {
       navigate("/retailerDashboard/services/aeps1/onboarding");
     } else {
       setShowAepsPopup(true);
     }
   };
 
-  const handleAepsThreeClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS3" && aepsActivationStatus?.isActive) {
+  const handleAepsThreeClick = async () => {
+    const result = await dispatch(checkAepsActivation());
+    const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
+
+    if (statusData?.aepsType === "AEPS3" && statusData?.isActive) {
       navigate("/retailerDashboard/services/aeps3/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -178,8 +180,11 @@ const Services = () => {
     setShowBBPSServices(true);
   };
 
-  const handleAepsTwoClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.isActive) {
+  const handleAepsTwoClick = async () => {
+    const result = await dispatch(checkAepsActivation());
+    const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
+
+    if (statusData?.aepsType === "AEPS2" && statusData?.isActive) {
       navigate("/retailerDashboard/services/aeps2/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -271,6 +276,7 @@ const Services = () => {
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
+                dispatch(checkAepsActivation()); // Fetch status in background for modal options
                 setShowAepsSelectionPopup(true);
               } else if (s.id === "Aeps-3") {
                 handleAepsThreeClick();
