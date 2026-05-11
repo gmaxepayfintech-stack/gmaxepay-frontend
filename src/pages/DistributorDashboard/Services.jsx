@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import BBPSServices from "./services/BBPSServices";
@@ -138,6 +139,13 @@ const Services = () => {
   const [showAepsPopup, setShowAepsPopup] = useState(false);
   const [showAepsSelectionPopup, setShowAepsSelectionPopup] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { aepsActivationStatus } = useSelector((state) => state.whiteLabel);
+
+  useEffect(() => {
+    dispatch(checkAepsActivation());
+  }, [dispatch]);
 
   const filtered = useMemo(() => {
     const key = activeTab.toLowerCase();
@@ -145,10 +153,18 @@ const Services = () => {
   }, [activeTab]);
 
   const handleAepsClick = () => {
-    navigate("/distributerDashboard/services/aeps1/onboarding");
+    if (aepsActivationStatus?.aepsType === "AEPS1") {
+      navigate("/distributerDashboard/services/aeps1/onboarding");
+    } else {
+      setShowAepsPopup(true);
+    }
   };
   const handleAepsThreeClick = () => {
-    navigate("/distributerDashboard/services/aeps3/onboarding");
+    if (aepsActivationStatus?.aepsType === "AEPS3") {
+      navigate("/distributerDashboard/services/aeps3/onboarding");
+    } else {
+      setShowAepsPopup(true);
+    }
   };
   // Handle BBPS card click - show BBPS services component
   const handleBBPSClick = () => {
@@ -158,7 +174,11 @@ const Services = () => {
 
   // Handle AEPS-2 card click - navigate to services/aeps2/onboarding route
   const handleAepsTwoClick = () => {
-    navigate("/distributerDashboard/services/aeps2/onboarding");
+    if (aepsActivationStatus?.aepsType === "AEPS2") {
+      navigate("/distributerDashboard/services/aeps2/onboarding");
+    } else {
+      setShowAepsPopup(true);
+    }
   };
 
   // Handle Recharge card click - navigate to recharge route
@@ -244,7 +264,7 @@ const Services = () => {
               } else if (s.id === "Express Mobile Recharge") {
                 navigate("/distributerDashboard/services/express-recharge");
               } else if (s.id === "Aeps-1") {
-                handleAepsThreeClick();
+                handleAepsClick();
               } else if (s.id === "Aeps-2") {
                 setShowAepsSelectionPopup(true);
               } else if (s.id === "Aeps-3") {
@@ -267,8 +287,8 @@ const Services = () => {
         ))}
       </div>
 
-      {/* AEPS-1 Unavailable Popup */}
-      {/* <AnimatePresence>
+      {/* Service Unavailable Popup */}
+      <AnimatePresence>
         {showAepsPopup && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <motion.div
@@ -295,7 +315,7 @@ const Services = () => {
                 </h3>
 
                 <p className="text-[#64748B] font-['Gilroy-Medium'] text-[15px] leading-[1.6] mb-8 px-2">
-                  Thank you for your interest! We appreciate your engagement. This service is currently unavailable, we will notify you once it is live.
+                  This AEPS service is currently not active for your account. Please use the active AEPS provider or contact support.
                 </p>
 
                 <button
@@ -308,7 +328,7 @@ const Services = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence> */}
+      </AnimatePresence>
       {/* AEPS Selection Modal */}
       <AnimatePresence>
         {showAepsSelectionPopup && (
