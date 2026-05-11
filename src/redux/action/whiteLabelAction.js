@@ -1947,7 +1947,7 @@ export const checkAepsActivation = (id) => async (dispatch) => {
 
   try {
     const authToken = secureLocalStorage.getItem("userToken");
-    const response = await axios.post(
+    const response = await axios.get(
       `${API_ROUTE}/api/v1/user/aepsAPISwitch`,
       {},
       {
