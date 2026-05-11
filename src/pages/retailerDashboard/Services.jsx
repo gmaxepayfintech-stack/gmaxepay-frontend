@@ -22,7 +22,7 @@ const servicesData = [
   },
   { id: "Aeps-1", title: "AEPS-1", status: "available", logo: "/img/AEPS.svg" },
   { id: "Aeps-2", title: "AEPS-2", status: "available", logo: "/img/AEPS.svg" },
-  // { id: "Aeps-3", title: "AEPS-3", status: "available", logo: "/img/AEPS.svg" },
+  { id: "Aeps-3", title: "AEPS-3", status: "available", logo: "/img/AEPS.svg" },
   { id: "BBPS", title: "BBPS", status: "available", logo: "/img/BBPS.svg" },
   {
     id: "dth-recharge",
@@ -145,9 +145,12 @@ const Services = () => {
 
   // Handle AEPS-1 card click - navigate to AEPS-3
   const handleAepsClick = () => {
-    navigate("/retailerDashboard/services/aeps3/onboarding");
+    navigate("/retailerDashboard/services/aeps1/onboarding");
   };
 
+  const handleAepsThreeClick = () => {
+    navigate("/retailerDashboard/services/aeps3/onboarding");
+  };
   // Handle BBPS card click - show BBPS services component
   const handleBBPSClick = () => {
     // console.log("🖱️ BBPS card clicked, navigating to BBPS");
@@ -245,6 +248,8 @@ const Services = () => {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
                 handleAepsTwoClick();
+              } else if (s.id === "Aeps-3") {
+                handleAepsThreeClick();
               } else if (s.id === "BBPS" || s.id === "bbps") {
                 handleBBPSClick();
               } else if (s.id === "dth-recharge") {

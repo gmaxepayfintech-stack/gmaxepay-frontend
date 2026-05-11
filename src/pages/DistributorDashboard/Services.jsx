@@ -23,6 +23,7 @@ const servicesData = [
   },
   { id: "Aeps-1", title: "AEPS-1", status: "available", logo: "/img/AEPS.svg" },
   { id: "Aeps-2", title: "AEPS-2", status: "available", logo: "/img/AEPS.svg" },
+  { id: "Aeps-3", title: "AEPS-3", status: "available", logo: "/img/AEPS.svg" },
   { id: "BBPS", title: "BBPS", status: "available", logo: "/img/BBPS.svg" },
   {
     id: "dth-recharge",
@@ -137,18 +138,17 @@ const Services = () => {
   const [showAepsPopup, setShowAepsPopup] = useState(false);
   const navigate = useNavigate();
 
-  // Note: Status check only happens when AEPS card is clicked, not mount
-
   const filtered = useMemo(() => {
     const key = activeTab.toLowerCase();
     return servicesData.filter((s) => s.status === key);
   }, [activeTab]);
 
-  // Handle AEPS-1 card click - show animated popup
   const handleAepsClick = () => {
+    navigate("/distributerDashboard/services/aeps1/onboarding");
+  };
+  const handleAepsThreeClick = () => {
     navigate("/distributerDashboard/services/aeps3/onboarding");
   };
-
   // Handle BBPS card click - show BBPS services component
   const handleBBPSClick = () => {
     navigate("/distributerDashboard/services/bbps-services");
@@ -246,6 +246,8 @@ const Services = () => {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
                 handleAepsTwoClick();
+              } else if (s.id === "Aeps-3") {
+                handleAepsThreeClick();
               } else if (s.id === "BBPS" || s.id === "bbps") {
                 handleBBPSClick();
               } else if (s.id === "dth-recharge") {

@@ -24,6 +24,7 @@ import AOneDthRecharge from "../../pages/retailerDashboard/services/MobileRechar
 import AOnePan from "../../pages/retailerDashboard/services/MobileRecharge/AOnePan";
 import CMSService from "../../pages/retailerDashboard/services/CMSService";
 import SelectserviceThree from "../../pages/retailerDashboard/aeps3/SelectserviceThree";
+import OnBoardingAeps from "../../pages/retailerDashboard/aeps/onBoardingAeps";
 
 const RetailerDash = () => {
   return (
