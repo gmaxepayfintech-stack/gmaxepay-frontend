@@ -17,7 +17,7 @@ import ServiceSetting from "../../pages/superAdminDashboard/serviceSetting";
 import OperatorSetting from "../../pages/superAdminDashboard/operatorSetting";
 import ContactSupport from "../../pages/superAdminDashboard/ContactSupport";
 import PayoutSetting from "../../pages/superAdminDashboard/payoutSettings";
-
+import AEPSSettings from "../../pages/superAdminDashboard/AEPSSettings";
 const SuperAdminDashboard = () => {
   return (
     <DashboardLayout>
@@ -51,6 +51,7 @@ const SuperAdminDashboard = () => {
           element={<PayoutSetting />}
         />
         <Route path="/contact-support" element={<ContactSupport />} />
+        <Route path="/api-operator/aeps-settings" element={<AEPSSettings />} />
       </Routes>
     </DashboardLayout>
   );

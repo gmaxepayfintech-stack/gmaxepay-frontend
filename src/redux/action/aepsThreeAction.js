@@ -39,6 +39,12 @@ import {
   AEPSTHREE_TWO_FA_VERIFICATION_SUCCESS,
   AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS,
   AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+  CREATE_AEPS_SWITCH_SUCCESS,
+  CREATE_AEPS_SWITCH_FAILURE,
+  GET_AEPS_SWITCH_SUCCESS,
+  GET_AEPS_SWITCH_FAILURE,
+  UPDATE_AEPS_SWITCH_SUCCESS,
+  UPDATE_AEPS_SWITCH_FAILURE,
 } from "../actionType/aepsThreeActionType";
 
 const commonError = "Something went wrong!";
@@ -1123,19 +1129,9 @@ export const createAEPSAPISwitch = (payload) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
-    const requestPayload = {
-      query: payload?.query || {},
-      customSearch: payload?.customSearch || {},
-      options: {
-        page: payload?.options?.page || 1,
-        paginate: payload?.options?.paginate || 10,
-        sort: payload?.options?.sort || { createdAt: -1 },
-      },
-    };
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/admin/aepsAPISwitch/create`,
-      requestPayload,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -1147,13 +1143,13 @@ export const createAEPSAPISwitch = (payload) => async (dispatch) => {
     const { data: aeps2CwHistory, status, message, total, count, paginator } = response?.data ?? {};
     if (status === "SUCCESS") {
       dispatch({
-        type: AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS,
+        type: CREATE_AEPS_SWITCH_SUCCESS,
         payload: { data: aeps2CwHistory, status, message, total, count, paginator },
       });
       return { data: aeps2CwHistory, status, message, total, count, paginator };
     } else {
       dispatch({
-        type: AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+        type: CREATE_AEPS_SWITCH_FAILURE,
         payload: {
           status: response?.data?.status ?? "FAILURE",
           message: response?.data?.message ?? commonError,
@@ -1164,7 +1160,7 @@ export const createAEPSAPISwitch = (payload) => async (dispatch) => {
   } catch (error) {
     const errorMessage = error.response ? error.response.data.message : error.message;
     dispatch({
-      type: AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+      type: CREATE_AEPS_SWITCH_FAILURE,
       payload: {
         status: "FAILURE",
         message: errorMessage,
@@ -1181,19 +1177,9 @@ export const getAEPSAPIswitch = (payload) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
-    const requestPayload = {
-      query: payload?.query || {},
-      customSearch: payload?.customSearch || {},
-      options: {
-        page: payload?.options?.page || 1,
-        paginate: payload?.options?.paginate || 10,
-        sort: payload?.options?.sort || { createdAt: -1 },
-      },
-    };
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/admin/aepsAPISwitch/list`,
-      requestPayload,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -1205,13 +1191,13 @@ export const getAEPSAPIswitch = (payload) => async (dispatch) => {
     const { data: aeps2CwHistory, status, message, total, count, paginator } = response?.data ?? {};
     if (status === "SUCCESS") {
       dispatch({
-        type: AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS,
+        type: GET_AEPS_SWITCH_SUCCESS,
         payload: { data: aeps2CwHistory, status, message, total, count, paginator },
       });
       return { data: aeps2CwHistory, status, message, total, count, paginator };
     } else {
       dispatch({
-        type: AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+        type: GET_AEPS_SWITCH_FAILURE,
         payload: {
           status: response?.data?.status ?? "FAILURE",
           message: response?.data?.message ?? commonError,
@@ -1222,7 +1208,7 @@ export const getAEPSAPIswitch = (payload) => async (dispatch) => {
   } catch (error) {
     const errorMessage = error.response ? error.response.data.message : error.message;
     dispatch({
-      type: AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+      type: GET_AEPS_SWITCH_FAILURE,
       payload: {
         status: "FAILURE",
         message: errorMessage,
@@ -1239,19 +1225,9 @@ export const updateAEPSAPIswitch = (payload) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
-    const requestPayload = {
-      query: payload?.query || {},
-      customSearch: payload?.customSearch || {},
-      options: {
-        page: payload?.options?.page || 1,
-        paginate: payload?.options?.paginate || 10,
-        sort: payload?.options?.sort || { createdAt: -1 },
-      },
-    };
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/admin/aepsAPISwitch/update`,
-      requestPayload,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -1263,13 +1239,13 @@ export const updateAEPSAPIswitch = (payload) => async (dispatch) => {
     const { data: aeps2CwHistory, status, message, total, count, paginator } = response?.data ?? {};
     if (status === "SUCCESS") {
       dispatch({
-        type: AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS,
+        type: UPDATE_AEPS_SWITCH_SUCCESS,
         payload: { data: aeps2CwHistory, status, message, total, count, paginator },
       });
       return { data: aeps2CwHistory, status, message, total, count, paginator };
     } else {
       dispatch({
-        type: AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+        type: UPDATE_AEPS_SWITCH_FAILURE,
         payload: {
           status: response?.data?.status ?? "FAILURE",
           message: response?.data?.message ?? commonError,
@@ -1280,7 +1256,7 @@ export const updateAEPSAPIswitch = (payload) => async (dispatch) => {
   } catch (error) {
     const errorMessage = error.response ? error.response.data.message : error.message;
     dispatch({
-      type: AEPSTHREE_CW_HISTORY_EMPLOYEE_FAILURE,
+      type: UPDATE_AEPS_SWITCH_FAILURE,
       payload: {
         status: "FAILURE",
         message: errorMessage,

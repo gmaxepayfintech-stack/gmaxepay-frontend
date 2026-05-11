@@ -16,6 +16,9 @@ import {
   AEPSTHREE_SUBMIT_OTP_SUCCESS,
   AEPSTHREE_TWO_FA_VERIFICATION_SUCCESS,
   AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS,
+  UPDATE_AEPS_SWITCH_SUCCESS,
+  GET_AEPS_SWITCH_SUCCESS,
+  CREATE_AEPS_SWITCH_SUCCESS,
 } from "../actionType/aepsThreeActionType";
 
 const initialState = {
@@ -173,7 +176,7 @@ const aepsThreeReducer = (state = initialState, action) => {
         aeps2CwHistoryCompany: action?.payload,
         success: action?.payload?.status,
         message: action?.payload?.message,
-      }  
+      }
     case AEPSTHREE_CW_HISTORY_USERS_SUCCESS:
       return {
         ...state,
@@ -192,7 +195,7 @@ const aepsThreeReducer = (state = initialState, action) => {
         success: action?.payload?.status,
         message: action?.payload?.message,
       }
-      case AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS:
+    case AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -201,6 +204,39 @@ const aepsThreeReducer = (state = initialState, action) => {
         success: action?.payload?.status,
         message: action?.payload?.message,
       }
+    case UPDATE_AEPS_SWITCH_SUCCESS:
+      {
+        return {
+          ...state,
+          loading: false,
+          error: null,
+          aeps3UpdateSwitch: action?.payload,
+          success: action?.payload?.status,
+          message: action?.payload?.message,
+        }
+
+      }
+    case GET_AEPS_SWITCH_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        aeps3GetSwitch: action?.payload,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      }
+
+      case CREATE_AEPS_SWITCH_SUCCESS:
+        {
+          return{
+            ...state,
+            loading: false,
+            error: null,
+            aeps3CreateSwitch: action?.payload,
+            success: action?.payload?.status,
+            message: action?.payload?.message,
+          }
+        }
     default:
       return state;
   }
