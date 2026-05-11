@@ -142,7 +142,7 @@ const Services = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { aepsActivationStatus } = useSelector((state) => state.whiteLabel);
+  const { aepsActivationStatus } = useSelector((state) => state.whitelabel);
 
   useEffect(() => {
     dispatch(checkAepsActivation());
