@@ -157,7 +157,7 @@ const Services = () => {
 
   // Handle AEPS-1 card click
   const handleAepsClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS1") {
+    if (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.isActive) {
       navigate("/retailerDashboard/services/aeps1/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -165,7 +165,7 @@ const Services = () => {
   };
 
   const handleAepsThreeClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS3") {
+    if (aepsActivationStatus?.aepsType === "AEPS3" && aepsActivationStatus?.isActive) {
       navigate("/retailerDashboard/services/aeps3/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -179,7 +179,7 @@ const Services = () => {
   };
 
   const handleAepsTwoClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS2") {
+    if (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.isActive) {
       navigate("/retailerDashboard/services/aeps2/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -322,24 +322,32 @@ const Services = () => {
                   Please choose the AEPS service you would like to proceed with.
                 </p>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 w-full">
                   <button
                     onClick={() => {
                       handleAepsClick();
                       setShowAepsSelectionPopup(false);
                     }}
-                    className="w-full py-[14px] px-6 bg-[#039155] hover:bg-[#027a48] text-white rounded-xl font-['Gilroy-SemiBold'] text-[16px] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    className="w-full group relative overflow-hidden py-[18px] px-6 bg-[#039155] text-white rounded-2xl font-['Gilroy-SemiBold'] text-[17px] transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 active:scale-[0.98]"
                   >
-                    ICICI AEPS
+                    <div className="relative z-10 flex items-center justify-center gap-3">
+                      <span>ICICI AEPS</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   </button>
+
                   <button
                     onClick={() => {
                       handleAepsTwoClick();
                       setShowAepsSelectionPopup(false);
                     }}
-                    className="w-full py-[14px] px-6 bg-white border-2 border-[#039155] text-[#039155] hover:bg-[#F0FDF4] rounded-xl font-['Gilroy-SemiBold'] text-[16px] transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                    className="w-full group relative py-[18px] px-6 bg-white border-2 border-[#039155] text-[#039155] hover:bg-[#F0FDF4] rounded-2xl font-['Gilroy-SemiBold'] text-[17px] transition-all shadow-sm hover:shadow-lg transform hover:-translate-y-1 active:scale-[0.98]"
                   >
-                    NSDL AEPS
+                    <div className="flex items-center justify-center gap-3">
+                      <span>NSDL AEPS</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                    </div>
                   </button>
                 </div>
               </div>
