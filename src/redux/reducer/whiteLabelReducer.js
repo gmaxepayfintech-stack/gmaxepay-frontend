@@ -83,6 +83,7 @@ import {
   EMPLOYEE_AEPS_STATUS_FAILURE,
   ADMIN_AEPS_STATUS_SUCCESS,
   ADMIN_AEPS_STATUS_FAILURE,
+  AEPS_ACTIVATION_SWITCH_RETAILER_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -115,6 +116,7 @@ const initialState = {
   EmployeeAdd: null,
   resendAccess: null,
   employeeList: null,
+  aepsActivationStatus: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -451,6 +453,14 @@ const whiteLabelReducer = (state = initialState, action) => {
         employeeAepsStatus: action.payload,
         Success: action.payload.status,
         message: action.payload.message,
+      }
+    case AEPS_ACTIVATION_SWITCH_RETAILER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        aepsActivationStatus: action.payload.aepsActivationSwitchRetailer,
+        message: action.payload.message,
+        success: action.payload.status,
       }
     case ADMIN_AEPS_STATUS_SUCCESS:
       return {

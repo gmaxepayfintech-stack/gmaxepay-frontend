@@ -67,6 +67,8 @@ import {
   EMPLOYEE_CREATE_EMPLOYEE_FAILURE,
   EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_FAILURE,
   EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_SUCCESS,
+  AEPS_ACTIVATION_SWITCH_RETAILER_SUCCESS,
+  AEPS_ACTIVATION_SWITCH_RETAILER_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1930,6 +1932,48 @@ export const checkAdminAepsStatus = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: ADMIN_AEPS_STATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const checkAepsActivation = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aepsAPISwitch`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: aepsActivationSwitchRetailer, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPS_ACTIVATION_SWITCH_RETAILER_SUCCESS,
+        payload: { aepsActivationSwitchRetailer, message, status },
+      });
+    } else {
+      dispatch({
+        type: AEPS_ACTIVATION_SWITCH_RETAILER_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: AEPS_ACTIVATION_SWITCH_RETAILER_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
