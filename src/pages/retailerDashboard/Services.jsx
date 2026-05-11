@@ -276,8 +276,10 @@ const Services = () => {
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
-                dispatch(checkAepsActivation()); // Fetch status in background for modal options
-                setShowAepsSelectionPopup(true);
+                (async () => {
+                  await dispatch(checkAepsActivation());
+                  setShowAepsSelectionPopup(true);
+                })();
               } else if (s.id === "Aeps-3") {
                 handleAepsThreeClick();
               } else if (s.id === "BBPS" || s.id === "bbps") {
