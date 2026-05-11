@@ -80,6 +80,10 @@ const DashboardLayout = ({ children }) => {
           name: "Pay-out Settings",
           path: "/superDashboard/api-operator/payout-settings",
         },
+        {
+          name: "AEPS Settings",
+          path: "/superDashboard/api-operator/aeps-settings",
+        },
       ],
     },
     {
