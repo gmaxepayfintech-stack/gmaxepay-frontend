@@ -1949,7 +1949,6 @@ export const checkAepsActivation = (id) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.get(
       `${API_ROUTE}/api/v1/user/aepsAPISwitch`,
-      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -1965,20 +1964,24 @@ export const checkAepsActivation = (id) => async (dispatch) => {
         type: AEPS_ACTIVATION_SWITCH_RETAILER_SUCCESS,
         payload: { aepsActivationSwitchRetailer, message, status },
       });
+      return { status: "SUCCESS", data: aepsActivationSwitchRetailer };
     } else {
       dispatch({
         type: AEPS_ACTIVATION_SWITCH_RETAILER_FAILURE,
         payload: { message, status, errorData: response?.data },
       });
+      return { status: "FAILURE", message };
     }
   } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
     dispatch({
       type: AEPS_ACTIVATION_SWITCH_RETAILER_FAILURE,
       payload: {
-        message: error.response ? error.response.data.message : error.message,
+        message: errorMessage,
         status: "Error",
       },
     });
+    return { status: "FAILURE", message: errorMessage };
   } finally {
     dispatch({ type: LOADING_END });
   }

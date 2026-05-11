@@ -143,24 +143,26 @@ const Services = () => {
 
   const { aepsActivationStatus } = useSelector((state) => state.whitelabel);
 
-  useEffect(() => {
-    dispatch(checkAepsActivation());
-  }, [dispatch]);
-
   const filtered = useMemo(() => {
     const key = activeTab.toLowerCase();
     return servicesData.filter((s) => s.status === key);
   }, [activeTab]);
 
-  const handleAepsClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.isActive) {
+  const handleAepsClick = async () => {
+    const result = await dispatch(checkAepsActivation());
+    const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
+
+    if (statusData?.aepsType === "AEPS1" && statusData?.isActive) {
       navigate("/distributerDashboard/services/aeps1/onboarding");
     } else {
       setShowAepsPopup(true);
     }
   };
-  const handleAepsThreeClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS3" && aepsActivationStatus?.isActive) {
+  const handleAepsThreeClick = async () => {
+    const result = await dispatch(checkAepsActivation());
+    const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
+
+    if (statusData?.aepsType === "AEPS3" && statusData?.isActive) {
       navigate("/distributerDashboard/services/aeps3/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -173,8 +175,11 @@ const Services = () => {
   };
 
   // Handle AEPS-2 card click - navigate to services/aeps2/onboarding route
-  const handleAepsTwoClick = () => {
-    if (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.isActive) {
+  const handleAepsTwoClick = async () => {
+    const result = await dispatch(checkAepsActivation());
+    const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
+
+    if (statusData?.aepsType === "AEPS2" && statusData?.isActive) {
       navigate("/distributerDashboard/services/aeps2/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -266,6 +271,7 @@ const Services = () => {
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
+                dispatch(checkAepsActivation());
                 setShowAepsSelectionPopup(true);
               } else if (s.id === "Aeps-3") {
                 handleAepsThreeClick();
