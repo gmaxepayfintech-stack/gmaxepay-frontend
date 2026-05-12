@@ -349,8 +349,8 @@ const Services = () => {
                       }`}
                   >
                     <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "ICICI" || (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.name !== "NSDL")) ? "bg-white/20" : "bg-gray-200"}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "ICICI" || (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.name !== "NSDL")) ? "bg-white" : "bg-gray-200"}`}>
+                        <img src="/img/icici.png" alt="ICICI" className="w-7 h-7 object-contain" />
                       </div>
                       <span>ICICI AEPS</span>
                     </div>
@@ -377,8 +377,8 @@ const Services = () => {
                       }`}
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "NSDL" || (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.name !== "ICICI")) ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "NSDL" || (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.name !== "ICICI")) ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
+                        <img src="/img/nsdl.png" alt="NSDL" className="w-7 h-7 object-contain" />
                       </div>
                       <span>NSDL AEPS</span>
                     </div>
