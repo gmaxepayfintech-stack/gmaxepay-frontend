@@ -396,7 +396,7 @@ const Services = () => {
                   <button
                     disabled={!iciciStatus?.isActive}
                     onClick={() => {
-                      navigate("/distributerDashboard/services/aeps1/onboarding");
+                      navigate("/distributerDashboard/services/aeps2/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
@@ -416,7 +416,7 @@ const Services = () => {
                   <button
                     disabled={!nsdlStatus?.isActive}
                     onClick={() => {
-                      navigate("/distributerDashboard/services/aeps2/onboarding");
+                      navigate("/distributerDashboard/services/aeps1/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
