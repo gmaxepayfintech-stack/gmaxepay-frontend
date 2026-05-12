@@ -442,6 +442,13 @@ const WalletLoad = () => {
                           </span>
                         </p>
 
+                        <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 leading-tight mt-1">
+                          IFSC Code:{" "}
+                          <span className="text-[#1B1717]">
+                            {bank.ifscCode}
+                          </span>
+                        </p>
+
                         {bank.isPrimary && (
                           <p className="text-[10px] font-['Gilroy-Medium'] text-[#039155] leading-tight mt-1">
                             Primary Account
