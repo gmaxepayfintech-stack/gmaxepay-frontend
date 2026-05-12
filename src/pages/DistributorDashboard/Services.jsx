@@ -390,21 +390,18 @@ const Services = () => {
                       else if (type === "AEPS3") navigate("/distributerDashboard/services/aeps3/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
-                    className={`group relative overflow-hidden py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-md 
+                    className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
                       ${iciciStatus?.isActive
-                        ? "bg-[#039155] text-white hover:shadow-xl transform hover:-translate-y-1 active:scale-[0.98]" 
+                        ? "bg-white border-2 border-[#039155] text-[#039155] hover:bg-[#F0FDF4] hover:shadow-lg transform hover:-translate-y-1 active:scale-[0.98]" 
                         : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none"
                       }`}
                   >
-                    <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${iciciStatus?.isActive ? "bg-white" : "bg-gray-200"}`}>
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${iciciStatus?.isActive ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
                         <img src="/img/icici.png" alt="ICICI" className="w-7 h-7 object-contain" />
                       </div>
                       <span>ICICI AEPS</span>
                     </div>
-                    {iciciStatus?.isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                    )}
                   </button>
 
                   <button
