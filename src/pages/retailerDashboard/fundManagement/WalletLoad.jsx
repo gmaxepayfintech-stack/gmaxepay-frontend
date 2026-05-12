@@ -446,11 +446,10 @@ const WalletLoad = () => {
                     //     setSelectedBank(bank.id);
                     //   }
                     // }}
-                    className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${
-                      selectedBank === bank.bankId
+                    className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${selectedBank === bank.bankId
                         ? "border-[#039155] bg-green-50"
                         : "border-[#1B1717] border-opacity-80 bg-white"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Bank Logo */}
@@ -486,12 +485,13 @@ const WalletLoad = () => {
                           </span>
                         </p>
 
-                        {/* <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                        <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
                           IFSC Code:{" "}
                           <span className="text-[#1B1717]">
                             {bank.ifscCode}
                           </span>
-                        </p> */}
+                        </p>
+
                         {bank.isPrimary && (
                           <p className="text-[10px] font-['Gilroy-Medium'] text-[#039155] leading-tight mt-1">
                             Primary Account

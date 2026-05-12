@@ -368,7 +368,7 @@ const WalletLoad = () => {
                         </span>
                       </p>
 
-                      <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                      <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 leading-tight mt-1">
                         IFSC Code:{" "}
                         <span className="text-[#1B1717]">{bank.ifscCode}</span>
                       </p>
