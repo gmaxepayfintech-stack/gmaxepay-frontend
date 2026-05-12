@@ -181,6 +181,10 @@ const EmployeeLayout = ({ children }) => {
           name: "Pay-out Settings",
           path: "/employeeDashboard/api-operator/payout-settings",
         },
+        {
+          name: "AEPS Settings",
+          path: "/employeeDashboard/api-operator/aeps-settings",
+        },
       ],
     },
      {

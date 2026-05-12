@@ -12,6 +12,7 @@ import SchemeMaster from "../../pages/employeeDashboard/resources/SchemeMaster";
 import TaxHistory from "../../pages/employeeDashboard/taxHistory/TaxHistory";
 import FundRequest from "../../pages/employeeDashboard/fundManagement/FundRequest";
 import EmployeeProfile from "../../pages/employeeDashboard/EmployeeProfile";
+import AEPSSettings from "../../pages/employeeDashboard/apiOperator/AEPSSettings";
 
 
 const EmployeeDashboard = () => {
@@ -37,6 +38,11 @@ const EmployeeDashboard = () => {
                     path="/api-operator/payout-settings"
                     element={<PayoutSetting />}
                 />
+                <Route
+                    path="/api-operator/aeps-settings"
+                    element={<AEPSSettings />}
+                />
+
                 <Route path="/resources/schemamaster" element={<SchemeMaster />} />
                 <Route path="/txn-history" element={<TaxHistory />} />
                 <Route path="/fund-management/fund-request" element={<FundRequest />} />
