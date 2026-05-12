@@ -167,8 +167,12 @@ const Services = () => {
     const result = await dispatch(checkAepsActivation());
     const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
 
-    if (statusData?.aepsType === "AEPS1" && statusData?.isActive) {
-      navigate("/retailerDashboard/services/aeps1/onboarding");
+    const activeProvider = Array.isArray(statusData) 
+      ? statusData.find(p => p.aepsType === "AEPS1" && p.isActive)
+      : (statusData?.aepsType === "AEPS1" && statusData?.isActive ? statusData : null);
+
+    if (activeProvider) {
+      navigate("/retailerDashboard/services/aeps3/onboarding");
     } else {
       setShowAepsPopup(true);
     }
@@ -178,7 +182,11 @@ const Services = () => {
     const result = await dispatch(checkAepsActivation());
     const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
 
-    if (statusData?.aepsType === "AEPS3" && statusData?.isActive) {
+    const activeProvider = Array.isArray(statusData)
+      ? statusData.find(p => p.aepsType === "AEPS3" && p.isActive)
+      : (statusData?.aepsType === "AEPS3" && statusData?.isActive ? statusData : null);
+
+    if (activeProvider) {
       navigate("/retailerDashboard/services/aeps3/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -195,7 +203,11 @@ const Services = () => {
     const result = await dispatch(checkAepsActivation());
     const statusData = result?.status === "SUCCESS" ? result.data : aepsActivationStatus;
 
-    if (statusData?.aepsType === "AEPS2" && statusData?.isActive) {
+    const activeProvider = Array.isArray(statusData)
+      ? statusData.find(p => p.aepsType === "AEPS2" && p.isActive)
+      : (statusData?.aepsType === "AEPS2" && statusData?.isActive ? statusData : null);
+
+    if (activeProvider) {
       navigate("/retailerDashboard/services/aeps2/onboarding");
     } else {
       setShowAepsPopup(true);
@@ -345,10 +357,7 @@ const Services = () => {
                   <button
                     disabled={!iciciStatus?.isActive}
                     onClick={() => {
-                      const type = iciciStatus?.aepsType;
-                      if (type === "AEPS1") navigate("/retailerDashboard/services/aeps1/onboarding");
-                      else if (type === "AEPS2") navigate("/retailerDashboard/services/aeps2/onboarding");
-                      else if (type === "AEPS3") navigate("/retailerDashboard/services/aeps3/onboarding");
+                      navigate("/retailerDashboard/services/aeps1/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
@@ -368,10 +377,7 @@ const Services = () => {
                   <button
                     disabled={!nsdlStatus?.isActive}
                     onClick={() => {
-                      const type = nsdlStatus?.aepsType;
-                      if (type === "AEPS1") navigate("/retailerDashboard/services/aeps1/onboarding");
-                      else if (type === "AEPS2") navigate("/retailerDashboard/services/aeps2/onboarding");
-                      else if (type === "AEPS3") navigate("/retailerDashboard/services/aeps3/onboarding");
+                      navigate("/retailerDashboard/services/aeps2/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
