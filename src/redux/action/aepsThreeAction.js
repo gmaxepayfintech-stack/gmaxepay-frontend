@@ -45,6 +45,12 @@ import {
   GET_AEPS_SWITCH_FAILURE,
   UPDATE_AEPS_SWITCH_SUCCESS,
   UPDATE_AEPS_SWITCH_FAILURE,
+  EMPLOYEE_GET_AEPS_SWITCH_SUCCESS,
+  EMPLOYEE_GET_AEPS_SWITCH_FAILURE,
+  EMPLOYEE_UPDATE_AEPS_SWITCH_SUCCESS,
+  EMPLOYEE_UPDATE_AEPS_SWITCH_FAILURE,
+  EMPLOYEE_CREATE_AEPS_SWITCH_SUCCESS,
+  EMPLOYEE_CREATE_AEPS_SWITCH_FAILURE,
 } from "../actionType/aepsThreeActionType";
 
 const commonError = "Something went wrong!";
@@ -1257,6 +1263,150 @@ export const updateAEPSAPIswitch = (payload) => async (dispatch) => {
     const errorMessage = error.response ? error.response.data.message : error.message;
     dispatch({
       type: UPDATE_AEPS_SWITCH_FAILURE,
+      payload: {
+        status: "FAILURE",
+        message: errorMessage,
+      },
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeecreateAEPSAPISwitch = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/aepsAPISwitch/create`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: aeps2CwHistory, status, message, total, count, paginator } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_CREATE_AEPS_SWITCH_SUCCESS,
+        payload: { data: aeps2CwHistory, status, message, total, count, paginator },
+      });
+      return { data: aeps2CwHistory, status, message, total, count, paginator };
+    } else {
+      dispatch({
+        type: EMPLOYEE_CREATE_AEPS_SWITCH_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: EMPLOYEE_CREATE_AEPS_SWITCH_FAILURE,
+      payload: {
+        status: "FAILURE",
+        message: errorMessage,
+      },
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeegetAEPSAPIswitch = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/aepsAPISwitch/list`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: aeps2CwHistory, status, message, total, count, paginator } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_GET_AEPS_SWITCH_SUCCESS,
+        payload: { data: aeps2CwHistory, status, message, total, count, paginator },
+      });
+      return { data: aeps2CwHistory, status, message, total, count, paginator };
+    } else {
+      dispatch({
+        type: EMPLOYEE_GET_AEPS_SWITCH_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: EMPLOYEE_GET_AEPS_SWITCH_FAILURE,
+      payload: {
+        status: "FAILURE",
+        message: errorMessage,
+      },
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeupdateAEPSAPIswitch = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/aepsAPISwitch/update`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: aeps2CwHistory, status, message, total, count, paginator } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_UPDATE_AEPS_SWITCH_SUCCESS,
+        payload: { data: aeps2CwHistory, status, message, total, count, paginator },
+      });
+      return { data: aeps2CwHistory, status, message, total, count, paginator };
+    } else {
+      dispatch({
+        type: EMPLOYEE_UPDATE_AEPS_SWITCH_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: EMPLOYEE_UPDATE_AEPS_SWITCH_FAILURE,
       payload: {
         status: "FAILURE",
         message: errorMessage,

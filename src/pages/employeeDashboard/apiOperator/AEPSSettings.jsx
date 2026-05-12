@@ -3,8 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { createAEPSAPISwitch, getAEPSAPIswitch, updateAEPSAPIswitch } from "../../../redux/action/aepsThreeAction";
-
+import { 
+  employeeupdateAEPSAPIswitch, 
+  employeegetAEPSAPIswitch, 
+  employeecreateAEPSAPISwitch  
+} from "../../../redux/action/aepsThreeAction";
 const AEPSSettings = () => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
@@ -15,7 +18,7 @@ const AEPSSettings = () => {
   const [currentPage, setCurrentPage] = useState(1);
   
   const isLoading = useSelector((state) => state.loading.isLoading);
-  const aepsSwitchResponse = useSelector((state) => state.aepsThree?.aeps3GetSwitch);
+  const aepsSwitchResponse = useSelector((state) => state.aepsThree?.aeps3EmployeeGetSwitch);
   
   const rawSwitches = aepsSwitchResponse?.data || [];
   const switches = Array.isArray(rawSwitches)
@@ -39,7 +42,7 @@ const AEPSSettings = () => {
   };
 
   const fetchList = (page = currentPage) => {
-    dispatch(getAEPSAPIswitch({
+    dispatch(employeegetAEPSAPIswitch({
       query: searchQuery ? { name: searchQuery } : {},
       options: { page: page, limit: 10 }
     }));
@@ -53,7 +56,7 @@ const AEPSSettings = () => {
     if (!formData.name || !formData.aepsType) return;
 
     if (isEditMode && editingId !== null) {
-      dispatch(updateAEPSAPIswitch({
+      dispatch(employeeupdateAEPSAPIswitch({
         id: editingId,
         name: formData.name,
         aepsType: formData.aepsType,
@@ -83,7 +86,7 @@ const AEPSSettings = () => {
           });
         });
     } else {
-      dispatch(createAEPSAPISwitch({
+      dispatch(employeecreateAEPSAPISwitch({
         name: formData.name,
         aepsType: formData.aepsType,
         isActive: formData.isActive,
@@ -121,7 +124,7 @@ const AEPSSettings = () => {
   };
 
   const handleToggle = (item) => {
-    dispatch(updateAEPSAPIswitch({ 
+    dispatch(employeeupdateAEPSAPIswitch({ 
       id: item.id,
       isActive: !checkIsActive(item)
     }))
