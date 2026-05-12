@@ -144,6 +144,17 @@ const Services = () => {
 
   const { aepsActivationStatus } = useSelector((state) => state.whitelabel);
 
+  // Helper to find specific providers in the activation status (handles both single object and array)
+  const getProvider = (name) => {
+    if (Array.isArray(aepsActivationStatus)) {
+      return aepsActivationStatus.find(p => p.name?.toUpperCase() === name.toUpperCase());
+    }
+    return aepsActivationStatus?.name?.toUpperCase() === name.toUpperCase() ? aepsActivationStatus : null;
+  };
+
+  const iciciStatus = getProvider("ICICI");
+  const nsdlStatus = getProvider("NSDL");
+
   // Note: Status check only happens when AEPS card is clicked, not mount
 
   const filtered = useMemo(() => {
@@ -332,52 +343,48 @@ const Services = () => {
 
                 <div className="grid grid-cols-2 gap-4 w-full mt-2">
                   <button
-                    disabled={
-                      !aepsActivationStatus?.isActive || 
-                      (aepsActivationStatus?.name !== "ICICI" && aepsActivationStatus?.aepsType !== "AEPS1") ||
-                      (aepsActivationStatus?.name === "NSDL")
-                    }
+                    disabled={!iciciStatus?.isActive}
                     onClick={() => {
-                      if (aepsActivationStatus?.aepsType === "AEPS1") handleAepsClick();
-                      else if (aepsActivationStatus?.aepsType === "AEPS2") handleAepsTwoClick();
+                      const type = iciciStatus?.aepsType;
+                      if (type === "AEPS1") navigate("/retailerDashboard/services/aeps1/onboarding");
+                      else if (type === "AEPS2") navigate("/retailerDashboard/services/aeps2/onboarding");
+                      else if (type === "AEPS3") navigate("/retailerDashboard/services/aeps3/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative overflow-hidden py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-md 
-                      ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "ICICI" || (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.name !== "NSDL"))
+                      ${iciciStatus?.isActive
                         ? "bg-[#039155] text-white hover:shadow-xl transform hover:-translate-y-1 active:scale-[0.98]" 
                         : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none"
                       }`}
                   >
                     <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "ICICI" || (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.name !== "NSDL")) ? "bg-white" : "bg-gray-200"}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${iciciStatus?.isActive ? "bg-white" : "bg-gray-200"}`}>
                         <img src="/img/icici.png" alt="ICICI" className="w-7 h-7 object-contain" />
                       </div>
                       <span>ICICI AEPS</span>
                     </div>
-                    {aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "ICICI" || (aepsActivationStatus?.aepsType === "AEPS1" && aepsActivationStatus?.name !== "NSDL")) && (
+                    {iciciStatus?.isActive && (
                       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                     )}
                   </button>
 
                   <button
-                    disabled={
-                      !aepsActivationStatus?.isActive || 
-                      (aepsActivationStatus?.name !== "NSDL" && aepsActivationStatus?.aepsType !== "AEPS2") ||
-                      (aepsActivationStatus?.name === "ICICI")
-                    }
+                    disabled={!nsdlStatus?.isActive}
                     onClick={() => {
-                      if (aepsActivationStatus?.aepsType === "AEPS2") handleAepsTwoClick();
-                      else if (aepsActivationStatus?.aepsType === "AEPS1") handleAepsClick();
+                      const type = nsdlStatus?.aepsType;
+                      if (type === "AEPS1") navigate("/retailerDashboard/services/aeps1/onboarding");
+                      else if (type === "AEPS2") navigate("/retailerDashboard/services/aeps2/onboarding");
+                      else if (type === "AEPS3") navigate("/retailerDashboard/services/aeps3/onboarding");
                       setShowAepsSelectionPopup(false);
                     }}
                     className={`group relative py-[20px] px-4 rounded-2xl font-['Gilroy-SemiBold'] text-[15px] transition-all shadow-sm
-                      ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "NSDL" || (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.name !== "ICICI"))
+                      ${nsdlStatus?.isActive
                         ? "bg-white border-2 border-[#039155] text-[#039155] hover:bg-[#F0FDF4] hover:shadow-lg transform hover:-translate-y-1 active:scale-[0.98]" 
                         : "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none"
                       }`}
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${aepsActivationStatus?.isActive && (aepsActivationStatus?.name === "NSDL" || (aepsActivationStatus?.aepsType === "AEPS2" && aepsActivationStatus?.name !== "ICICI")) ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${nsdlStatus?.isActive ? "bg-[#F0FDF4]" : "bg-gray-200"}`}>
                         <img src="/img/nsdl.png" alt="NSDL" className="w-7 h-7 object-contain" />
                       </div>
                       <span>NSDL AEPS</span>
