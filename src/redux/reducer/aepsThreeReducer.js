@@ -19,6 +19,9 @@ import {
   UPDATE_AEPS_SWITCH_SUCCESS,
   GET_AEPS_SWITCH_SUCCESS,
   CREATE_AEPS_SWITCH_SUCCESS,
+  EMPLOYEE_UPDATE_AEPS_SWITCH_SUCCESS,
+  EMPLOYEE_GET_AEPS_SWITCH_SUCCESS,
+  EMPLOYEE_CREATE_AEPS_SWITCH_SUCCESS,
 } from "../actionType/aepsThreeActionType";
 
 const initialState = {
@@ -42,6 +45,9 @@ const initialState = {
   aeps2CwHistoryUsers: null,
   aeps2CwHistoryTransactionDetails: null,
   aeps2CwHistoryEmployee: null,
+  aeps3EmployeeCreateSwitch: null,
+  aeps3EmployeeGetSwitch: null,
+  aeps3EmployeeUpdateSwitch: null,
 };
 
 const aepsThreeReducer = (state = initialState, action) => {
@@ -214,8 +220,36 @@ const aepsThreeReducer = (state = initialState, action) => {
           success: action?.payload?.status,
           message: action?.payload?.message,
         }
-
       }
+    case EMPLOYEE_UPDATE_AEPS_SWITCH_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        aeps3EmployeeUpdateSwitch: action?.payload,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      }
+    case EMPLOYEE_CREATE_AEPS_SWITCH_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        aeps3EmployeeCreateSwitch: action?.payload,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      }
+
+    case EMPLOYEE_GET_AEPS_SWITCH_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        aeps3EmployeeGetSwitch: action?.payload,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      }
+
     case GET_AEPS_SWITCH_SUCCESS:
       return {
         ...state,
@@ -226,17 +260,17 @@ const aepsThreeReducer = (state = initialState, action) => {
         message: action?.payload?.message,
       }
 
-      case CREATE_AEPS_SWITCH_SUCCESS:
-        {
-          return{
-            ...state,
-            loading: false,
-            error: null,
-            aeps3CreateSwitch: action?.payload,
-            success: action?.payload?.status,
-            message: action?.payload?.message,
-          }
+    case CREATE_AEPS_SWITCH_SUCCESS:
+      {
+        return {
+          ...state,
+          loading: false,
+          error: null,
+          aeps3CreateSwitch: action?.payload,
+          success: action?.payload?.status,
+          message: action?.payload?.message,
         }
+      }
     default:
       return state;
   }
