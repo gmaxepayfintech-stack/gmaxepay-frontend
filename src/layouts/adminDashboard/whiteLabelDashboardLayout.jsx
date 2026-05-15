@@ -21,6 +21,78 @@ const NotificationIcon = "/img/NotificationIcon.png";
 const defaultProfileImage = "/img/defaultProfilelogo.png";
 const companyLogo = "/img/gmaxepay.png";
 
+const menuItems = [
+  {
+    name: "Dashboard",
+    icon: MaskGroup,
+    path: "/adminDashboard/home",
+    dropdown: false,
+  },
+  {
+    name: "Members",
+    icon: MaskGroup1,
+    dropdown: true,
+    path: null,
+    children: [
+      { name: "Users", path: "/adminDashboard/members/companyUser" },
+      { name: "Role Upgrade", path: "/adminDashboard/members/roleUpgrade" },
+    ],
+  },
+  {
+    name: "Resources",
+    icon: MaskGroup2,
+    dropdown: true,
+    children: [
+      {
+        name: "Schema Master",
+        path: "/adminDashboard/resources/schema-master",
+      },
+      {
+        name: "Subscription",
+        path: "/adminDashboard/resources/subscription",
+      },
+    ],
+  },
+  {
+    name: "Fund Manage",
+    icon: MaskGroup3,
+    dropdown: true,
+    children: [
+      {
+        name: "Wallet Load",
+        path: "/adminDashboard/fund-manage/wallet-load",
+      },
+      {
+        name: "Fund Request",
+        path: "/adminDashboard/fund-manage/fund-request",
+      },
+    ],
+  },
+  {
+    name: "Help",
+    icon: MaskGroup2,
+    dropdown: true,
+    children: [
+      {
+        name: "Contact Support",
+        path: "/adminDashboard/contact-support",
+      },
+    ],
+  },
+  {
+    name: "Tnx History",
+    icon: MaskGroup4,
+    path: "/adminDashboard/txn-history",
+    dropdown: false,
+  },
+  {
+    name: "Settings",
+    icon: MaskGroup6,
+    path: "/adminDashboard/settings",
+    dropdown: false,
+  },
+];
+
 const WhiteLabelDashboardLayout = ({ children }) => {
   const { company } = useCompany();
   const location = useLocation();
@@ -209,112 +281,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
     }
   };
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      icon: MaskGroup,
-      path: "/adminDashboard/home",
-      dropdown: false,
-    },
-    // {
-    //   name: "Partner",
-    //   icon: MaskGroup1,
-    //   dropdown: true,
-    //   path: "/adminDashboard/partner",
-    //   children: [
-    //     { name: "Partner List", path: "/adminDashboard/partner/list" },
-    //     { name: "Add Partner", path: "/adminDashboard/partner/add" },
-    //   ],
-    // },
-    {
-      name: "Members",
-      icon: MaskGroup1,
-      dropdown: true,
-      path: null,
-      children: [
-        { name: "Users", path: "/adminDashboard/members/companyUser" },
-        // { name: "Agents", path: "/adminDashboard/members/list" },
-        { name: "Role Upgrade", path: "/adminDashboard/members/roleUpgrade" },
-      ],
-    },
-    {
-      name: "Resources",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        {
-          name: "Schema Master",
-          path: "/adminDashboard/resources/schema-master",
-        },
-        {
-          name: "Subscription",
-          path: "/adminDashboard/resources/subscription",
-        },
-      ],
-    },
-    {
-      name: "Fund Manage",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        {
-          name: "Wallet Load",
-          path: "/adminDashboard/fund-manage/wallet-load",
-        },
-        {
-          name: "Fund Request",
-          path: "/adminDashboard/fund-manage/fund-request",
-        },
-        // {
-        //   name: "QR UPI Transcation",
-        //   path: "/adminDashboard/fund-manage/qr-upi-transaction",
-        // },
-      ],
-    },
-    {
-      name: "Help",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        {
-          name: "Contact Support",
-          path: "/adminDashboard/contact-support",
-        },
-        // {
-        //   name: "Complaints",
-        //   path: "/retailerDashboard/complaints",
-        // },
-      ],
-    },
-
-    // {
-    //   name: "Reports",
-    //   icon: MaskGroup5,
-    //   dropdown: true,
-    //   children: [
-    //     { name: "Daily Reports", path: "/adminDashboard/reports/daily" },
-    //     { name: "Monthly Reports", path: "/adminDashboard/reports/monthly" },
-    //   ],
-    // },
-    {
-      name: "Tnx History",
-      icon: MaskGroup4,
-      path: "/adminDashboard/txn-history",
-      dropdown: false,
-    },
-    {
-      name: "Settings",
-      icon: MaskGroup6,
-      path: "/adminDashboard/settings",
-      dropdown: false,
-    },
-    // {
-    //   name: "Onboarding",
-    //   icon: MaskGroup1,
-    //   path: "/adminDashboard/onboarding",
-    //   dropdown: false,
-    // },
-  ];
+  
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">

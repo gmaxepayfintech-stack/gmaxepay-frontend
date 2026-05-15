@@ -20,6 +20,60 @@ const NotificationIcon = "/img/NotificationIcon.png";
 const defaultProfileImage = "/img/defaultProfilelogo.png";
 const companyLogo = "/img/gmaxepay.png";
 
+const menuItems = [
+  {
+    name: "Dashboard",
+    icon: MaskGroup,
+    path: "/retailerDashboard/home",
+    dropdown: false,
+  },
+  {
+    name: "Services",
+    icon: MaskGroup5,
+    path: "/retailerDashboard/services",
+    dropdown: false,
+  },
+  {
+    name: "Txn History",
+    icon: MaskGroup5,
+    path: "/retailerDashboard/tax-history",
+    dropdown: false,
+  },
+  {
+    name: "Fund Manage",
+    icon: MaskGroup4,
+    dropdown: true,
+    children: [
+      {
+        name: "Wallet Load",
+        path: "/retailerDashboard/fund-management/wallet-load",
+      },
+    ],
+  },
+  {
+    name: "Resources",
+    icon: MaskGroup3,
+    dropdown: true,
+    children: [
+      {
+        name: "Subscription",
+        path: "/retailerDashboard/resources/subscription",
+      },
+    ],
+  },
+  {
+    name: "Help",
+    icon: MaskGroup2,
+    dropdown: true,
+    children: [
+      {
+        name: "Contact Support",
+        path: "/retailerDashboard/contact-support",
+      },
+    ],
+  },
+];
+
 const RetailerDashLayout = ({ children }) => {
   const { company } = useCompany();
   const location = useLocation();
@@ -40,86 +94,7 @@ const RetailerDashLayout = ({ children }) => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      icon: MaskGroup,
-      path: "/retailerDashboard/home",
-      dropdown: false,
-    },
-    {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/retailerDashboard/services",
-      dropdown: false,
-    },
-
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/retailerDashboard/tax-history",
-      dropdown: false,
-    },
-    {
-      name: "Fund Manage",
-      icon: MaskGroup4,
-      dropdown: true,
-      children: [
-        {
-          name: "Wallet Load",
-          path: "/retailerDashboard/fund-management/wallet-load",
-        },
-        // {
-        //   name: "QR UPI Transaction",
-        //   path: "/retailerDashboard/fund-management/qr-upi-transaction",
-        // },
-      ],
-    },
-    {
-      name: "Resources",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        {
-          name: "Subscription",
-          path: "/retailerDashboard/resources/subscription",
-        },
-      ],
-    },
-
-    // {
-    //   name: "Reports",
-    //   icon: MaskGroup5,
-    //   dropdown: true,
-    //   children: [
-    //     {
-    //       name: "Business Report",
-    //       path: "/retailerDashboard/reports/business",
-    //     },
-    //     { name: "Earning Report", path: "/retailerDashboard/reports/earning" },
-    //     {
-    //       name: "User Performance",
-    //       path: "/retailerDashboard/reports/user-performance",
-    //     },
-    //   ],
-    // },
-
-    {
-      name: "Help",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        {
-          name: "Contact Support",
-          path: "/retailerDashboard/contact-support",
-        },
-        // {
-        //   name: "Complaints",
-        //   path: "/retailerDashboard/complaints",
-        // },
-      ],
-    },
-  ];
+  
 
   // Fetch user profile on component mount
   useEffect(() => {
