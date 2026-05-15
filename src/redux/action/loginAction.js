@@ -33,6 +33,7 @@ import {
   MARK_NOTIFICATION_READ_SUCCESS_COMPANY,
   GET_NOTIFICATIONS_SUCCESS_COMPANY,
   GET_NOTIFICATIONS_FAILURE_COMPANY,
+  MARK_NOTIFICATION_READ_FAILURE_COMPANY,
 } from "../actionType/loginActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1339,9 +1340,15 @@ export const notificationIconData = () => async (dispatch) => {
   const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
-    const response = await api.post(
-      "/api/v1/user/notification/getAll",
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/notification/getAll`,
       {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
     );
 
     const { status, message, data } = response.data ?? {};
@@ -1375,9 +1382,15 @@ export const notificationIconMarksAsRead = () => async (dispatch) => {
   const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
-    const response = await api.post(
-      "/api/v1/user/notification/markAsRead",
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/notification/markAsRead`,
       {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
     );
 
     const { status, message } = response.data ?? {};
@@ -1411,9 +1424,15 @@ export const notificationIconDataCompany = () => async (dispatch) => {
   const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
-    const response = await api.post(
-      "/api/v1/company/notification/getAll",
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/notification/getAll`,
       {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
     );
 
     const { status, message, data } = response.data ?? {};
@@ -1447,9 +1466,15 @@ export const notificationIconMarksAsReadCompany = () => async (dispatch) => {
   const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
-    const response = await api.post(
-      "/api/v1/company/notification/markAsRead",
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/notification/markAsRead`,
       {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
     );
 
     const { status, message } = response.data ?? {};
