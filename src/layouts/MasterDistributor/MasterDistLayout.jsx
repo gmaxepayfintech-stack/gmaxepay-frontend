@@ -40,10 +40,6 @@ const MasterDistLayout = ({ children }) => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
 
-  // Fetch user profile on component mount
-  useEffect(() => {
-    dispatch(getUserProfile());
-  }, [dispatch]);
 
   // Handle unauthorized token expiration - redirect to login
   // useEffect(() => {

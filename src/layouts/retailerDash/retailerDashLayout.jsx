@@ -98,10 +98,6 @@ const RetailerDashLayout = ({ children }) => {
 
   
 
-  // Fetch user profile on component mount
-  useEffect(() => {
-    dispatch(getUserProfile());
-  }, [dispatch]);
 
   // Handle unauthorized token expiration - redirect to login
   // useEffect(() => {
