@@ -1335,7 +1335,7 @@ export const verifyMpinOTP = (credentials, companyId) => async (dispatch) => {
 export const notificationIconData = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("loginToken");
+  const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
     const response = await axios.post(
@@ -1377,7 +1377,7 @@ export const notificationIconData = () => async (dispatch) => {
 export const notificationIconMarksAsRead = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("loginToken");
+  const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
     const response = await axios.post(
@@ -1419,7 +1419,7 @@ export const notificationIconMarksAsRead = () => async (dispatch) => {
 export const notificationIconDataCompany = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("loginToken");
+  const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
     const response = await axios.post(
@@ -1461,7 +1461,7 @@ export const notificationIconDataCompany = () => async (dispatch) => {
 export const notificationIconMarksAsReadCompany = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("loginToken");
+  const authToken = secureLocalStorage.getItem("userToken") || secureLocalStorage.getItem("loginToken");
 
   try {
     const response = await axios.post(
