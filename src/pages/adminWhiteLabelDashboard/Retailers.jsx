@@ -150,10 +150,20 @@ const Retailers = ({
   }, [propTableData]);
 
   // Prefer Redux data if available (from API calls) and NOT embedded, otherwise fall back to prop data
-  const allTableData =
-    !embedded && Array.isArray(responseForTable) && responseForTable.length > 0
-      ? responseForTable
-      : flattenedPropData;
+  const allTableData = useMemo(() => {
+    if (embedded) return flattenedPropData;
+    // If we have any data in Redux, use it (even if it's empty array from a search)
+    // We only want to fallback if the state itself is not an array (e.g. undefined/null)
+    if (Array.isArray(responseForTable)) {
+      // If a search or date filter is active, we MUST use Redux data to show results (or lack thereof)
+      if (debouncedSearchTerm.trim() || debouncedFromDate || debouncedToDate) {
+        return responseForTable;
+      }
+      // Otherwise, if we have results in Redux, use them
+      if (responseForTable.length > 0) return responseForTable;
+    }
+    return flattenedPropData;
+  }, [embedded, responseForTable, flattenedPropData, debouncedSearchTerm, debouncedFromDate, debouncedToDate]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -317,8 +327,11 @@ const Retailers = ({
       },
       customSearch: debouncedSearchTerm.trim()
         ? {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
+          $or: [
+            { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+            { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+            { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
+          ]
         }
         : {},
     };
@@ -412,8 +425,11 @@ const Retailers = ({
             paginate: 6,
           },
           customSearch: debouncedSearchTerm.trim() ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
+            $or: [
+              { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+              { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+              { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
+            ]
           } : {},
         };
         dispatch(roleDataCompanyUser(payload));
@@ -444,8 +460,11 @@ const Retailers = ({
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
+            $or: [
+              { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+              { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+              { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
+            ]
           }
           : {},
       };
@@ -476,8 +495,11 @@ const Retailers = ({
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
+            $or: [
+              { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+              { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+              { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
+            ]
           }
           : {},
       };
