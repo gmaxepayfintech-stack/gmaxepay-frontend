@@ -472,9 +472,9 @@ const RetailerDashLayout = ({ children }) => {
                     e.target.src = "/img/gmaxepay.png";
                   }}
                 />
-                {notifications?.unreadCount > 0 && (
+                {notifications?.totalCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                    {notifications.unreadCount}
+                    {notifications.totalCount}
                   </span>
                 )}
               </button>
@@ -493,9 +493,9 @@ const RetailerDashLayout = ({ children }) => {
                       <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                         Notifications
                       </h3>
-                      {notifications?.unreadCount > 0 && (
-                        <span className="text-xs font-[Gilroy-Medium] text-[#039155] bg-[#039155]/10 px-2 py-1 rounded-full">
-                          {notifications.unreadCount} New
+                      {notifications?.totalCount > 0 && (
+                        <span className="text-xs font-[Gilroy-Medium] text-red-500 bg-red-500/10 px-2 py-1 rounded-full">
+                          {notifications.totalCount} Total
                         </span>
                       )}
                     </div>
