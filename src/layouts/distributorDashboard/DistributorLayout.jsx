@@ -18,6 +18,68 @@ const NotificationIcon = "/img/NotificationIcon.png";
 const defaultProfileImage = "/img/defaultProfilelogo.png";
 const companyLogo = "/img/gmaxepay.png";
 
+const menuItems = [
+  {
+    name: "Dashboard",
+    icon: MaskGroup,
+    path: "/distributerDashboard/home",
+    dropdown: false,
+  },
+  {
+    name: "Services",
+    icon: MaskGroup5,
+    path: "/distributerDashboard/services",
+    dropdown: false,
+  },
+  {
+    name: "Txn History",
+    icon: MaskGroup5,
+    path: "/distributerDashboard/tax-history",
+    dropdown: false,
+  },
+  {
+    name: "Fund Manage",
+    icon: MaskGroup4,
+    dropdown: true,
+    children: [
+      {
+        name: "Wallet Load",
+        path: "/distributerDashboard/fund-manage/wallet-load",
+      },
+      {
+        name: "Fund Request",
+        path: "/distributerDashboard/fund-manage/fund-request",
+      },
+    ],
+  },
+  {
+    name: "Resources",
+    icon: MaskGroup3,
+    dropdown: true,
+    children: [
+      {
+        name: "Schema Master",
+        path: "/distributerDashboard/resources/schemamaster",
+      },
+      {
+        name: "Subscription",
+        path: "/distributerDashboard/resources/subscription",
+      },
+    ],
+  },
+  {
+    name: "Help",
+    icon: MaskGroup2,
+    dropdown: true,
+    children: [
+      {
+        name: "Contact Support",
+        path: "/distributerDashboard/contact-support",
+      },
+    ],
+  },
+];
+
 const DistributorLayout = ({ children }) => {
   const { company } = useCompany();
   const location = useLocation();
@@ -203,99 +265,7 @@ const DistributorLayout = ({ children }) => {
     }
   };
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      icon: MaskGroup,
-      path: "/distributerDashboard/home",
-      dropdown: false,
-    },
-    {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/services",
-      dropdown: false,
-    },
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/tax-history",
-      dropdown: false,
-    },
-    {
-      name: "Fund Manage",
-      icon: MaskGroup4,
-      dropdown: true,
-      children: [
-        {
-          name: "Wallet Load",
-          path: "/distributerDashboard/fund-manage/wallet-load",
-        },
-        {
-          name: "Fund Request",
-          path: "/distributerDashboard/fund-manage/fund-request",
-        },
-        // {
-        //   name: "QR UPI Transaction",
-        //   path: "/distributerDashboard/fund-manage/qr-upi-transaction",
-        // },
-      ],
-    },
-
-    // {
-    //   name: "Reports",
-    //   icon: MaskGroup5,
-    //   dropdown: true,
-    //   children: [
-    //     {
-    //       name: "Business Report",
-    //       path: "/distributerDashboard/reports/business",
-    //     },
-    //     {
-    //       name: "Earning Report",
-    //       path: "/distributerDashboard/reports/earning",
-    //     },
-    //     {
-    //       name: "N/W Overview Report",
-    //       path: "/distributerDashboard/reports/nw-overview",
-    //     },
-    //     {
-    //       name: "User Performance",
-    //       path: "/distributerDashboard/reports/user-performance",
-    //     },
-    //   ],
-    // },
-    {
-      name: "Resources",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        {
-          name: "Schema Master",
-          path: "/distributerDashboard/resources/schemamaster",
-        },
-        {
-          name: "Subscription",
-          path: "/distributerDashboard/resources/subscription",
-        },
-      ],
-    },
-    {
-      name: "Help",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        {
-          name: "Contact Support",
-          path: "/distributerDashboard/contact-support",
-        },
-        // {
-        //   name: "Complaints",
-        //   path: "/distributerDashboard/complaints",
-        // },
-      ],
-    },
-  ];
+  
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
