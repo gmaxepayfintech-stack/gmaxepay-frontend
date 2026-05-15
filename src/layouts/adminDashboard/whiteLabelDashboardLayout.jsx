@@ -235,7 +235,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
     };
   }, [isProfileDropdownOpen, isNotificationOpen]);
 
-  
+
 
   const { getNotificationsResponse } = useSelector((state) => state.login);
   const notifications = getNotificationsResponse?.data || {
@@ -278,7 +278,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
     }
   };
 
-  
+
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
@@ -526,7 +526,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
 
                     <div className="overflow-y-auto flex-1 custom-scrollbar">
                       {notifications?.unreadNotifications?.length === 0 &&
-                      notifications?.readNotifications?.length === 0 ? (
+                        notifications?.readNotifications?.length === 0 ? (
                         <div className="p-10 text-center">
                           <img
                             src="/img/no-notifications.png"
@@ -585,7 +585,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                     </div>
 
                     <div className="p-3 border-t border-gray-100 bg-gray-50 text-center">
-                      <button 
+                      <button
                         onClick={() => setIsNotificationOpen(false)}
                         className="text-xs font-[Gilroy-Semibold] text-gray-500 hover:text-[#039155] transition-colors"
                       >

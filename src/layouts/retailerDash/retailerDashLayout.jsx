@@ -96,8 +96,12 @@ const RetailerDashLayout = ({ children }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationDropdownRef = useRef(null);
 
-  
 
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
 
   // Handle unauthorized token expiration - redirect to login
   // useEffect(() => {
@@ -235,7 +239,7 @@ const RetailerDashLayout = ({ children }) => {
     };
   }, [isProfileDropdownOpen, isNotificationOpen]);
 
-  
+
 
   const { getNotificationsResponse } = useSelector((state) => state.login);
   const notifications = getNotificationsResponse?.data || {
@@ -474,7 +478,7 @@ const RetailerDashLayout = ({ children }) => {
 
                     <div className="overflow-y-auto flex-1 custom-scrollbar">
                       {notifications?.unreadNotifications?.length === 0 &&
-                      notifications?.readNotifications?.length === 0 ? (
+                        notifications?.readNotifications?.length === 0 ? (
                         <div className="p-10 text-center">
                           <img
                             src="/img/no-notifications.png"
@@ -533,7 +537,7 @@ const RetailerDashLayout = ({ children }) => {
                     </div>
 
                     <div className="p-3 border-t border-gray-100 bg-gray-50 text-center">
-                      <button 
+                      <button
                         onClick={() => setIsNotificationOpen(false)}
                         className="text-xs font-[Gilroy-Semibold] text-gray-500 hover:text-[#039155] transition-colors"
                       >
