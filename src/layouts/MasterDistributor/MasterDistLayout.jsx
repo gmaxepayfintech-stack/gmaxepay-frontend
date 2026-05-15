@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile } from "../../redux/action/userProfileAction";
 import { useNotification } from "../../context/NotificationContext";
-import { logOut } from "../../redux/action/loginAction";
+import { logOut, notificationIconData, notificationIconMarksAsRead } from "../../redux/action/loginAction";
 import { getGreeting } from "../../utils/getGreeting";
 
 // Use absolute paths for public folder assets
@@ -38,7 +38,8 @@ const MasterDistLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // State for profile dropdown
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const profileDropdownRef = useRef(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationDropdownRef = useRef(null);
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -140,25 +141,54 @@ const MasterDistLayout = ({ children }) => {
     }
   };
 
-  // Close profile dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Profile dropdown
       if (
         profileDropdownRef.current &&
         !profileDropdownRef.current.contains(event.target)
       ) {
         setIsProfileDropdownOpen(false);
       }
+      // Notification dropdown
+      if (
+        notificationDropdownRef.current &&
+        !notificationDropdownRef.current.contains(event.target)
+      ) {
+        setIsNotificationOpen(false);
+      }
     };
-
-    if (isProfileDropdownOpen) {
+ 
+    if (isProfileDropdownOpen || isNotificationOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
+ 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isProfileDropdownOpen]);
+  }, [isProfileDropdownOpen, isNotificationOpen]);
+
+  const { getNotificationsResponse } = useSelector((state) => state.login);
+  const notifications = getNotificationsResponse?.data || {
+    unreadNotifications: [],
+    readNotifications: [],
+    unreadCount: 0,
+  };
+ 
+  // Handle notification icon click
+  const handleNotificationClick = () => {
+    setIsNotificationOpen((prev) => !prev);
+    if (!isNotificationOpen) {
+      dispatch(notificationIconData());
+      dispatch(notificationIconMarksAsRead());
+    }
+  };
+ 
+  // Fetch notifications on mount for unread count
+  useEffect(() => {
+    dispatch(notificationIconData());
+  }, [dispatch]);
 
   // Referral code - can be fetched from state or props
   const referralCodeValue = profile?.referrerCode;
@@ -479,17 +509,145 @@ const MasterDistLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
-              <img
-                src={NotificationIcon}
-                alt="Notifications"
-                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/img/gmaxepay.png";
-                }}
-              />
-            </button>
+            <div className="relative" ref={notificationDropdownRef}>
+              <button
+                onClick={handleNotificationClick}
+                className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 "
+              >
+                <img
+                  src={NotificationIcon}
+                  alt="Notifications"
+                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/img/gmaxepay.png";
+                  }}
+                />
+                {notifications.unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm animate-pulse">
+                    {notifications.unreadCount}
+                  </span>
+                )}
+              </button>
+ 
+              {/* Notification Dropdown */}
+              <AnimatePresence>
+                {isNotificationOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-3 w-[280px] sm:w-[360px] bg-white rounded-2xl shadow-xl border border-gray-100 py-0 z-[100] overflow-hidden"
+                  >
+                    <div className="bg-[#039155] p-4 text-white">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">Notifications</h3>
+                        <span className="bg-white/20 px-2 py-1 rounded text-xs">
+                          {notifications.unreadCount} New
+                        </span>
+                      </div>
+                    </div>
+ 
+                    <div className="max-h-[400px] overflow-y-auto">
+                      {notifications.unreadNotifications.length === 0 &&
+                        notifications.readNotifications.length === 0 ? (
+                        <div className="py-12 text-center">
+                          <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
+                            <img
+                              src={NotificationIcon}
+                              className="w-8 h-8 opacity-30"
+                              alt="None"
+                            />
+                          </div>
+                          <p className="text-gray-500 text-sm">No notifications yet</p>
+                        </div>
+                      ) : (
+                        <>
+                          {notifications.unreadNotifications.length > 0 && (
+                            <div className="px-4 py-2 bg-gray-50 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                              New
+                            </div>
+                          )}
+                          {notifications.unreadNotifications.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className="px-4 py-4 border-b border-gray-100 hover:bg-[#039155]/5 transition-colors cursor-pointer group"
+                            >
+                              <div className="flex gap-3">
+                                <div className="w-10 h-10 rounded-full bg-[#039155]/10 flex items-center justify-center flex-shrink-0 text-[#039155]">
+                                  <span className="font-bold text-xs">
+                                    {notif.name?.charAt(0) || "N"}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-start mb-1">
+                                    <h4 className="text-sm font-semibold text-[#1B1717] truncate pr-2 group-hover:text-[#039155] transition-colors">
+                                      {notif.name}
+                                    </h4>
+                                    <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                                      {new Date(notif.createdAt).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                                    {notif.msg}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+ 
+                          {notifications.readNotifications.length > 0 && (
+                            <div className="px-4 py-2 bg-gray-50 text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                              Earlier
+                            </div>
+                          )}
+                          {notifications.readNotifications.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className="px-4 py-4 border-b border-gray-100 hover:bg-gray-50/50 transition-colors opacity-75"
+                            >
+                              <div className="flex gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 text-gray-400">
+                                  <span className="font-bold text-xs">
+                                    {notif.name?.charAt(0) || "N"}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-start mb-1">
+                                    <h4 className="text-sm font-medium text-[#1B1717] truncate">
+                                      {notif.name}
+                                    </h4>
+                                    <span className="text-[10px] text-gray-400">
+                                      {new Date(notif.createdAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-500 line-clamp-2">
+                                    {notif.msg}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+ 
+                    <div className="p-3 bg-gray-50 border-t border-gray-100 text-center">
+                      <button 
+                        onClick={() => setIsNotificationOpen(false)}
+                        className="text-[#039155] text-xs font-semibold hover:underline"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span
