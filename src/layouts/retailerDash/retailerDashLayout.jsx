@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile } from "../../redux/action/userProfileAction";
 import { useNotification } from "../../context/NotificationContext";
-import { logOut } from "../../redux/action/loginAction";
+import { logOut, notificationIconMarksAsRead, notificationIconData } from "../../redux/action/loginAction";
 import { getGreeting } from "../../utils/getGreeting";
 
 // Use absolute paths for public folder assets
@@ -234,25 +234,57 @@ const RetailerDashLayout = ({ children }) => {
     }
   };
 
-  // Close profile dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Profile dropdown
       if (
         profileDropdownRef.current &&
         !profileDropdownRef.current.contains(event.target)
       ) {
         setIsProfileDropdownOpen(false);
       }
+      // Notification dropdown
+      if (
+        notificationDropdownRef.current &&
+        !notificationDropdownRef.current.contains(event.target)
+      ) {
+        setIsNotificationOpen(false);
+      }
     };
 
-    if (isProfileDropdownOpen) {
+    if (isProfileDropdownOpen || isNotificationOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isProfileDropdownOpen]);
+  }, [isProfileDropdownOpen, isNotificationOpen]);
+
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationDropdownRef = useRef(null);
+
+  const { getNotificationsResponse } = useSelector((state) => state.login);
+  const notifications = getNotificationsResponse?.data || {
+    unreadNotifications: [],
+    readNotifications: [],
+    unreadCount: 0,
+  };
+
+  // Handle notification icon click
+  const handleNotificationClick = () => {
+    setIsNotificationOpen((prev) => !prev);
+    if (!isNotificationOpen) {
+      dispatch(notificationIconData());
+      dispatch(notificationIconMarksAsRead());
+    }
+  };
+
+  // Fetch notifications on mount for unread count
+  useEffect(() => {
+    dispatch(notificationIconData());
+  }, [dispatch]);
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
@@ -426,17 +458,120 @@ const RetailerDashLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
-              <img
-                src={NotificationIcon}
-                alt="Notifications"
-                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/img/gmaxepay.png";
-                }}
-              />
-            </button>
+            <div className="relative" ref={notificationDropdownRef}>
+              <button
+                onClick={handleNotificationClick}
+                className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 "
+              >
+                <img
+                  src={NotificationIcon}
+                  alt="Notifications"
+                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/img/gmaxepay.png";
+                  }}
+                />
+                {notifications?.totalCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                    {notifications.totalCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              <AnimatePresence>
+                {isNotificationOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-3 w-[300px] sm:w-[400px] max-h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 flex flex-col"
+                  >
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0">
+                      <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
+                        Notifications
+                      </h3>
+                      {notifications?.totalCount > 0 && (
+                        <span className="text-xs font-[Gilroy-Medium] text-red-500 bg-red-500/10 px-2 py-1 rounded-full">
+                          {notifications.totalCount} Total
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="overflow-y-auto flex-1 custom-scrollbar">
+                      {notifications?.unreadNotifications?.length === 0 &&
+                      notifications?.readNotifications?.length === 0 ? (
+                        <div className="p-10 text-center">
+                          <img
+                            src="/img/no-notifications.png"
+                            alt="No notifications"
+                            className="w-16 h-16 mx-auto mb-4 opacity-20"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/img/gmaxepay.png";
+                            }}
+                          />
+                          <p className="text-gray-400 text-sm">No notifications found</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-gray-50">
+                          {/* Unread Section */}
+                          {notifications?.unreadNotifications?.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className="p-4 hover:bg-gray-50 transition-colors bg-[#039155]/5 border-l-4 border-[#039155]"
+                            >
+                              <div className="flex justify-between items-start gap-2 mb-1">
+                                <h4 className="font-[Gilroy-Semibold] text-sm text-[#1B1717]">
+                                  {notif.name}
+                                </h4>
+                                <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                                  {new Date(notif.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 font-[Gilroy-Medium]">
+                                {notif.msg}
+                              </p>
+                            </div>
+                          ))}
+
+                          {/* Read Section */}
+                          {notifications?.readNotifications?.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className="p-4 hover:bg-gray-50 transition-colors"
+                            >
+                              <div className="flex justify-between items-start gap-2 mb-1">
+                                <h4 className="font-[Gilroy-Medium] text-sm text-gray-500">
+                                  {notif.name}
+                                </h4>
+                                <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                                  {new Date(notif.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-400 font-[Gilroy-Medium]">
+                                {notif.msg}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-3 border-t border-gray-100 bg-gray-50 text-center">
+                      <button 
+                        onClick={() => setIsNotificationOpen(false)}
+                        className="text-xs font-[Gilroy-Semibold] text-gray-500 hover:text-[#039155] transition-colors"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span

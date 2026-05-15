@@ -25,6 +25,13 @@ import {
   FORGET_MPIN_FAILURE,
   VERIFY_MPIN_OTP_SUCCESS,
   VERIFY_MPIN_OTP_FAILURE,
+  GET_NOTIFICATIONS_SUCCESS,
+  GET_NOTIFICATIONS_FAILURE,
+  MARK_NOTIFICATION_READ_SUCCESS,
+  MARK_NOTIFICATION_READ_FAILURE,
+  MARK_NOTIFICATION_READ_SUCCESS_COMPANY,
+  GET_NOTIFICATIONS_SUCCESS_COMPANY,
+  GET_NOTIFICATIONS_FAILURE_COMPANY,
 } from "../actionType/loginActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1320,6 +1327,174 @@ export const verifyMpinOTP = (credentials, companyId) => async (dispatch) => {
         payload: error?.response?.data?.message ?? error.message,
       });
     }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const notificationIconData = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/notification/getAll`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      },
+    );
+
+    const { status, message, data } = response.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_NOTIFICATIONS_SUCCESS,
+        payload: response.data,
+      });
+      return response.data;
+    }
+
+    dispatch({
+      type: GET_NOTIFICATIONS_FAILURE,
+      payload: { status, message },
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_NOTIFICATIONS_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const notificationIconMarksAsRead = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/notification/markAsRead`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      },
+    );
+
+    const { status, message } = response.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: MARK_NOTIFICATION_READ_SUCCESS,
+        payload: response.data,
+      });
+      return response.data;
+    }
+
+    dispatch({
+      type: MARK_NOTIFICATION_READ_FAILURE,
+      payload: { status, message },
+    });
+  } catch (error) {
+    dispatch({
+      type: MARK_NOTIFICATION_READ_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const notificationIconDataCompany = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/notification/getAll`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      },
+    );
+
+    const { status, message, data } = response.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_NOTIFICATIONS_SUCCESS_COMPANY,
+        payload: response.data,
+      });
+      return response.data;
+    }
+
+    dispatch({
+      type: GET_NOTIFICATIONS_FAILURE_COMPANY,
+      payload: { status, message },
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_NOTIFICATIONS_FAILURE_COMPANY,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const notificationIconMarksAsReadCompany = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/notification/markAsRead`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      },
+    );
+
+    const { status, message } = response.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: MARK_NOTIFICATION_READ_SUCCESS_COMPANY,
+        payload: response.data,
+      });
+      return response.data;
+    }
+
+    dispatch({
+      type: MARK_NOTIFICATION_READ_FAILURE_COMPANY,
+      payload: { status, message },
+    });
+  } catch (error) {
+    dispatch({
+      type: MARK_NOTIFICATION_READ_FAILURE_COMPANY,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
   } finally {
     dispatch({ type: LOADING_END });
   }
