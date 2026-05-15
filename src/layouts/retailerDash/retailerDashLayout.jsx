@@ -95,6 +95,11 @@ const RetailerDashLayout = ({ children }) => {
   const profileDropdownRef = useRef(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationDropdownRef = useRef(null);
+ 
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
 
 
 
