@@ -23,6 +23,10 @@ import {
   VERIFY_MPIN_OTP_SUCCESS,
   FORGET_MPIN_FAILURE,
   VERIFY_MPIN_OTP_FAILURE,
+  GET_NOTIFICATIONS_SUCCESS,
+  MARK_NOTIFICATION_READ_SUCCESS,
+  MARK_NOTIFICATION_READ_SUCCESS_COMPANY,
+  GET_NOTIFICATIONS_SUCCESS_COMPANY,
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -143,6 +147,45 @@ const loginReducer = (state = initialState, action) => {
         resendStatus: null,
       };
 
+    case GET_NOTIFICATIONS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        getNotificationsResponse: action.payload,
+        getNotificationsError: null,
+        success: action.payload.status,
+        message: action.payload.message,
+      }
+    case MARK_NOTIFICATION_READ_SUCCESS_COMPANY:
+      return {
+        ...state,
+        loading: false,
+        markNotificationReadResponse: action.payload,
+        error: null,
+        success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_NOTIFICATIONS_SUCCESS_COMPANY:
+      return {
+        ...state,
+        loading: false,
+        getNotificationsResponse: action.payload,
+        getNotificationsError: null,
+        success: action.payload.status,
+        message: action.payload.message,
+      }
+
+
+    case MARK_NOTIFICATION_READ_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        markNotificationReadResponse: action.payload,
+        error: null,
+        success: action.payload.status,
+        message: action.payload.message,
+      }
+
     case RESET_PASSWORD_SUCCESS:
       return {
         ...state,
@@ -235,35 +278,35 @@ const loginReducer = (state = initialState, action) => {
         logoutResponse: null,
       };
 
-      case FORGET_MPIN_SUCCESS:
-        return{
-          loading: false,
-          error: null,
-          success: action?.payload?.status,
-          message: action?.payload?.message,
-          forgotMpinResponse: action?.payload,
-        };
-        case FORGET_MPIN_FAILURE:
-          return{
-            loading: false,
-            ForgetError: typeof action.payload === "object" ? action.payload : action.payload,
-            
-            forgotMpinResponse: null,
-          };
-        case VERIFY_MPIN_OTP_SUCCESS:
-          return{
-            loading: false,
-            error: null,
-            success: action?.payload?.status,
-            message: action?.payload?.message,
-            verifyMpinOTPResponse: action?.payload,
-          };
-        case VERIFY_MPIN_OTP_FAILURE:
-          return{
-            loading: false,
-            error: typeof action.payload === "object" ? action.payload : action.payload,
-            verifyMpinOTPResponse: null,
-          };
+    case FORGET_MPIN_SUCCESS:
+      return {
+        loading: false,
+        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        forgotMpinResponse: action?.payload,
+      };
+    case FORGET_MPIN_FAILURE:
+      return {
+        loading: false,
+        ForgetError: typeof action.payload === "object" ? action.payload : action.payload,
+
+        forgotMpinResponse: null,
+      };
+    case VERIFY_MPIN_OTP_SUCCESS:
+      return {
+        loading: false,
+        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        verifyMpinOTPResponse: action?.payload,
+      };
+    case VERIFY_MPIN_OTP_FAILURE:
+      return {
+        loading: false,
+        error: typeof action.payload === "object" ? action.payload : action.payload,
+        verifyMpinOTPResponse: null,
+      };
     default:
       return state;
   }
