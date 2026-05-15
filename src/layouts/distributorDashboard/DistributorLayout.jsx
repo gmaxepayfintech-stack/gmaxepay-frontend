@@ -99,6 +99,8 @@ const DistributorLayout = ({ children }) => {
   // State for profile dropdown
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationDropdownRef = useRef(null);
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -197,8 +199,7 @@ const DistributorLayout = ({ children }) => {
     }
   };
 
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const notificationDropdownRef = useRef(null);
+  
 
   const { getNotificationsResponse } = useSelector((state) => state.login);
   const notifications = getNotificationsResponse?.data || { unreadNotifications: [], readNotifications: [], unreadCount: 0 };
