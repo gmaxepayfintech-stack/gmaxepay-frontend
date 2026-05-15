@@ -93,6 +93,8 @@ const RetailerDashLayout = ({ children }) => {
   // State for profile dropdown
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationDropdownRef = useRef(null);
 
   
 
@@ -237,8 +239,7 @@ const RetailerDashLayout = ({ children }) => {
     };
   }, [isProfileDropdownOpen, isNotificationOpen]);
 
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const notificationDropdownRef = useRef(null);
+  
 
   const { getNotificationsResponse } = useSelector((state) => state.login);
   const notifications = getNotificationsResponse?.data || {
