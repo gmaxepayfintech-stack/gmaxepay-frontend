@@ -205,7 +205,7 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
         );
         const { data: roleDataComp, total, paginator, status, message } = response?.data ?? {};
 
-        if (status === "SUCCESS" || (Array.isArray(roleDataComp) && roleDataComp.length > 0)) {
+        if (response?.data && (status === "SUCCESS" || Array.isArray(roleDataComp))) {
             dispatch({
                 type: ROLEDATA_COMPANY_USER_SUCCESS,
                 payload: { roleDataComp, total, paginator, status, message },

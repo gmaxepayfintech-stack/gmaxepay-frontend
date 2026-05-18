@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Search, X, User, Sparkles } from 'lucide-react';
-import { roleDataCompanyUser, roleUpgradeCompanyUser } from '../../redux/action/roleAction';
+import { roleDataCompanyUser, roleUpgradeCompanyUser, clearRoleData } from '../../redux/action/roleAction';
 import { kycStatusCheck } from '../../redux/action/whiteLabelAction';
 import { ButtonLoader } from "../../widgets/layout/loader.jsx";
 import { useNotification } from "../../context/NotificationContext";
@@ -118,6 +118,7 @@ const RoleUpgradeWhiteLabel = () => {
     }, [roleDataResponse, roleDataComp, roleDataList, isLoading]);
 
     useEffect(() => {
+        dispatch(clearRoleData());
         const kycStatus = getKycStatusFromFilter(activeFilter);
         const payload = {
             query: {
