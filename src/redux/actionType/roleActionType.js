@@ -18,3 +18,4 @@ export const ROLEDATA_MASTER_DISTRIBUTOR_FAILURE = 'ROLEDATA_MASTER_DISTRIBUTOR_
 
 // Used to clear role success/error messages after showing notifications
 export const ROLE_CLEAR_STATUS = 'ROLE_CLEAR_STATUS';
+export const ROLEDATA_CLEAR = 'ROLEDATA_CLEAR';

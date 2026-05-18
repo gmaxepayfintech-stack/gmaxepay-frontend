@@ -2,7 +2,7 @@ import axios from "axios";
 import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_END, LOADING_START } from "../actionType/loadingActionType";
-import { ROLE_DEGRADE_COMPANY_USER_FAILURE, ROLE_DEGRADE_COMPANY_USER_SUCCESS, ROLE_DEGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_DEGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLE_UPGRADE_COMPANY_USER_FAILURE, ROLE_UPGRADE_COMPANY_USER_SUCCESS, ROLE_UPGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_UPGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLEDATA_COMPANY_USER_FAILURE, ROLEDATA_COMPANY_USER_SUCCESS, ROLEDATA_MASTER_DISTRIBUTOR_FAILURE, ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS } from "../actionType/roleActionType";
+import { ROLE_DEGRADE_COMPANY_USER_FAILURE, ROLE_DEGRADE_COMPANY_USER_SUCCESS, ROLE_DEGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_DEGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLE_UPGRADE_COMPANY_USER_FAILURE, ROLE_UPGRADE_COMPANY_USER_SUCCESS, ROLE_UPGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_UPGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLEDATA_COMPANY_USER_FAILURE, ROLEDATA_COMPANY_USER_SUCCESS, ROLEDATA_MASTER_DISTRIBUTOR_FAILURE, ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS, ROLEDATA_CLEAR } from "../actionType/roleActionType";
 const commonError = "Something went Wrong";
 const token = secureLocalStorage.getItem("userToken");
 
@@ -205,7 +205,7 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
         );
         const { data: roleDataComp, total, paginator, status, message } = response?.data ?? {};
 
-        if (status === "SUCCESS" || (Array.isArray(roleDataComp) && roleDataComp.length > 0)) {
+        if (response?.data && (status === "SUCCESS" || Array.isArray(roleDataComp))) {
             dispatch({
                 type: ROLEDATA_COMPANY_USER_SUCCESS,
                 payload: { roleDataComp, total, paginator, status, message },
@@ -271,3 +271,7 @@ export const roleDataMasterDistributorUser = (values) => async (dispatch) => {
         dispatch({ type: LOADING_END });
     }
 };  
+
+export const clearRoleData = () => ({
+    type: ROLEDATA_CLEAR,
+});
