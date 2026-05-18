@@ -229,8 +229,9 @@ const EditMembership = ({ scheme, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${h === "Actions" ? "text-center" : "text-left"
-                        }`}
+                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${
+                        h === "Actions" ? "text-center" : h === "Operator" ? "text-left px-2" : "text-left"
+                      }`}
                     >
                       {h}
                     </div>
@@ -240,7 +241,7 @@ const EditMembership = ({ scheme, onBack }) => {
                 {commissions.map((commission, index) => (
                   <div key={commission.id || index}>
                     <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50">
-                      <span className="text-sm text-[#121216]">
+                      <span className="text-sm text-[#121216] px-2 break-all">
                         {commission.operator}
                       </span>
 
