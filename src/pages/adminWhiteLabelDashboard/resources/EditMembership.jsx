@@ -368,7 +368,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className="text-[14px] font-[Gilroy-Medium] text-[#121216] text-center"
+                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${
+                        h === "Operator" ? "text-left px-2" : "text-center"
+                      }`}
                     >
                       {h}
                     </div>
@@ -562,7 +564,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     return (
                       <div key={commission.id || index}>
                         <div className="grid grid-cols-8 gap-4 px-4 py-3 hover:bg-gray-50 items-center">
-                          <div className="flex items-center justify-center text-sm text-[#121216]">
+                          <div className="flex items-center justify-start text-left text-sm text-[#121216] px-2 break-all">
                             {commission.operator}
                           </div>
 

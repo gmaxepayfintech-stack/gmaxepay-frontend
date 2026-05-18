@@ -150,6 +150,16 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     const trimmedValue = searchValue.trim();
     if (!trimmedValue) return null;
 
+    // 1. Check if it looks like a Company ID (alphanumeric containing both letters and numbers, length < 15)
+    if (/^[A-Za-z0-9\-_]+$/i.test(trimmedValue) && /[A-Za-z]/i.test(trimmedValue) && /\d/.test(trimmedValue) && trimmedValue.length < 15) {
+      return { companyId: trimmedValue };
+    }
+
+    // 2. Check if it's a short number (representing Serial Number / short ID / database ID)
+    if (/^\d+$/.test(trimmedValue) && trimmedValue.length < 8) {
+      return { id: trimmedValue };
+    }
+
     if (/^CW/i.test(trimmedValue)) {
       return { fpTransactionId: trimmedValue };
     }
@@ -165,6 +175,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
       return { name: trimmedValue };
     }
+
     if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
       return { transactionId: trimmedValue };
     }
@@ -201,25 +212,12 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query.endDate = toDate.replaceAll("-", "/");
     }
 
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
-
-    if (statusFilter !== "All") {
-      const camelStatus = statusFilter.toLowerCase();
-      if (apiType === "aeps2") {
-        customSearch.transactionStatus = camelStatus;
-      } else {
-        customSearch.transactionStatus = camelStatus;
-      }
-    }
-
     const payload = {
       query: query,
-      customSearch: customSearch,
+      customSearch: {},
       options: {
-        page: currentPage,
-        paginate: itemsPerPageState,
+        page: 1,
+        paginate: 1000,
         sort: { createdAt: -1 },
       },
     };
@@ -229,7 +227,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     } else {
       dispatch(getAepsCwHistoryCompany(payload));
     }
-  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType, statusFilter, itemsPerPageState]);
+  }, [dispatch, fromDate, toDate, apiType, transactionType]);
 
   useEffect(() => {
     if (!isLoading && isReloading) {
@@ -241,15 +239,49 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  const filteredTransactions = transactions;
+  // Filter transactions based on status and search query (CLIENT-SIDE)
+  const filteredTransactions = transactions.filter((transaction, index) => {
+    const matchesStatus =
+      statusFilter === "All" ||
+      transaction.status.toLowerCase() === statusFilter.toLowerCase();
 
-  const itemsPerPage = paginator.perPage || itemsPerPageState;
-  const paginatedTransactions = filteredTransactions;
-  const totalPages = paginator.pageCount || 1;
-  const apiCurrentPage = paginator.currentPage || currentPage;
+    const searchLower = debouncedSearchQuery.trim().toLowerCase();
+
+    // Calculate the serial number/id for this transaction to search by it
+    const fallbackSrNo = index + 1;
+    const srNo = transaction.id ? String(transaction.id) : String(fallbackSrNo);
+
+    const matchesSearch =
+      !searchLower ||
+      srNo.toLowerCase().includes(searchLower) ||
+      transaction.name.toLowerCase().includes(searchLower) ||
+      transaction.mobileNo.toLowerCase().includes(searchLower) ||
+      transaction.companyId.toLowerCase().includes(searchLower) ||
+      transaction.companyName.toLowerCase().includes(searchLower) ||
+      transaction.taxId.toLowerCase().includes(searchLower) ||
+      (transaction.refID && transaction.refID.toLowerCase().includes(searchLower)) ||
+      (transaction.bankRRN && transaction.bankRRN.toLowerCase().includes(searchLower)) ||
+      transaction.merchantLoginId.toLowerCase().includes(searchLower);
+
+    return matchesStatus && matchesSearch;
+  });
+
+  // CLIENT-SIDE Pagination like walletHistory and payoutHistory
+  const itemsPerPage = itemsPerPageState;
+  const totalCount = filteredTransactions.length;
+  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
+  const apiCurrentPage = currentPage;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(
+    startIndex,
+    endIndex,
+  );
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, itemsPerPageState]);
+  }, [statusFilter, debouncedSearchQuery, itemsPerPageState]);
 
   const handleExportToExcel = () => {
     if (!filteredTransactions || filteredTransactions.length === 0) {
