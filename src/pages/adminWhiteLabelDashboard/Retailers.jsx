@@ -37,13 +37,27 @@ const Retailers = ({
   isLoading = false,
   activePage,
   onPageChange,
+  searchTerm: parentSearchTerm,
+  setSearchTerm: parentSetSearchTerm,
+  fromDate: parentFromDate,
+  setFromDate: parentSetFromDate,
+  toDate: parentToDate,
+  setToDate: parentSetToDate,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localFromDate, setLocalFromDate] = useState("");
+  const [localToDate, setLocalToDate] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+
+  const fromDate = embedded ? (parentFromDate ?? "") : localFromDate;
+  const setFromDate = embedded ? parentSetFromDate : setLocalFromDate;
+  const toDate = embedded ? (parentToDate ?? "") : localToDate;
+  const setToDate = embedded ? parentSetToDate : setLocalToDate;
+  const searchTerm = embedded ? (parentSearchTerm ?? "") : localSearchTerm;
+  const setSearchTerm = embedded ? parentSetSearchTerm : setLocalSearchTerm;
+
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
