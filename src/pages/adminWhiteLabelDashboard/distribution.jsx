@@ -50,6 +50,12 @@ const Distribution = ({
   isLoading = false,
   activePage,
   onPageChange,
+  searchTerm: parentSearchTerm,
+  setSearchTerm: parentSetSearchTerm,
+  fromDate: parentFromDate,
+  setFromDate: parentSetFromDate,
+  toDate: parentToDate,
+  setToDate: parentSetToDate,
 }) => {
   const dispatch = useDispatch();
   const {
@@ -66,8 +72,16 @@ const Distribution = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [localFromDate, setLocalFromDate] = useState("");
+  const [localToDate, setLocalToDate] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+
+  const fromDate = embedded ? (parentFromDate ?? "") : localFromDate;
+  const setFromDate = embedded ? parentSetFromDate : setLocalFromDate;
+  const toDate = embedded ? (parentToDate ?? "") : localToDate;
+  const setToDate = embedded ? parentSetToDate : setLocalToDate;
+  const searchTerm = embedded ? (parentSearchTerm ?? "") : localSearchTerm;
+  const setSearchTerm = embedded ? parentSetSearchTerm : setLocalSearchTerm;
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedUserRole, setSelectedUserRole] = useState(null);
 
@@ -238,12 +252,13 @@ const Distribution = ({
         customSearch: {
           ...(fromDate && { fromDate }),
           ...(toDate && { toDate }),
+          ...(searchTerm.trim() && { mobileNo: searchTerm.trim(), name: searchTerm.trim() }),
         },
       };
       dispatch(roleDataCompanyUser(payload));
     }, 300);
     return () => clearTimeout(timer);
-  }, [currentPage, dispatch, fromDate, toDate, embedded]);
+  }, [currentPage, dispatch, fromDate, toDate, searchTerm, embedded]);
 
   // Export to Excel function
   const handleExportToExcel = () => {
@@ -315,6 +330,8 @@ const Distribution = ({
                 <input
                   type="text"
                   placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
@@ -457,7 +474,7 @@ const Distribution = ({
                 <input type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }} min={fromDate || undefined} className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer" />
               </div>
               <div className="relative w-full sm:w-48">
-                <input type="text" placeholder="Search" className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500" />
+                <input type="text" placeholder="Search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500" />
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
               <button onClick={handleExportToExcel} className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:opacity-90 shadow-md text-sm sm:text-base transition-all">
