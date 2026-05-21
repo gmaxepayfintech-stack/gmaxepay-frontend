@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import {
   FaSearch,
   FaUpload,
@@ -118,12 +118,13 @@ const Retailers = ({
 
   // Get data from Redux when search is active, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
+  // shallowEqual prevents re-renders from the new array reference created by flatMap on every Redux action
   const responseForTable = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
-  });
+  }, shallowEqual);
 
   // Log full API response for debugging (data coming from roleDataCompanyUser)
   const roleDataResponse = useSelector((state) => state?.roles?.roleDataComp);

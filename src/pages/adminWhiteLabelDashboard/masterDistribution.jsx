@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import {
   FaCalendarAlt,
   FaSearch,
@@ -129,11 +129,12 @@ const MasterDistribution = ({
     }
   }, [companyAepsStatus, currentPage, dispatch, showNotification, embedded]);
 
+  // shallowEqual prevents re-renders from the new array reference created by flatMap on every Redux action
   const responseForTable = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     return roleData.flatMap((company) => company?.users || []);
-  });
+  }, shallowEqual);
 
   const flattenedPropData = useMemo(() => {
     if (!Array.isArray(propTableData) || propTableData.length === 0) return [];

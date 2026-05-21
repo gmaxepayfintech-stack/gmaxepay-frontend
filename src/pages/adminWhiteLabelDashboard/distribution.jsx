@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import {
   FaCalendarAlt,
   FaSearch,
@@ -138,12 +138,13 @@ const Distribution = ({
 
   // Get data from Redux when available, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
+  // shallowEqual prevents re-renders from the new array reference created by flatMap on every Redux action
   const responseForTable = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
-  });
+  }, shallowEqual);
 
   // Use prop data from API - no dummy data
   // Handle both nested (array of companies with users) and flat (array of users) structures

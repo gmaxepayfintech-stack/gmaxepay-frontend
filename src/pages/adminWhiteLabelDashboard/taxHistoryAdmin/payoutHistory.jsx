@@ -271,8 +271,8 @@ const PayoutHistory = ({ onBack, type }) => {
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
-                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                  ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                  : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
                   }`}
               >
                 {status}
@@ -458,8 +458,8 @@ const PayoutHistory = ({ onBack, type }) => {
                       <tr
                         key={transaction.id}
                         className={`transition-colors ${index % 2 === 0
-                            ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
-                            : "bg-white hover:bg-gray-50"
+                          ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
+                          : "bg-white hover:bg-gray-50"
                           }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -561,10 +561,10 @@ const PayoutHistory = ({ onBack, type }) => {
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
-                                ? "bg-[#039155] text-white"
-                                : transaction.status === "Pending"
-                                  ? "bg-orange-500/80 text-white"
-                                  : "bg-red-500/80 text-white"
+                              ? "bg-[#039155] text-white"
+                              : transaction.status === "Pending"
+                                ? "bg-orange-500/80 text-white"
+                                : "bg-red-500/80 text-white"
                               }`}
                           >
                             {transaction.status}
@@ -630,8 +630,8 @@ const PayoutHistory = ({ onBack, type }) => {
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
                   className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === pageNum
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
                     }`}
                 >
                   {pageNum}
