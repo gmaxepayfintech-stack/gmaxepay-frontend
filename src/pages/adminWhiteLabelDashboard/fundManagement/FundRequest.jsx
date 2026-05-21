@@ -37,6 +37,8 @@ const FundRequest = () => {
       if (searchTerm.trim()) {
         customSearch.referenceNo = searchTerm.trim();
         customSearch.transactionId = searchTerm.trim();
+        customSearch.name = searchTerm.trim();
+        customSearch.mobileNo = searchTerm.trim();
       }
 
       const query = {};
@@ -217,7 +219,7 @@ const FundRequest = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search By Reference,ID"
+                placeholder="Search By Transaction ID, User ID, Mobile, Name"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
@@ -304,7 +306,7 @@ const FundRequest = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search By Reference,ID"
+                placeholder="Search By Transaction ID, User ID, Mobile, Name"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
