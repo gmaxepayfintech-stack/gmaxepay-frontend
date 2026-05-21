@@ -332,10 +332,10 @@ const Retailers = ({
     const payload = {
       query: {
         userRole: 5, // Retailer role
-        ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
       },
       options: {
-        sort: { id: -1 },
+        sort: { createdAt: -1 },
         page: currentPage,
         paginate: 6,
       },
@@ -426,28 +426,32 @@ const Retailers = ({
     if (embedded) return;
     if (kycStatusCheckResponse?.status === "SUCCESS") {
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
-      // Refresh table data by dispatching roleDataCompanyUser again
-      if (debouncedSearchTerm.trim() || bothDatesSelected) {
-        const payload = {
-          query: {
-            userRole: 5, // Retailer role
-            ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
-          },
-          options: {
-            sort: { id: -1 },
-            page: currentPage,
-            paginate: 6,
-          },
-          customSearch: debouncedSearchTerm.trim() ? {
-            $or: [
-              { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
-              { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
-              { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
-            ]
-          } : {},
-        };
-        dispatch(roleDataCompanyUser(payload));
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      // Only proceed if both dates are selected, or if both dates are empty
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
       }
+
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
+        },
+        options: {
+          sort: { createdAt: -1 },
+          page: currentPage,
+          paginate: 6,
+        },
+        customSearch: debouncedSearchTerm.trim() ? {
+          $or: [
+            { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+            { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+            { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
+          ]
+        } : {},
+      };
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, dispatch]);
 
@@ -465,10 +469,10 @@ const Retailers = ({
       const payload = {
         query: {
           userRole: 5, // Retailer role
-          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
         },
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
@@ -500,10 +504,10 @@ const Retailers = ({
       const payload = {
         query: {
           userRole: 5, // Retailer role
-          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
         },
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },

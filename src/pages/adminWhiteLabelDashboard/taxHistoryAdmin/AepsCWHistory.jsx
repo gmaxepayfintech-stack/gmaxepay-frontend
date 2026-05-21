@@ -118,29 +118,29 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
       return {
         id: item.id,
-        refId: item.refId || item.addedBy || "N/A",
-        name: userName,
+        refId: String(item.refId || item.addedBy || "N/A"),
+        name: String(userName),
         userRole:
           roleVal === 5 ? "Retailer" :
             roleVal === 4 ? "Distributor" :
               roleVal === 3 ? "Master Distributor" :
                 roleVal === 2 ? "White Label" :
                   roleVal === 1 ? "Super Admin" : `Role ${roleVal ?? "N/A"}`,
-        mobileNo: mobileNo,
-        consumerNumber: aadhaar,
-        companyId: item.companyId ?? "N/A",
-        companyName: item.companyName || item.operator || "N/A",
-        merchantLoginId: item.merchantLoginId || item.subMerchantCode || "N/A",
-        bankName: item.bankName || "N/A",
-        taxId: item.transactionId || "N/A",
-        refID: item.merchantReferenceId || item.refId || "N/A",
-        bankRRN: item.bankRRN || "N/A",
+        mobileNo: String(mobileNo),
+        consumerNumber: String(aadhaar),
+        companyId: String(item.companyId ?? "N/A"),
+        companyName: String(item.companyName || item.operator || "N/A"),
+        merchantLoginId: String(item.merchantLoginId || item.subMerchantCode || "N/A"),
+        bankName: String(item.bankName || "N/A"),
+        taxId: String(item.transactionId || "N/A"),
+        refID: String(item.merchantReferenceId || item.refId || "N/A"),
+        bankRRN: String(item.bankRRN || "N/A"),
         amount: formattedAmount,
         via: getViaDisplay(item.peripheral, item.device, item.captureType),
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
         tdsAndComm: `Comm: ₹${wlComm} | TDS: ₹${wlTDS}`,
-        responseMessage: item.message || item.responseMessage || "N/A",
+        responseMessage: String(item.message || item.responseMessage || "N/A"),
         originalItem: item,
       };
     });
@@ -253,15 +253,15 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
     const matchesSearch =
       !searchLower ||
-      srNo.toLowerCase().includes(searchLower) ||
-      transaction.name.toLowerCase().includes(searchLower) ||
-      transaction.mobileNo.toLowerCase().includes(searchLower) ||
-      transaction.companyId.toLowerCase().includes(searchLower) ||
-      transaction.companyName.toLowerCase().includes(searchLower) ||
-      transaction.taxId.toLowerCase().includes(searchLower) ||
-      (transaction.refID && transaction.refID.toLowerCase().includes(searchLower)) ||
-      (transaction.bankRRN && transaction.bankRRN.toLowerCase().includes(searchLower)) ||
-      transaction.merchantLoginId.toLowerCase().includes(searchLower);
+      String(srNo).toLowerCase().includes(searchLower) ||
+      String(transaction.name).toLowerCase().includes(searchLower) ||
+      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
+      String(transaction.companyId).toLowerCase().includes(searchLower) ||
+      String(transaction.companyName).toLowerCase().includes(searchLower) ||
+      String(transaction.taxId).toLowerCase().includes(searchLower) ||
+      (transaction.refID && String(transaction.refID).toLowerCase().includes(searchLower)) ||
+      (transaction.bankRRN && String(transaction.bankRRN).toLowerCase().includes(searchLower)) ||
+      String(transaction.merchantLoginId).toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });
