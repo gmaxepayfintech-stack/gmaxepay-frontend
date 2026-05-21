@@ -89,15 +89,18 @@ const CreateCompanyUser = () => {
     return "Master Distributor";
   });
 
+  // Extract tab as a primitive string to keep the useEffect dependency stable.
+  // Using searchParams (object) as a dependency causes infinite re-renders on navigation.
+  const tabFromUrl = searchParams.get("tab") || "";
+
   // Handle tab changes from URL parameter (e.g., browser back button)
   useEffect(() => {
-    const tabFromUrl = searchParams.get("tab");
     if (tabFromUrl) {
       setActiveNav(tabFromUrl);
       setShowOnboardingList(false);
       setCurrentPage(1);
     }
-  }, [searchParams]);
+  }, [tabFromUrl]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -137,12 +140,13 @@ const CreateCompanyUser = () => {
   // Get data from Redux - the action extracts data array and stores it as roleDataComp.roleDataComp
   // Flatten the nested structure: data is array of companies, each with users array
   // Use stable empty array reference to prevent unnecessary re-renders
+  // shallowEqual prevents re-renders from the new array reference created by flatMap on every Redux action
   const responseForTableRaw = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return EMPTY_ARRAY;
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
-  });
+  }, shallowEqual);
   const responseForTable = useMemo(
     () => responseForTableRaw || EMPTY_ARRAY,
     [responseForTableRaw],
