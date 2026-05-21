@@ -211,10 +211,22 @@ const CreateCompanyUser = () => {
   useEffect(() => {
     const userRole = getRoleNumber(activeNav);
 
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     // Build query object - only include kycStatus when onboarding process is active
     const query = {
       userRole: userRole,
       ...(showOnboardingList && { kycStatus: "pending" }),
+      ...(bothDatesSelected && {
+        startDate: fromDate.replaceAll("-", "/"),
+        endDate: toDate.replaceAll("-", "/"),
+      }),
     };
 
     // Build customSearch object - include mobileNo and name only
@@ -227,13 +239,9 @@ const CreateCompanyUser = () => {
     }
 
     const payload = {
-      query: {
-        ...query,
-        ...(fromDate && { fromDate }),
-        ...(toDate && { toDate }),
-      },
+      query: query,
       options: {
-        sort: { id: -1 },
+        sort: { createdAt: -1 },
         page: currentPage,
         paginate: 6,
       },
@@ -255,11 +263,22 @@ const CreateCompanyUser = () => {
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      const bothDatesSelected = fromDate && toDate;
+      const bothDatesNull = !fromDate && !toDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       // Refresh table data by dispatching roleDataCompanyUser again
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
         ...(showOnboardingList && { kycStatus: "pending" }),
+        ...(bothDatesSelected && {
+          startDate: fromDate.replaceAll("-", "/"),
+          endDate: toDate.replaceAll("-", "/"),
+        }),
       };
       const customSearch = {};
       if (debouncedSearchTerm.trim()) {
@@ -267,13 +286,9 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: {
-          ...query,
-          ...(fromDate && { fromDate }),
-          ...(toDate && { toDate }),
-        },
+        query: query,
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
@@ -294,10 +309,21 @@ const CreateCompanyUser = () => {
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      const bothDatesSelected = fromDate && toDate;
+      const bothDatesNull = !fromDate && !toDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
         ...(showOnboardingList && { kycStatus: "pending" }),
+        ...(bothDatesSelected && {
+          startDate: fromDate.replaceAll("-", "/"),
+          endDate: toDate.replaceAll("-", "/"),
+        }),
       };
       const customSearch = {};
       if (debouncedSearchTerm.trim()) {
@@ -305,13 +331,9 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: {
-          ...query,
-          ...(fromDate && { fromDate }),
-          ...(toDate && { toDate }),
-        },
+        query: query,
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
@@ -1277,10 +1299,15 @@ const CreateCompanyUser = () => {
                                       setTimeout(() => {
                                         const userRole =
                                           getRoleNumber(activeNav);
+                                        const bothDatesSelected = fromDate && toDate;
                                         const query = {
                                           userRole: userRole,
                                           ...(showOnboardingList && {
                                             kycStatus: "pending",
+                                          }),
+                                          ...(bothDatesSelected && {
+                                            startDate: fromDate.replaceAll("-", "/"),
+                                            endDate: toDate.replaceAll("-", "/"),
                                           }),
                                         };
                                         const customSearch = {};
@@ -1293,7 +1320,7 @@ const CreateCompanyUser = () => {
                                         const payload = {
                                           query: query,
                                           options: {
-                                            sort: { id: -1 },
+                                            sort: { createdAt: -1 },
                                             page: currentPage,
                                             paginate: 6,
                                           },

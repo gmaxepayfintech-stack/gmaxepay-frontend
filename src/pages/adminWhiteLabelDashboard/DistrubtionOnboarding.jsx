@@ -92,7 +92,7 @@ const DistrubtionOnboarding = ({
       if (!embedded) {
         dispatch(roleDataCompanyUser({
           query: { userRole: 4 },
-          options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
+          options: { sort: { createdAt: -1 }, page: currentPage, paginate: 6 },
           customSearch: {},
         }));
       }
@@ -108,13 +108,25 @@ const DistrubtionOnboarding = ({
   // Standalone data fetcher
   useEffect(() => {
     if (embedded) return;
+
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     const payload = {
       query: {
         userRole: 4,
         ...(selectedKyc && { kycStatus: selectedKyc }),
-        ...(fromDate && toDate && { date: { $gte: fromDate, $lte: toDate } }),
+        ...(bothDatesSelected && {
+          startDate: fromDate.replaceAll("-", "/"),
+          endDate: toDate.replaceAll("-", "/"),
+        }),
       },
-      options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
+      options: { sort: { createdAt: -1 }, page: currentPage, paginate: 6 },
       customSearch: {
         ...(searchTerm && { 
           $or: [

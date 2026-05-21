@@ -241,17 +241,30 @@ const Distribution = ({
   // Fetch data from API on initial load and when page changes
   useEffect(() => {
     if (embedded) return;
+
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     const timer = setTimeout(() => {
       const payload = {
-        query: { userRole: 4 },
+        query: { 
+          userRole: 4,
+          ...(bothDatesSelected && {
+            startDate: fromDate.replaceAll("-", "/"),
+            endDate: toDate.replaceAll("-", "/"),
+          }),
+        },
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
         customSearch: {
-          ...(fromDate && { fromDate }),
-          ...(toDate && { toDate }),
           ...(searchTerm.trim() && { mobileNo: searchTerm.trim(), name: searchTerm.trim() }),
         },
       };

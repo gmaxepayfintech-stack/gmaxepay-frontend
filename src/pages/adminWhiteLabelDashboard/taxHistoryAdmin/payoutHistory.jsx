@@ -87,19 +87,19 @@ const PayoutHistory = ({ onBack, type }) => {
 
       return {
         id: item.id,
-        transactionID: item.transactionID || "N/A",
-        refId: item.refId || "N/A",
-        mobileNo: item.mobile || "N/A",
-        accountNumber: item.accountNumber || "N/A",
-        ifscCode: item.ifscCode || "N/A",
-        bankName: item.bankName || "N/A",
-        beneficiaryName: item.beneficiaryName || "N/A",
-        userName: item.userName || "N/A",
+        transactionID: String(item.transactionID || "N/A"),
+        refId: String(item.refId || "N/A"),
+        mobileNo: String(item.mobile || "N/A"),
+        accountNumber: String(item.accountNumber || "N/A"),
+        ifscCode: String(item.ifscCode || "N/A"),
+        bankName: String(item.bankName || "N/A"),
+        beneficiaryName: String(item.beneficiaryName || "N/A"),
+        userName: String(item.userName || "N/A"),
         userRole: getUserRoleDisplay(item.userRole),
         amount: formattedAmount,
         status: getStatusDisplay(item.status),
-        type: item.type || "N/A",
-        walletType: item.walletType || "N/A",
+        type: String(item.type || "N/A"),
+        walletType: String(item.walletType || "N/A"),
         aepsType: getAepsType(item.apiResponse),
         openingBalance: item.openingBalance ? `₹${item.openingBalance}` : "N/A",
         closingBalance: item.closingBalance ? `₹${item.closingBalance}` : "N/A",
@@ -171,11 +171,11 @@ const PayoutHistory = ({ onBack, type }) => {
     const searchLower = debouncedSearchQuery.toLowerCase();
     const matchesSearch =
       !debouncedSearchQuery ||
-      transaction.transactionID.toLowerCase().includes(searchLower) ||
-      transaction.refId.toString().includes(searchLower) ||
-      transaction.mobileNo.includes(searchLower) ||
-      transaction.userName.toLowerCase().includes(searchLower) ||
-      transaction.beneficiaryName.toLowerCase().includes(searchLower);
+      String(transaction.transactionID).toLowerCase().includes(searchLower) ||
+      String(transaction.refId).toLowerCase().includes(searchLower) ||
+      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
+      String(transaction.userName).toLowerCase().includes(searchLower) ||
+      String(transaction.beneficiaryName).toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });
