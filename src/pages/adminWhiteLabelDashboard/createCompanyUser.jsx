@@ -873,6 +873,12 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -883,6 +889,12 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -893,6 +905,12 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -910,6 +928,12 @@ const CreateCompanyUser = () => {
                 onProfileDetailsShow={(show) => setHideNavigation(show)}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -921,6 +945,12 @@ const CreateCompanyUser = () => {
                 isLoading={isTableLoading}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -932,6 +962,12 @@ const CreateCompanyUser = () => {
                 isLoading={isTableLoading}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
