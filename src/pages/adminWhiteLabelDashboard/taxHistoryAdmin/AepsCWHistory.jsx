@@ -240,6 +240,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
   // Filter transactions based on status and search query (CLIENT-SIDE)
+  // 4 main search fields: Name, Mobile, Transaction ID, Reference ID
   const filteredTransactions = transactions.filter((transaction, index) => {
     const matchesStatus =
       statusFilter === "All" ||
@@ -247,21 +248,12 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
     const searchLower = debouncedSearchQuery.trim().toLowerCase();
 
-    // Calculate the serial number/id for this transaction to search by it
-    const fallbackSrNo = index + 1;
-    const srNo = transaction.id ? String(transaction.id) : String(fallbackSrNo);
-
     const matchesSearch =
       !searchLower ||
-      String(srNo).toLowerCase().includes(searchLower) ||
       String(transaction.name).toLowerCase().includes(searchLower) ||
       String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
-      String(transaction.companyId).toLowerCase().includes(searchLower) ||
-      String(transaction.companyName).toLowerCase().includes(searchLower) ||
       String(transaction.taxId).toLowerCase().includes(searchLower) ||
-      (transaction.refID && String(transaction.refID).toLowerCase().includes(searchLower)) ||
-      (transaction.bankRRN && String(transaction.bankRRN).toLowerCase().includes(searchLower)) ||
-      String(transaction.merchantLoginId).toLowerCase().includes(searchLower);
+      String(transaction.refID).toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });
@@ -483,7 +475,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
               type="text"
-              placeholder="Search By Reference,ID"
+              placeholder="Search By Name, Mobile, Transaction ID, Reference ID"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
