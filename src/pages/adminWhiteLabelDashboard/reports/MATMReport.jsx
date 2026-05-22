@@ -236,11 +236,20 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
 
     const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-    // Filter transactions based on selected status (search is handled by API)
+    // Filter transactions based on selected status and search query (CLIENT-SIDE)
     const filteredTransactions = transactions.filter((transaction) => {
         const matchesStatus =
             statusFilter === "All" || transaction.status === statusFilter;
-        return matchesStatus;
+
+        const searchLower = debouncedSearchQuery.trim().toLowerCase();
+        const matchesSearch =
+            !searchLower ||
+            String(transaction.txnUser).toLowerCase().includes(searchLower) ||
+            String(transaction.cardNo).toLowerCase().includes(searchLower) ||
+            String(transaction.transactionId).toLowerCase().includes(searchLower) ||
+            String(transaction.refNo).toLowerCase().includes(searchLower);
+
+        return matchesStatus && matchesSearch;
     });
 
     // CLIENT-SIDE Pagination
@@ -403,7 +412,7 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
                         <input
                             type="text"
-                            placeholder="Search By Reference,ID"
+                            placeholder="Search By Transaction ID, User ID, Mobile, Name"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
