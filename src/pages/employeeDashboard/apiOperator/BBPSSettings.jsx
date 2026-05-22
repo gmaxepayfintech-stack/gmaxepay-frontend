@@ -629,8 +629,8 @@ const BBPSSettings = () => {
     <div className="py-4 bg-gray-50 min-h-screen">
       {/* Tabs */}
 
-      <div className="bg-[#FFFFFF] rounded-3xl p-4 mb-[24px] w-2/3 ">
-        <div className="relative inline-flex gap-[143px]">
+      <div className="bg-[#FFFFFF] rounded-3xl p-4 mb-[24px] w-fit">
+        <div className="relative inline-flex gap-8">
           {[
             { key: "operators", label: "Operator Settings" },
             { key: "biller", label: "Biller Settings" },
