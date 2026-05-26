@@ -169,6 +169,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
         createdAt: formattedDate,
         commDisplay: `SA: ₹${saComm} | WL: ₹${wlComm} | MD: ₹${mdComm} | DT: ₹${distComm} | RT: ₹${retComm}`,
         responseMessage: item.message || item.responseMessage || "N/A",
+        serviceType: item.serviceType || "N/A",
         originalItem: item,
       };
     });
@@ -329,22 +330,26 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       return;
     }
 
-    const excelData = filteredTransactions.map((row, index) => ({
-      "SR No": String(index + 1).padStart(2, "0"),
-      "Name": row.name,
-      "User Role": row.userRole,
-      "Mobile": row.mobileNo,
-      "Consumer Number": row.consumerNumber,
-      "Company Name": row.companyName,
-      "Bank Name": row.bankName,
-      "Tax ID": row.taxId,
-      "Bank RRN": row.bankRRN,
-      "Amount": row.amount,
-      "VIA": row.via,
-      "Status": row.status,
-      "Created At": row.createdAt,
-      "Response Message": row.responseMessage,
-    }));
+    const excelData = filteredTransactions.map((row, index) => {
+      const baseData = {
+        "SR No": String(index + 1).padStart(2, "0"),
+        "Name": row.name,
+        "User Role": row.userRole,
+        "Mobile": row.mobileNo,
+        "Consumer Number": row.consumerNumber,
+        "Company Name": row.companyName,
+        "Bank Name": row.bankName,
+        ...(isAeps2 ? { "Service Type": row.serviceType } : {}),
+        "Tax ID": row.taxId,
+        "Bank RRN": row.bankRRN,
+        "Amount": row.amount,
+        "VIA": row.via,
+        "Status": row.status,
+        "Created At": row.createdAt,
+        "Response Message": row.responseMessage,
+      };
+      return baseData;
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
@@ -591,6 +596,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
                 </th>
+                {isAeps2 && (
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Service Type
+                  </th>
+                )}
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Tax ID
                 </th>
@@ -721,6 +731,14 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                           </span>
                         </td>
 
+                        {isAeps2 && (
+                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                              {transaction.serviceType}
+                            </span>
+                          </td>
+                        )}
+
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.taxId}
@@ -773,7 +791,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={16} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={isAeps2 ? 17 : 16} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
