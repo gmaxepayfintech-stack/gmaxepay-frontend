@@ -143,6 +143,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         createdAt: formattedDate,
         mdCommDisplay: `Comm: ₹${mdComm} | TDS: ₹${mdTDS}`,
         responseMessage: item.message || item.responseMessage || "N/A",
+        serviceType: item.serviceType || "N/A",
         originalItem: item,
       };
     });
@@ -284,22 +285,26 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => ({
-      "Name": row.name,
-      "User Role": row.userRole,
-      "Mobile No": row.mobileNo,
-      "Company Id": row.companyId,
-      "Company Name": row.companyName,
-      "Merchant Id": row.merchantLoginId,
-      "Bank Name": row.bankName,
-      "Tax ID": row.taxId,
-      "Bank RRN": row.bankRRN,
-      "Amount": row.amount,
-      "VIA": row.via,
-      "Status": row.status,
-      "Created At": row.createdAt,
-      "Response Message": row.responseMessage,
-    }));
+    const excelData = filteredTransactions.map((row) => {
+      const baseData = {
+        "Name": row.name,
+        "User Role": row.userRole,
+        "Mobile No": row.mobileNo,
+        "Company Id": row.companyId,
+        "Company Name": row.companyName,
+        "Merchant Id": row.merchantLoginId,
+        "Bank Name": row.bankName,
+        ...(apiType === "aeps2" ? { "Service Type": row.serviceType } : {}),
+        "Tax ID": row.taxId,
+        "Bank RRN": row.bankRRN,
+        "Amount": row.amount,
+        "VIA": row.via,
+        "Status": row.status,
+        "Created At": row.createdAt,
+        "Response Message": row.responseMessage,
+      };
+      return baseData;
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
@@ -586,6 +591,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
                 </th>
+                {apiType === "aeps2" && (
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Service Type
+                  </th>
+                )}
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Tax ID
                 </th>
@@ -677,6 +687,14 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                           </span>
                         </td>
 
+                        {apiType === "aeps2" && (
+                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                              {transaction.serviceType}
+                            </span>
+                          </td>
+                        )}
+
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.taxId}
@@ -737,7 +755,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                   })
                 ) : (
                   <tr>
-                    <td colSpan={18} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={apiType === "aeps2" ? 17 : 16} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
