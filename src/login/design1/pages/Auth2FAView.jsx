@@ -95,12 +95,12 @@ const Auth2FAView = ({
             }}
             onMouseEnter={(e) => {
               if (!isLoading && company?.secondaryColor) {
-                e.target.style.backgroundColor = company.secondaryColor;
+                e.currentTarget.style.backgroundColor = company.secondaryColor;
               }
             }}
             onMouseLeave={(e) => {
               if (!isLoading && company?.primaryColor) {
-                e.target.style.backgroundColor = company.primaryColor;
+                e.currentTarget.style.backgroundColor = company.primaryColor;
               }
             }}
           >
