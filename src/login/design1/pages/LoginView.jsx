@@ -238,7 +238,7 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="w-full lg:w-[534px] xl:w-[534px] text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-11 sm:h-12 md:h-14 lg:h-[60px] xl:h-[60px] font-[Gilroy-Semibold] rounded-xl relative overflow-hidden"
+                  className="w-full text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-11 sm:h-12 md:h-14 lg:h-[60px] xl:h-[60px] font-[Gilroy-Semibold] rounded-xl relative overflow-hidden"
                   style={{
                     backgroundColor: company?.primaryColor || "#039155",
                     boxShadow: "0 4px 14px 0",
