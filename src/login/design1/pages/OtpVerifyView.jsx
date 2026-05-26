@@ -93,7 +93,7 @@ const OtpVerifyView = ({
         <button
           onClick={!isLoading ? onSubmit : undefined}
           disabled={isLoading}
-          className="w-full lg:w-[534px] mx-auto text-white text-xl sm:text-2xl md:text-[24px] font-[Gilroy-Medium] mt-8 sm:mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed transition hover:opacity-90 active:scale-[0.98]"
+          className="w-full mx-auto text-white text-xl sm:text-2xl md:text-[24px] font-[Gilroy-Medium] mt-8 sm:mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed transition hover:opacity-90 active:scale-[0.98]"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
           {isLoading ? (

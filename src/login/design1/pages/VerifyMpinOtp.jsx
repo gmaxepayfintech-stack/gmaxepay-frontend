@@ -92,7 +92,7 @@ const VerifyMpinOtp = ({
         <button
           onClick={!isLoading ? onSubmit : undefined}
           disabled={isLoading}
-          className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full mx-auto text-white text-[24px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
           {isLoading ? (

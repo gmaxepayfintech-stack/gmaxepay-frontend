@@ -9,7 +9,7 @@ import {
 } from "../../../redux/action/aepsAction";
 import BankOtp from "./BankOtp";
 import { HiArrowLeft } from "react-icons/hi2";
-  import {getLocationAndIP} from "../../../util/getLocationAndIP";
+import { getLocationAndIP } from "../../../util/getLocationAndIP";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -669,9 +669,8 @@ const BiometricVerification = () => {
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
             <div
-              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-              } text-white`}
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+                } text-white`}
             >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
@@ -691,9 +690,8 @@ const BiometricVerification = () => {
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        deviceConnected ? "bg-white" : "bg-white"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
+                        }`}
                     />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected
@@ -718,9 +716,8 @@ const BiometricVerification = () => {
         {/* Capture area */}
         <div className="mt-[28px] pt-5 ">
           <div
-            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-              comingSoon ? "bg-gray-50" : "bg-white"
-            }`}
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
+              }`}
           >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
@@ -760,7 +757,7 @@ const BiometricVerification = () => {
                       }
                     }}
                     disabled={isDeviceChecking || isGettingDeviceInfo}
-                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[12px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={deviceConnected ? "Device Info" : "Ready"}
                   >
                     {isDeviceChecking

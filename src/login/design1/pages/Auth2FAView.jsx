@@ -83,7 +83,7 @@ const Auth2FAView = ({
 
         <div className="w-full">
           <button
-            className="w-full lg:w-[534px] mx-auto text-white transition-all duration-200 flex items-center justify-center shadow-lg h-12 sm:h-12 md:h-14 lg:h-[60px] font-[Gilroy-Semibold] rounded-xl disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full mx-auto text-white transition-all duration-200 flex items-center justify-center shadow-lg h-12 sm:h-12 md:h-14 lg:h-[60px] font-[Gilroy-Semibold] rounded-xl disabled:opacity-70 disabled:cursor-not-allowed"
             onClick={!isLoading ? onSubmit : undefined}
             disabled={isLoading}
             style={{
@@ -95,12 +95,12 @@ const Auth2FAView = ({
             }}
             onMouseEnter={(e) => {
               if (!isLoading && company?.secondaryColor) {
-                e.target.style.backgroundColor = company.secondaryColor;
+                e.currentTarget.style.backgroundColor = company.secondaryColor;
               }
             }}
             onMouseLeave={(e) => {
               if (!isLoading && company?.primaryColor) {
-                e.target.style.backgroundColor = company.primaryColor;
+                e.currentTarget.style.backgroundColor = company.primaryColor;
               }
             }}
           >
