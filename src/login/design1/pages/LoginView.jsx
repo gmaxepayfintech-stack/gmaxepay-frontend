@@ -245,12 +245,12 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                   }}
                   onMouseEnter={(e) => {
                     if (!isLoading && !isSubmitting && company?.secondaryColor) {
-                      e.target.style.backgroundColor = company.secondaryColor;
+                      e.currentTarget.style.backgroundColor = company.secondaryColor;
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isLoading && !isSubmitting && company?.primaryColor) {
-                      e.target.style.backgroundColor = company.primaryColor;
+                      e.currentTarget.style.backgroundColor = company.primaryColor;
                     }
                   }}
                 >
