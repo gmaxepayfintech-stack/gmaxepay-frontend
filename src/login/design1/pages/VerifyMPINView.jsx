@@ -77,7 +77,7 @@ const VerifyMPINView = ({
               onChange={(e) => onMpinChange(e.target.value, index, mpinInputRefs)}
               onKeyDown={(e) => {
                 onMpinKeyDown(e, index, mpinInputRefs);
-              
+
                 if (e.key === "Enter") {
                   const isComplete = mpin.every((digit) => digit !== "");
                   if (isComplete) {
@@ -85,7 +85,7 @@ const VerifyMPINView = ({
                   }
                 }
               }}
-                            onPaste={index === 0 ? (e) => onMpinPaste(e, mpinInputRefs) : undefined}
+              onPaste={index === 0 ? (e) => onMpinPaste(e, mpinInputRefs) : undefined}
               className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
               style={{
                 border: digit
@@ -99,7 +99,7 @@ const VerifyMPINView = ({
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full mx-auto text-white text-[24px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
           {loading ? (
@@ -112,13 +112,15 @@ const VerifyMPINView = ({
           )}
         </button>
 
-        <button
-          type="button"
-          onClick={() => setShowForgotMpin(true)}
-          className="mt-1 w-full lg:w-[534px] mx-auto text-right text-sm sm:text-base font-['Gilroy-Medium'] text-[#000000] text-opacity-50 hover:underline"
-        >
-          Forgot MPIN?
-        </button>
+        <div className="flex justify-end mt-2">
+          <button
+            type="button"
+            onClick={() => setShowForgotMpin(true)}
+            className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#000000] text-opacity-50 hover:underline"
+          >
+            Forgot MPIN?
+          </button>
+        </div>
       </div>
     </div>
   );

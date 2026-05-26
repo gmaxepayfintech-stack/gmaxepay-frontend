@@ -243,7 +243,7 @@ const ResetPasswordView = ({ onSubmit }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="w-full lg:w-[534px] mx-auto text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-12 md:h-14 lg:h-[60px] font-[Gilroy-Semibold] rounded-xl relative overflow-hidden disabled:opacity-70"
+                  className="w-full mx-auto text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-12 md:h-14 lg:h-[60px] font-[Gilroy-Semibold] rounded-xl relative overflow-hidden disabled:opacity-70"
                   style={{
                     backgroundColor: company?.primaryColor || "#039155",
                     boxShadow: "0 4px 14px 0",
