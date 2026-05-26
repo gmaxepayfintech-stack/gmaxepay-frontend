@@ -323,10 +323,11 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
         {/* Commissions Table (only visible when expanded) */}
         {isSectionExpanded && (
-          <div className="mb-4 sm:mb-6">
-            <div className="bg-[#FFFFFF] rounded-lg mb-3">
-              <div className="overflow-x-auto">
-                <div className="min-w-[1000px] grid grid-cols-7 gap-4 px-4 py-3">
+          <div className="mb-4 sm:mb-6 overflow-x-auto bg-white rounded-xl shadow-sm border border-[#1B1717]/10">
+            <div className="min-w-[1000px]">
+              {/* Table Header */}
+              <div className="bg-[#FAFAFA] border-b border-[#1B1717]/10 py-4 px-4">
+                <div className="grid grid-cols-7 gap-4">
                   {[
                     "Operator",
                     "Operator Type",
@@ -338,17 +339,15 @@ const EditMembership = ({ scheme = null, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className="text-[14px] font-[Gilroy-Medium] text-[#121216] text-center"
+                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${
+                        h === "Operator" ? "text-left px-2" : "text-center"
+                      }`}
                     >
                       {h}
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
-
-            <div className="bg-white rounded-xl overflow-x-auto">
-              <div className="min-w-[1000px]">
                 {commLoading ? (
                   Array.from({ length: 6 }).map((_, index) => (
                     <div key={index}>
@@ -522,7 +521,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     return (
                       <div key={commission.id || index}>
                         <div className="grid grid-cols-7 gap-4 px-4 py-3 hover:bg-gray-50 items-center">
-                          <div className="flex items-center justify-center text-sm text-[#121216]">
+                          <div className="flex items-center justify-start text-left text-sm text-[#121216] px-2 break-all">
                             {commission.operator}
                           </div>
 
@@ -581,7 +580,6 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     );
                   })
                 )}
-              </div>
             </div>
           </div>
         )}

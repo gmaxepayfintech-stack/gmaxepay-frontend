@@ -213,11 +213,12 @@ const EditMembership = ({ scheme, onBack }) => {
             </div>
           </div>
 
-          {/* Commissions Table */}
-          <div className="mb-4 sm:mb-6">
-            <div className="bg-[#FFFFFF] rounded-lg mb-3">
-              <div className="overflow-x-auto">
-                <div className="min-w-[800px] grid grid-cols-6 gap-4 px-4 py-3">
+          {/* Commissions Table Wrapper */}
+          <div className="mb-4 sm:mb-6 overflow-x-auto bg-white rounded-xl shadow-sm border border-[#1B1717]/10">
+            <div className="min-w-[800px]">
+              {/* Table Header */}
+              <div className="bg-[#FAFAFA] border-b border-[#1B1717]/10 py-4 px-4">
+                <div className="grid grid-cols-6 gap-4">
                   {[
                     "Operator",
                     "Operator Type",
@@ -228,23 +229,19 @@ const EditMembership = ({ scheme, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${h === "Actions" ? "text-center" : "text-left"
-                        }`}
+                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${
+                        h === "Actions" ? "text-center" : h === "Operator" ? "text-left px-2" : "text-left"
+                      }`}
                     >
                       {h}
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Table Body */}
-            <div className="bg-white rounded-xl overflow-x-auto">
-              <div className="min-w-[800px]">
                 {commissions.map((commission, index) => (
                   <div key={commission.id || index}>
                     <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50">
-                      <span className="text-sm text-[#121216]">
+                      <span className="text-sm text-[#121216] px-2 break-all">
                         {commission.operator}
                       </span>
 
@@ -304,7 +301,6 @@ const EditMembership = ({ scheme, onBack }) => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

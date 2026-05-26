@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import {
   FaSearch,
   FaUpload,
@@ -37,13 +37,27 @@ const Retailers = ({
   isLoading = false,
   activePage,
   onPageChange,
+  searchTerm: parentSearchTerm,
+  setSearchTerm: parentSetSearchTerm,
+  fromDate: parentFromDate,
+  setFromDate: parentSetFromDate,
+  toDate: parentToDate,
+  setToDate: parentSetToDate,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localFromDate, setLocalFromDate] = useState("");
+  const [localToDate, setLocalToDate] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+
+  const fromDate = embedded ? (parentFromDate ?? "") : localFromDate;
+  const setFromDate = embedded ? parentSetFromDate : setLocalFromDate;
+  const toDate = embedded ? (parentToDate ?? "") : localToDate;
+  const setToDate = embedded ? parentSetToDate : setLocalToDate;
+  const searchTerm = embedded ? (parentSearchTerm ?? "") : localSearchTerm;
+  const setSearchTerm = embedded ? parentSetSearchTerm : setLocalSearchTerm;
+
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -104,12 +118,13 @@ const Retailers = ({
 
   // Get data from Redux when search is active, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
+  // shallowEqual prevents re-renders from the new array reference created by flatMap on every Redux action
   const responseForTable = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
-  });
+  }, shallowEqual);
 
   // Log full API response for debugging (data coming from roleDataCompanyUser)
   const roleDataResponse = useSelector((state) => state?.roles?.roleDataComp);
@@ -318,10 +333,10 @@ const Retailers = ({
     const payload = {
       query: {
         userRole: 5, // Retailer role
-        ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
       },
       options: {
-        sort: { id: -1 },
+        sort: { createdAt: -1 },
         page: currentPage,
         paginate: 6,
       },
@@ -412,28 +427,32 @@ const Retailers = ({
     if (embedded) return;
     if (kycStatusCheckResponse?.status === "SUCCESS") {
       const bothDatesSelected = debouncedFromDate && debouncedToDate;
-      // Refresh table data by dispatching roleDataCompanyUser again
-      if (debouncedSearchTerm.trim() || bothDatesSelected) {
-        const payload = {
-          query: {
-            userRole: 5, // Retailer role
-            ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
-          },
-          options: {
-            sort: { id: -1 },
-            page: currentPage,
-            paginate: 6,
-          },
-          customSearch: debouncedSearchTerm.trim() ? {
-            $or: [
-              { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
-              { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
-              { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
-            ]
-          } : {},
-        };
-        dispatch(roleDataCompanyUser(payload));
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      // Only proceed if both dates are selected, or if both dates are empty
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
       }
+
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
+        },
+        options: {
+          sort: { createdAt: -1 },
+          page: currentPage,
+          paginate: 6,
+        },
+        customSearch: debouncedSearchTerm.trim() ? {
+          $or: [
+            { name: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+            { mobileNo: { $regex: debouncedSearchTerm.trim(), $options: "i" } },
+            { userId: { $regex: debouncedSearchTerm.trim(), $options: "i" } }
+          ]
+        } : {},
+      };
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, embedded, dispatch]);
 
@@ -451,10 +470,10 @@ const Retailers = ({
       const payload = {
         query: {
           userRole: 5, // Retailer role
-          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
         },
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
@@ -486,10 +505,10 @@ const Retailers = ({
       const payload = {
         query: {
           userRole: 5, // Retailer role
-          ...(bothDatesSelected ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+          ...(bothDatesSelected ? { startDate: debouncedFromDate.replaceAll("-", "/"), endDate: debouncedToDate.replaceAll("-", "/") } : {}),
         },
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },

@@ -31,13 +31,28 @@ const DistrubtionOnboarding = ({
   tableData: propTableData = [],
   activePage,
   onPageChange,
+  searchTerm: parentSearchTerm,
+  setSearchTerm: parentSetSearchTerm,
+  fromDate: parentFromDate,
+  setFromDate: parentSetFromDate,
+  toDate: parentToDate,
+  setToDate: parentSetToDate,
 }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKyc, setSelectedKyc] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [localFromDate, setLocalFromDate] = useState("");
+  const [localToDate, setLocalToDate] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+
+  const fromDate = embedded ? (parentFromDate ?? "") : localFromDate;
+  const setFromDate = embedded ? parentSetFromDate : setLocalFromDate;
+  const toDate = embedded ? (parentToDate ?? "") : localToDate;
+  const setToDate = embedded ? parentSetToDate : setLocalToDate;
+  const searchTerm = embedded ? (parentSearchTerm ?? "") : localSearchTerm;
+  const setSearchTerm = embedded ? parentSetSearchTerm : setLocalSearchTerm;
+
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -47,7 +62,6 @@ const DistrubtionOnboarding = ({
   const [selectedUserRole, setSelectedUserRole] = useState(null);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ show: false });
-  const [searchTerm, setSearchTerm] = useState("");
 
   const kycModalRef = useRef(null);
 
@@ -78,7 +92,7 @@ const DistrubtionOnboarding = ({
       if (!embedded) {
         dispatch(roleDataCompanyUser({
           query: { userRole: 4 },
-          options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
+          options: { sort: { createdAt: -1 }, page: currentPage, paginate: 6 },
           customSearch: {},
         }));
       }
@@ -94,13 +108,25 @@ const DistrubtionOnboarding = ({
   // Standalone data fetcher
   useEffect(() => {
     if (embedded) return;
+
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     const payload = {
       query: {
         userRole: 4,
         ...(selectedKyc && { kycStatus: selectedKyc }),
-        ...(fromDate && toDate && { date: { $gte: fromDate, $lte: toDate } }),
+        ...(bothDatesSelected && {
+          startDate: fromDate.replaceAll("-", "/"),
+          endDate: toDate.replaceAll("-", "/"),
+        }),
       },
-      options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
+      options: { sort: { createdAt: -1 }, page: currentPage, paginate: 6 },
       customSearch: {
         ...(searchTerm && { 
           $or: [

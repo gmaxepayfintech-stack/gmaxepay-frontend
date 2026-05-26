@@ -89,15 +89,18 @@ const CreateCompanyUser = () => {
     return "Master Distributor";
   });
 
+  // Extract tab as a primitive string to keep the useEffect dependency stable.
+  // Using searchParams (object) as a dependency causes infinite re-renders on navigation.
+  const tabFromUrl = searchParams.get("tab") || "";
+
   // Handle tab changes from URL parameter (e.g., browser back button)
   useEffect(() => {
-    const tabFromUrl = searchParams.get("tab");
     if (tabFromUrl) {
       setActiveNav(tabFromUrl);
       setShowOnboardingList(false);
       setCurrentPage(1);
     }
-  }, [searchParams]);
+  }, [tabFromUrl]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -137,12 +140,13 @@ const CreateCompanyUser = () => {
   // Get data from Redux - the action extracts data array and stores it as roleDataComp.roleDataComp
   // Flatten the nested structure: data is array of companies, each with users array
   // Use stable empty array reference to prevent unnecessary re-renders
+  // shallowEqual prevents re-renders from the new array reference created by flatMap on every Redux action
   const responseForTableRaw = useSelector((state) => {
     const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return EMPTY_ARRAY;
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
-  });
+  }, shallowEqual);
   const responseForTable = useMemo(
     () => responseForTableRaw || EMPTY_ARRAY,
     [responseForTableRaw],
@@ -211,10 +215,22 @@ const CreateCompanyUser = () => {
   useEffect(() => {
     const userRole = getRoleNumber(activeNav);
 
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = fromDate && toDate;
+    const bothDatesNull = !fromDate && !toDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     // Build query object - only include kycStatus when onboarding process is active
     const query = {
       userRole: userRole,
       ...(showOnboardingList && { kycStatus: "pending" }),
+      ...(bothDatesSelected && {
+        startDate: fromDate.replaceAll("-", "/"),
+        endDate: toDate.replaceAll("-", "/"),
+      }),
     };
 
     // Build customSearch object - include mobileNo and name only
@@ -227,13 +243,9 @@ const CreateCompanyUser = () => {
     }
 
     const payload = {
-      query: {
-        ...query,
-        ...(fromDate && { fromDate }),
-        ...(toDate && { toDate }),
-      },
+      query: query,
       options: {
-        sort: { id: -1 },
+        sort: { createdAt: -1 },
         page: currentPage,
         paginate: 6,
       },
@@ -255,11 +267,22 @@ const CreateCompanyUser = () => {
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      const bothDatesSelected = fromDate && toDate;
+      const bothDatesNull = !fromDate && !toDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       // Refresh table data by dispatching roleDataCompanyUser again
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
         ...(showOnboardingList && { kycStatus: "pending" }),
+        ...(bothDatesSelected && {
+          startDate: fromDate.replaceAll("-", "/"),
+          endDate: toDate.replaceAll("-", "/"),
+        }),
       };
       const customSearch = {};
       if (debouncedSearchTerm.trim()) {
@@ -267,13 +290,9 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: {
-          ...query,
-          ...(fromDate && { fromDate }),
-          ...(toDate && { toDate }),
-        },
+        query: query,
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
@@ -294,10 +313,21 @@ const CreateCompanyUser = () => {
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      const bothDatesSelected = fromDate && toDate;
+      const bothDatesNull = !fromDate && !toDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
         ...(showOnboardingList && { kycStatus: "pending" }),
+        ...(bothDatesSelected && {
+          startDate: fromDate.replaceAll("-", "/"),
+          endDate: toDate.replaceAll("-", "/"),
+        }),
       };
       const customSearch = {};
       if (debouncedSearchTerm.trim()) {
@@ -305,13 +335,9 @@ const CreateCompanyUser = () => {
         customSearch.name = debouncedSearchTerm.trim();
       }
       const payload = {
-        query: {
-          ...query,
-          ...(fromDate && { fromDate }),
-          ...(toDate && { toDate }),
-        },
+        query: query,
         options: {
-          sort: { id: -1 },
+          sort: { createdAt: -1 },
           page: currentPage,
           paginate: 6,
         },
@@ -873,6 +899,12 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -883,6 +915,12 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -893,6 +931,12 @@ const CreateCompanyUser = () => {
                 tableData={apiData}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -910,6 +954,12 @@ const CreateCompanyUser = () => {
                 onProfileDetailsShow={(show) => setHideNavigation(show)}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -921,6 +971,12 @@ const CreateCompanyUser = () => {
                 isLoading={isTableLoading}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -932,6 +988,12 @@ const CreateCompanyUser = () => {
                 isLoading={isTableLoading}
                 activePage={currentPage}
                 onPageChange={setCurrentPage}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
               />
             );
           }
@@ -1241,10 +1303,15 @@ const CreateCompanyUser = () => {
                                       setTimeout(() => {
                                         const userRole =
                                           getRoleNumber(activeNav);
+                                        const bothDatesSelected = fromDate && toDate;
                                         const query = {
                                           userRole: userRole,
                                           ...(showOnboardingList && {
                                             kycStatus: "pending",
+                                          }),
+                                          ...(bothDatesSelected && {
+                                            startDate: fromDate.replaceAll("-", "/"),
+                                            endDate: toDate.replaceAll("-", "/"),
                                           }),
                                         };
                                         const customSearch = {};
@@ -1257,7 +1324,7 @@ const CreateCompanyUser = () => {
                                         const payload = {
                                           query: query,
                                           options: {
-                                            sort: { id: -1 },
+                                            sort: { createdAt: -1 },
                                             page: currentPage,
                                             paginate: 6,
                                           },

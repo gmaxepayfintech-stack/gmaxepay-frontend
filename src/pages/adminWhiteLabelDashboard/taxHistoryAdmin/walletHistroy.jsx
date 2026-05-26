@@ -80,19 +80,19 @@ const WalletHistory = ({ onBack, type }) => {
 
       return {
         id: item.id,
-        transactionId: item.transactionId || "N/A",
-        refId: item.refId || "N/A",
-        userName: item.user?.name || "N/A",
-        mobileNo: item.user?.mobileNo || item.mobile || "N/A",
-        companyName: item.company?.companyName || "N/A",
-        companyId: item.companyId || "N/A",
-        walletType: item.walletType || "N/A",
+        transactionId: String(item.transactionId || "N/A"),
+        refId: String(item.refId || "N/A"),
+        userName: String(item.user?.name || "N/A"),
+        mobileNo: String(item.user?.mobileNo || item.mobile || "N/A"),
+        companyName: String(item.company?.companyName || "N/A"),
+        companyId: String(item.companyId || "N/A"),
+        walletType: String(item.walletType || "N/A"),
         amount: formattedAmount,
         surcharge: formattedSurcharge,
         comm: formattedComm,
         debit: formattedDebit,
         status: getStatusDisplay(item.paymentStatus || item.status),
-        type: item.operator || item.paymentMode || item.type || "N/A",
+        type: String(item.operator || item.paymentMode || item.type || "N/A"),
         aepsType: getAepsType(item.aepsTxnType),
         openingAmt: item.openingAmt ? `₹${item.openingAmt}` : "N/A",
         closingAmt: item.closingAmt ? `₹${item.closingAmt}` : "N/A",
@@ -170,11 +170,11 @@ const WalletHistory = ({ onBack, type }) => {
     const searchLower = debouncedSearchQuery.toLowerCase();
     const matchesSearch =
       !debouncedSearchQuery ||
-      transaction.transactionId.toLowerCase().includes(searchLower) ||
-      transaction.refId.toString().includes(searchLower) ||
-      transaction.mobileNo.includes(searchLower) ||
-      transaction.userName.toLowerCase().includes(searchLower) ||
-      transaction.companyName.toLowerCase().includes(searchLower);
+      String(transaction.transactionId).toLowerCase().includes(searchLower) ||
+      String(transaction.refId).toLowerCase().includes(searchLower) ||
+      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
+      String(transaction.userName).toLowerCase().includes(searchLower) ||
+      String(transaction.companyName).toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });

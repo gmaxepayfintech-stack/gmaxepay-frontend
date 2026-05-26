@@ -54,17 +54,17 @@ const BBPSReports = ({ onBack, type }) => {
 
             return {
                 id: item.id,
-                transactionId: item.transactionId || "N/A",
-                agentId: item.agentId || "N/A",
-                operator: item.operator || "N/A",
-                billerName: item.billerName || "N/A",
-                billNumber: item.billNumber || "N/A",
-                mobileNumber: item.mobileNumber || "N/A",
+                transactionId: String(item.transactionId || "N/A"),
+                agentId: String(item.agentId || "N/A"),
+                operator: String(item.operator || "N/A"),
+                billerName: String(item.billerName || "N/A"),
+                billNumber: String(item.billNumber || "N/A"),
+                mobileNumber: String(item.mobileNumber || "N/A"),
                 amount: formattedAmount,
                 comm: formattedComm,
-                paymentStatus: item.paymentStatus || "N/A",
+                paymentStatus: String(item.paymentStatus || "N/A"),
                 formattedDateTime: formattedDateTime,
-                userName: item.user?.name || item.userDetails?.name || "N/A",
+                userName: String(item.user?.name || item.userDetails?.name || "N/A"),
                 originalItem: item,
             };
         });
@@ -139,7 +139,7 @@ const BBPSReports = ({ onBack, type }) => {
         const searchLower = debouncedSearchQuery.toLowerCase();
         const matchesSearch =
             !debouncedSearchQuery ||
-            transaction.transactionId.toLowerCase().includes(searchLower);
+            String(transaction.transactionId).toLowerCase().includes(searchLower);
 
         return matchesSearch;
     });

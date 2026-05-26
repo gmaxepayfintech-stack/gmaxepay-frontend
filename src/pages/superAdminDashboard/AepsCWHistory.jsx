@@ -251,26 +251,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       query.endDate = toDate.replace(/-/g, "/");
     }
 
-    // Build customSearch — merge text search + status filter
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
-
-    // --- Status filter via customSearch (camelCase values) ---
-    // AEPS2: filter by `transactionStatus` ("successful" / "failed" / "pending")
-    // AEPS1: filter by `paymentStatus`   ("success"    / "failed" / "pending")
-    if (statusFilter !== "All") {
-      const camelStatus = statusFilter.toLowerCase(); // "success" | "failed" | "pending"
-      if (isAeps2) {
-        customSearch.transactionStatus = camelStatus;
-      } else {
-        customSearch.paymentStatus = camelStatus;
-      }
-    }
-
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: 1000,
@@ -285,12 +268,10 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
     }
   }, [
     dispatch,
-    debouncedSearchQuery,
     fromDate,
     toDate,
     transactionType,
     isAeps2,
-    statusFilter,
   ]);
 
   // Reset isReloading when loading completes
@@ -360,8 +341,22 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Status is filtered server-side via customSearch — no client-side filter needed.
-  const filteredTransactions = transactions;
+  // Filter transactions based on status and search query (CLIENT-SIDE)
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesStatus =
+      statusFilter === "All" ||
+      transaction.status.toLowerCase() === statusFilter.toLowerCase();
+
+    const searchLower = debouncedSearchQuery.trim().toLowerCase();
+    const matchesSearch =
+      !searchLower ||
+      String(transaction.name).toLowerCase().includes(searchLower) ||
+      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
+      String(transaction.taxId).toLowerCase().includes(searchLower) ||
+      String(transaction.refID).toLowerCase().includes(searchLower);
+
+    return matchesStatus && matchesSearch;
+  });
 
   // CLIENT-SIDE Pagination
   const filteredCount = filteredTransactions.length;
@@ -530,13 +525,10 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 const query = isAeps2
                   ? { transactionType: transactionType }
                   : { transactionType };
-                const customSearch = debouncedSearchQuery.trim()
-                  ? getSearchField(debouncedSearchQuery)
-                  : {};
 
                 const payload = {
                   query,
-                  customSearch,
+                  customSearch: {},
                   options: {
                     page: 1,
                     paginate: 1000,
@@ -570,7 +562,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
               type="text"
-              placeholder="Search By Reference,ID"
+              placeholder="Search By Name, Mobile, Transaction ID, Reference ID"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
@@ -708,7 +700,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                   paginatedTransactions.map((transaction, index) => {
                     const currentPosition =
                       (apiCurrentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
+                    const reverseSrNo = filteredCount - currentPosition + 1;
                     const srNo = String(reverseSrNo).padStart(2, "0");
 
                     return (

@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Search, X, User, Sparkles } from 'lucide-react';
-import { roleDataCompanyUser, roleUpgradeCompanyUser } from '../../redux/action/roleAction';
+import { roleDataCompanyUser, roleUpgradeCompanyUser, clearRoleData } from '../../redux/action/roleAction';
+import { kycStatusCheck } from '../../redux/action/whiteLabelAction';
 import { ButtonLoader } from "../../widgets/layout/loader.jsx";
+import { useNotification } from "../../context/NotificationContext";
 const RoleUpgradeWhiteLabel = () => {
     const dispatch = useDispatch();
+    const { showNotification } = useNotification();
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('Approved');
@@ -88,25 +91,17 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Extract and flatten users from all companies
     const roleDataList = useMemo(() => {
-
         if (!Array.isArray(roleDataComp) || roleDataComp.length === 0) {
-            console.log('No companies found in roleDataComp');
             return [];
         }
 
-        // Flatten users from all companies
-        const allUsers = [];
-        roleDataComp.forEach((company, companyIndex) => {
-            console.log(`Company ${companyIndex}:`, company);
-            if (company?.users && Array.isArray(company.users)) {
-                console.log(`  Found ${company.users.length} users in company ${companyIndex}`);
-                allUsers.push(...company.users);
-            } else {
-                console.log(`  No users array found in company ${companyIndex}`);
-            }
-        });
+        // Check if the response is already a list of users or nested in companies
+        if (roleDataComp[0]?.users && Array.isArray(roleDataComp[0].users)) {
+            return roleDataComp.flatMap((company) => company?.users || []);
+        }
 
-        return allUsers;
+        // If it's already a list of users, return as is
+        return roleDataComp;
     }, [roleDataComp]);
 
     useEffect(() => {
@@ -123,6 +118,7 @@ const RoleUpgradeWhiteLabel = () => {
     }, [roleDataResponse, roleDataComp, roleDataList, isLoading]);
 
     useEffect(() => {
+        dispatch(clearRoleData());
         const kycStatus = getKycStatusFromFilter(activeFilter);
         const payload = {
             query: {
@@ -486,33 +482,54 @@ const RoleUpgradeWhiteLabel = () => {
         const targetRole = Number(formData.requestedRole);
 
         if (!userId) {
-            console.warn('Approve blocked: selectedUser.id not found', selectedUser);
+            showNotification({ message: 'User ID not found', type: 'error' });
             return;
         }
 
         if (!formData.requestedRole) {
             setActiveTab('Role Information');
             setRequestedRoleError('Requested Role is required');
-            console.warn('Approve blocked: Requested Role not selected');
             return;
         }
 
         if (Number.isNaN(targetRole)) {
-            console.warn('Approve blocked: targetRole is not a number', formData.requestedRole);
+            showNotification({ message: 'Invalid target role', type: 'error' });
             return;
         }
 
         const payload = { userId, targetRole };
-        console.log('=== Approve Request -> roleUpgradeCompanyUser (component) ===');
-        console.log('Payload:', payload);
-
         setIsApproveLoading(true);
         try {
             await dispatch(roleUpgradeCompanyUser(payload));
+            showNotification({ message: 'Role upgrade request approved successfully', type: 'success' });
             handleCloseModal();
             refreshList();
         } catch (error) {
-            console.log('=== roleUpgradeCompanyUser error (component) ===');
+            showNotification({ message: 'Failed to approve role upgrade', type: 'error' });
+            console.error(error);
+        } finally {
+            setIsApproveLoading(false);
+        }
+    };
+
+    const handleRejectRequest = async () => {
+        const userId = selectedUser?.id;
+        if (!userId) return;
+
+        setIsApproveLoading(true); // Re-using this loader for simplicity
+        try {
+            await dispatch(kycStatusCheck(userId, { kycStatus: 'rejected' }));
+            showNotification({
+                message: 'Request rejected successfully',
+                type: 'success'
+            });
+            handleCloseModal();
+            refreshList();
+        } catch (error) {
+            showNotification({
+                message: 'Failed to reject request',
+                type: 'error'
+            });
             console.error(error);
         } finally {
             setIsApproveLoading(false);
@@ -728,12 +745,9 @@ const RoleUpgradeWhiteLabel = () => {
                                         <h3 className="text-lg font-[Gilroy-Medium] text-[#1B1717] mb-4">Quick Actions</h3>
                                         <div className="flex gap-4">
                                             <button
-                                                onClick={() => {
-                                                    //console.log('Reject Request for user:', selectedUser?.id);
-                                                    // TODO: Add reject API call
-                                                    handleCloseModal();
-                                                }}
-                                                className="px-6 py-3 bg-red-50 text-red-600 rounded-lg font-[Gilroy-Medium] hover:bg-red-100 transition"
+                                                onClick={handleRejectRequest}
+                                                disabled={isApproveLoading}
+                                                className="px-6 py-3 bg-red-50 text-red-600 rounded-lg font-[Gilroy-Medium] hover:bg-red-100 transition disabled:opacity-70 disabled:cursor-not-allowed"
                                             >
                                                 Reject Request
                                             </button>
