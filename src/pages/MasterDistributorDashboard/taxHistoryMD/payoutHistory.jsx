@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { getPayoutHistoryUser } from "../../../redux/action/payoutAction";
+import { getPayoutHistoryUser, payoutStatusCheckUser, payoutStatusCheckCompany } from "../../../redux/action/payoutAction";
 import * as XLSX from "xlsx";
+import { useNotification } from "../../../context/NotificationContext";
+
 
 const PayoutHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -23,6 +25,53 @@ const PayoutHistory = ({ onBack, type }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
+  const { showNotification } = useNotification();
+  const [checkingStatusId, setCheckingStatusId] = useState(null);
+
+  const handleCheckStatus = async (transaction) => {
+    if (!transaction?.transactionID || transaction.transactionID === "N/A") {
+      showNotification("Invalid Transaction ID", "error");
+      return;
+    }
+    setCheckingStatusId(transaction.id);
+    try {
+      const transactionUserRole = Number(transaction.originalItem?.userRole);
+      
+      let response;
+      const payload = { transactionID: transaction.transactionID };
+      
+      if (transactionUserRole === 2) {
+        response = await dispatch(payoutStatusCheckCompany(payload));
+      } else {
+        response = await dispatch(payoutStatusCheckUser(payload));
+      }
+
+      if (response?.status === "SUCCESS") {
+        showNotification(response?.message || "Status checked successfully", "success");
+        // Refresh payout history
+        const query = {};
+        if (fromDate && toDate) {
+          query.startDate = fromDate.replace(/-/g, "/");
+          query.endDate = toDate.replace(/-/g, "/");
+        }
+        dispatch(getPayoutHistoryUser({
+          query,
+          customSearch: {},
+          options: {
+            page: 1,
+            paginate: 1000,
+            sort: { id: -1 },
+          },
+        }));
+      } else {
+        showNotification(response?.message || "Failed to retrieve status", "error");
+      }
+    } catch (error) {
+      showNotification(error?.message || "Something went wrong", "error");
+    } finally {
+      setCheckingStatusId(null);
+    }
+  };
 
   // Get payout history from Redux
   const payoutHistoryResponse = useSelector(
@@ -553,16 +602,28 @@ const PayoutHistory = ({ onBack, type }) => {
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
-                                ? "bg-[#039155] text-white"
-                                : transaction.status === "Pending"
-                                  ? "bg-orange-500/80 text-white"
-                                  : "bg-red-500/80 text-white"
-                              }`}
-                          >
-                            {transaction.status}
-                          </span>
+                          <div className="flex items-center justify-center gap-2">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
+                                  ? "bg-[#039155] text-white"
+                                  : transaction.status === "Pending"
+                                    ? "bg-orange-500/80 text-white"
+                                    : "bg-red-500/80 text-white"
+                                }`}
+                            >
+                              {transaction.status}
+                            </span>
+                            {transaction.status === "Pending" && (
+                              <button
+                                onClick={() => handleCheckStatus(transaction)}
+                                disabled={checkingStatusId === transaction.id}
+                                className="p-1 rounded-full hover:bg-gray-100 text-[#039155] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Check Status"
+                              >
+                                <RefreshCw className={`w-3.5 h-3.5 ${checkingStatusId === transaction.id ? "animate-spin" : ""}`} />
+                              </button>
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
