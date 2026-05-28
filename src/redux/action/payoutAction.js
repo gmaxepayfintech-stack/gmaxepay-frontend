@@ -820,3 +820,58 @@ export const switchEmployeePayoutStatus = (payload) => async (dispatch) => {
   }
 };
 
+// Payout Status Check (User/Retailer/Distributor/Master Distributor)
+export const payoutStatusCheckUser = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/payout/status-check`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || error.message || commonError;
+    return {
+      status: "FAILED",
+      message: errorMessage,
+    };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Payout Status Check (Company/White Label Admin)
+export const payoutStatusCheckCompany = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/payout/status-check`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || error.message || commonError;
+    return {
+      status: "FAILED",
+      message: errorMessage,
+    };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+
