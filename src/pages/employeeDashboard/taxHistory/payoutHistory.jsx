@@ -625,10 +625,10 @@ const PayoutHistory = ({ onBack, type }) => {
                               <button
                                 onClick={() => handleCheckStatus(transaction)}
                                 disabled={checkingStatusId === transaction.id}
-                                className="p-1 rounded-full hover:bg-gray-100 text-[#039155] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-2 py-0.5 bg-[#039155] hover:bg-green-700 text-white rounded text-[10px] sm:text-xs font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Check Status"
                               >
-                                <RefreshCw className={`w-3.5 h-3.5 ${checkingStatusId === transaction.id ? "animate-spin" : ""}`} />
+                                {checkingStatusId === transaction.id ? "Checking..." : "Check Status"}
                               </button>
                             )}
                           </div>
