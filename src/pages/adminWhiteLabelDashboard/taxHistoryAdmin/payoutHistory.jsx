@@ -36,10 +36,10 @@ const PayoutHistory = ({ onBack, type }) => {
     setCheckingStatusId(transaction.id);
     try {
       const transactionUserRole = Number(transaction.originalItem?.userRole);
-      
+
       let response;
       const payload = { transactionID: transaction.transactionID };
-      
+
       if (transactionUserRole === 2) {
         response = await dispatch(payoutStatusCheckCompany(payload));
       } else {
@@ -114,11 +114,14 @@ const PayoutHistory = ({ onBack, type }) => {
       };
 
       // Get AEPS type
-      const getAepsType = (apiResponse) => {
+      const getAepsType = (apiResponse, walletType) => {
+        if (apiResponse && apiResponse.aepsType === "AEPS1") return "AEPS 1";
+        if (apiResponse && apiResponse.aepsType === "AEPS2") return "AEPS 2";
+        const walletLower = String(walletType || "").toLowerCase();
+        if (walletLower.includes("apes1") || walletLower.includes("aeps1")) return "AEPS 1";
+        if (walletLower.includes("apes2") || walletLower.includes("aeps2")) return "AEPS 2";
         if (!apiResponse) return "Internal";
-        if (apiResponse.aepsType === "AEPS1") return "AEPS 1";
-        if (apiResponse.aepsType === "AEPS2") return "AEPS 2";
-        return "Internal";
+        return "AEPS 2";
       };
 
       // Get User Role Display
@@ -147,7 +150,7 @@ const PayoutHistory = ({ onBack, type }) => {
         status: getStatusDisplay(item.status),
         type: String(item.type || "N/A"),
         walletType: String(item.walletType || "N/A"),
-        aepsType: getAepsType(item.apiResponse),
+        aepsType: getAepsType(item.apiResponse, item.walletType),
         openingBalance: item.openingBalance ? `₹${item.openingBalance}` : "N/A",
         closingBalance: item.closingBalance ? `₹${item.closingBalance}` : "N/A",
         createdAt: formattedDate,
@@ -613,7 +616,7 @@ const PayoutHistory = ({ onBack, type }) => {
                                 : transaction.status === "Pending"
                                   ? "bg-orange-500/80 text-white"
                                   : "bg-red-500/80 text-white"
-                               }`}
+                                }`}
                             >
                               {transaction.status}
                             </span>
