@@ -9,12 +9,15 @@ import {
     RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsTwoEmployee } from "../../../redux/action/reportAction";
+import { rechargeReportsTwoEmployee, checkMobileRecharge2Status } from "../../../redux/action/reportAction";
+import { useNotification } from "../../../context/NotificationContext";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import * as XLSX from "xlsx";
 
 const RechargeReportTwo = ({ onBack }) => {
     const dispatch = useDispatch();
+    const { showNotification } = useNotification();
+    const [checkingStatusId, setCheckingStatusId] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [fromDate, setFromDate] = useState("");
@@ -97,6 +100,47 @@ const RechargeReportTwo = ({ onBack }) => {
             setIsReloading(false);
         }
     }, [isLoading, isReloading]);
+
+    const handleCheckStatus = async (transaction) => {
+        if (!transaction?.transactionId || transaction.transactionId === "N/A") {
+            showNotification("Invalid Transaction ID", "error");
+            return;
+        }
+        setCheckingStatusId(transaction.id);
+        try {
+            const payload = { transactionId: transaction.transactionId };
+            const response = await dispatch(checkMobileRecharge2Status(payload));
+            if (response?.status === "SUCCESS") {
+                showNotification(response?.message || "Status checked successfully", "success");
+                
+                // Refresh reports
+                const query = { serviceType: "Mobile2Recharge" };
+                if (fromDate && toDate) {
+                    query.startDate = fromDate;
+                    query.endDate = toDate;
+                }
+                const customSearch = debouncedSearchQuery.trim()
+                    ? getSearchField(debouncedSearchQuery)
+                    : {};
+                const fetchPayload = {
+                    query,
+                    customSearch,
+                    options: {
+                        page: 1,
+                        paginate: 1000,
+                        sort: { id: -1 },
+                    },
+                };
+                dispatch(rechargeReportsTwoEmployee(fetchPayload));
+            } else {
+                showNotification(response?.message || "Failed to retrieve status", "error");
+            }
+        } catch (error) {
+            showNotification(error?.message || "Something went wrong", "error");
+        } finally {
+            setCheckingStatusId(null);
+        }
+    };
 
     // Transform API data to table format
     const transformApiData = (dataArray) => {
@@ -580,13 +624,25 @@ const RechargeReportTwo = ({ onBack }) => {
 
                                                 {/* Status */}
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">
-                                                    <span
-                                                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
-                                                            transaction.status,
-                                                        )}`}
-                                                    >
-                                                        {transaction.status}
-                                                    </span>
+                                                    <div className="flex flex-col items-center justify-center gap-1.5">
+                                                        <span
+                                                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
+                                                                transaction.status,
+                                                            )}`}
+                                                        >
+                                                            {transaction.status}
+                                                        </span>
+                                                        {transaction.status === "Pending" && (
+                                                            <button
+                                                                onClick={() => handleCheckStatus(transaction)}
+                                                                disabled={checkingStatusId === transaction.id}
+                                                                className="px-2 py-0.5 bg-[#039155] hover:bg-green-700 text-white rounded text-[10px] sm:text-xs font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                title="Check Status"
+                                                            >
+                                                                {checkingStatusId === transaction.id ? "Checking..." : "Check Status"}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
 
                                                 {/* TXID */}
