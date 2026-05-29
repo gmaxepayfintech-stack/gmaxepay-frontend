@@ -160,6 +160,7 @@ const PayoutHistory = ({ onBack, type }) => {
         aepsType: getAepsType(item.apiResponse, item.walletType),
         openingBalance: item.openingBalance ? `₹${item.openingBalance}` : "N/A",
         closingBalance: item.closingBalance ? `₹${item.closingBalance}` : "N/A",
+        apiMessage: item.statusMessage || (item.apiResponse && (item.apiResponse.message || item.apiResponse.remark || item.apiResponse.statusMessage)) || "N/A",
         createdAt: formattedDate,
         originalItem: item,
       };
@@ -274,6 +275,7 @@ const PayoutHistory = ({ onBack, type }) => {
       "Payout Type": row.payoutType,
       "Amount": row.amount,
       "Status": row.status,
+      "API Message": row.apiMessage,
       "Type": row.type,
       "Wallet Type": row.walletType,
       "AEPS Type": row.aepsType,
@@ -493,6 +495,9 @@ const PayoutHistory = ({ onBack, type }) => {
                   Status
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  API Message
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
               </tr>
@@ -632,6 +637,12 @@ const PayoutHistory = ({ onBack, type }) => {
                           </div>
                         </td>
 
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate max-w-[200px] inline-block" title={transaction.apiMessage}>
+                            {transaction.apiMessage}
+                          </span>
+                        </td>
+
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.createdAt}
@@ -642,7 +653,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={18} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={19} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
