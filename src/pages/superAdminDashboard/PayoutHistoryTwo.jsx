@@ -120,11 +120,14 @@ const PayoutHistoryTwo = ({ onBack, type }) => {
       };
 
       // Get AEPS type
-      const getAepsType = (apiResponse) => {
+      const getAepsType = (apiResponse, walletType) => {
+        if (apiResponse && apiResponse.aepsType === "AEPS1") return "AEPS 1";
+        if (apiResponse && apiResponse.aepsType === "AEPS2") return "AEPS 2";
+        const walletLower = String(walletType || "").toLowerCase();
+        if (walletLower.includes("apes1") || walletLower.includes("aeps1")) return "AEPS 1";
+        if (walletLower.includes("apes2") || walletLower.includes("aeps2")) return "AEPS 2";
         if (!apiResponse) return "Internal";
-        if (apiResponse.aepsType === "AEPS1") return "AEPS 1";
-        if (apiResponse.aepsType === "AEPS2") return "AEPS 2";
-        return "Internal";
+        return "AEPS 2";
       };
 
       return {
@@ -140,7 +143,7 @@ const PayoutHistoryTwo = ({ onBack, type }) => {
         status: getStatusDisplay(item.status),
         type: item.type || "N/A",
         walletType: item.walletType || "N/A",
-        aepsType: getAepsType(item.apiResponse),
+        aepsType: getAepsType(item.apiResponse, item.walletType),
         openingBalance: item.openingBalance ? `₹${item.openingBalance}` : "N/A",
         closingBalance: item.closingBalance ? `₹${item.closingBalance}` : "N/A",
         createdAt: formattedDate,
