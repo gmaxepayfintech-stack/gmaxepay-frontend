@@ -1767,88 +1767,77 @@ const Retailers = ({
     
       {/* Fund Adjust Modal */}
       {fundModal.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="bg-white w-full max-w-[440px] rounded-2xl shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-[#1B1717] p-5 flex items-center justify-between">
-              <div className="flex flex-col">
-                <h2 className="text-white font-[Gilroy-Semibold] text-lg">Fund Adjustment</h2>
-                <span className="text-gray-400 text-xs mt-1">Adjust balance for {fundModal.userName || "User"}</span>
-              </div>
-              <button
-                onClick={() => setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", walletType: "mainWallet", remarks: "", isSubmitting: false })}
-                className="text-gray-400 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-xl"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Form Content */}
-            <div className="p-6 space-y-5">
-              {/* Action Tabs */}
-              <div className="flex p-1 bg-gray-100 rounded-xl">
-                <button
-                  onClick={() => setFundModal((prev) => ({ ...prev, action: "CREDIT" }))}
-                  className={`flex-1 py-2 text-sm font-[Gilroy-Semibold] rounded-lg transition-all ${
-                    fundModal.action === "CREDIT"
-                      ? "bg-white text-[#039155] shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Credit Fund
-                </button>
-                <button
-                  onClick={() => setFundModal((prev) => ({ ...prev, action: "DEBIT" }))}
-                  className={`flex-1 py-2 text-sm font-[Gilroy-Semibold] rounded-lg transition-all ${
-                    fundModal.action === "DEBIT"
-                      ? "bg-white text-red-500 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Debit Fund
-                </button>
-              </div>
-
-              {/* Amount Input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-[Gilroy-Medium] text-gray-500 ml-1">Amount</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 font-[Gilroy-Medium]">₹</span>
-                  </div>
-                  <input
-                    type="number"
-                    value={fundModal.amount}
-                    onChange={(e) => setFundModal((prev) => ({ ...prev, amount: e.target.value }))}
-                    className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#039155]/20 focus:border-[#039155] transition-colors font-[Gilroy-Medium] text-sm"
-                    placeholder="Enter amount"
-                  />
+            <div className="bg-gradient-to-r from-[#039155] to-green-700 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Wallet className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-[Gilroy-Semibold] text-lg">Fund Adjustment</h2>
+                  <p className="text-green-100 text-xs font-[Gilroy-Medium]">{fundModal.userName}</p>
                 </div>
               </div>
+            </div>
 
-              {/* Wallet Type */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-[Gilroy-Medium] text-gray-500 ml-1">Wallet Type</label>
+            {/* Body */}
+            <div className="px-6 py-5 space-y-4">
+
+              {/* Wallet Type Dropdown */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Wallet Type</label>
                 <select
                   value={fundModal.walletType}
                   onChange={(e) => setFundModal((prev) => ({ ...prev, walletType: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#039155]/20 focus:border-[#039155] transition-colors font-[Gilroy-Medium] text-sm bg-white"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent bg-white appearance-none cursor-pointer"
                 >
                   <option value="mainWallet">Main Wallet</option>
-                  <option value="aeps1Wallet">AEPS1 Wallet</option>
-                  <option value="aeps2Wallet">AEPS2 Wallet</option>
+                  <option value="aeps1Wallet">AEPS Wallet 1</option>
+                  <option value="aeps2Wallet">AEPS Wallet 2</option>
                 </select>
               </div>
 
+              {/* Action Dropdown */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Action</label>
+                <select
+                  value={fundModal.action}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, action: e.target.value }))}
+                  className={`w-full border rounded-xl px-4 py-3 text-sm font-[Gilroy-Semibold] focus:outline-none focus:ring-2 focus:border-transparent bg-white appearance-none cursor-pointer ${
+                    fundModal.action === "CREDIT"
+                      ? "border-green-400 text-green-700 focus:ring-green-500"
+                      : "border-red-400 text-red-600 focus:ring-red-500"
+                  }`}
+                >
+                  <option value="CREDIT">▲ CREDIT</option>
+                  <option value="DEBIT">▼ DEBIT</option>
+                </select>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Enter amount"
+                  value={fundModal.amount}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, amount: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                />
+              </div>
+
               {/* Remarks */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-[Gilroy-Medium] text-gray-500 ml-1">Remarks</label>
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Remarks</label>
                 <textarea
+                  placeholder="Enter remarks..."
+                  rows={3}
                   value={fundModal.remarks}
                   onChange={(e) => setFundModal((prev) => ({ ...prev, remarks: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#039155]/20 focus:border-[#039155] transition-colors font-[Gilroy-Medium] text-sm resize-none"
-                  placeholder="Enter reason for adjustment..."
-                  rows="3"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent resize-none"
                 />
               </div>
             </div>
