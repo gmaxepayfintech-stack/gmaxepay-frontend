@@ -303,6 +303,52 @@ const AdminWhitelabelList = ({
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
+
+  // Handle Fund Adjust submission
+  const handleFundAdjustSubmit = async () => {
+    const { userId, amount, action, walletType, remarks } = fundModal;
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      notifyError({ message: "Please enter a valid amount greater than 0", isCritical: true });
+      return;
+    }
+    if (!remarks.trim()) {
+      notifyError({ message: "Remarks are required", isCritical: true });
+      return;
+    }
+    setFundModal((prev) => ({ ...prev, isSubmitting: true }));
+    try {
+      const result = await dispatch(adminCreditDebit({
+        userId: Number(userId),
+        amount: Number(amount),
+        action,
+        walletType,
+        remarks: remarks.trim(),
+      }));
+      if (result?.status === "SUCCESS") {
+        notifySuccess({ message: result.message || `Fund ${action === 'CREDIT' ? 'credited' : 'debited'} successfully!`, isCritical: true });
+        setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", walletType: "mainWallet", remarks: "", isSubmitting: false });
+        
+        // Refresh API data
+        const payload = {
+          query: {
+            userRole: 2,
+            ...(selectedKyc && { kycStatus: selectedKyc }),
+            ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/\-/g, "/"), endDate: debouncedToDate.replace(/\-/g, "/") } : {}),
+          },
+          options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
+          customSearch: debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {},
+        };
+        dispatch(useListAction(payload));
+      } else {
+        notifyError({ message: result?.message || "Fund adjustment failed. Please try again.", isCritical: true });
+        setFundModal((prev) => ({ ...prev, isSubmitting: false }));
+      }
+    } catch {
+      notifyError({ message: "An unexpected error occurred.", isCritical: true });
+      setFundModal((prev) => ({ ...prev, isSubmitting: false }));
+    }
+  };
+
   // Handle click outside modal - DISABLED as per user request to prevent accidental closure
   useEffect(() => {
     // Logic removed to prevent closing on outside click

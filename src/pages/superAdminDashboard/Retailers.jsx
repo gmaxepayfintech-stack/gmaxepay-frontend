@@ -147,6 +147,17 @@ const Retailers = ({
       if (result?.status === "SUCCESS") {
         notifySuccess({ message: result.message || `Fund ${action === 'CREDIT' ? 'credited' : 'debited'} successfully!`, isCritical: true });
         setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", walletType: "mainWallet", remarks: "", isSubmitting: false });
+        
+        // Refresh API data
+        const payload = {
+          query: {
+            userRole: 5,
+            ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/\-/g, "/"), endDate: debouncedToDate.replace(/\-/g, "/") } : {}),
+          },
+          options: { sort: { id: -1 }, page: currentPage, paginate: 6 },
+          customSearch: debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {},
+        };
+        dispatch(useListAction(payload));
       } else {
         notifyError({ message: result?.message || "Fund adjustment failed. Please try again.", isCritical: true });
         setFundModal((prev) => ({ ...prev, isSubmitting: false }));
