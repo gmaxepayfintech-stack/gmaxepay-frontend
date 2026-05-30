@@ -265,7 +265,7 @@ const Distribution = ({
 
     const timer = setTimeout(() => {
       const payload = {
-        query: { 
+        query: {
           userRole: 4,
           ...(bothDatesSelected && {
             startDate: fromDate.replaceAll("-", "/"),
@@ -287,7 +287,7 @@ const Distribution = ({
   }, [currentPage, dispatch, fromDate, toDate, searchTerm, embedded]);
 
   // Export to Excel function
-  
+
   const handleFundAdjustSubmit = async () => {
     const { userId, amount, action, walletType, remarks } = fundModal;
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
@@ -310,7 +310,7 @@ const Distribution = ({
       if (result?.status === "SUCCESS") {
         notifySuccess({ message: result.message || ("Fund " + (action === "CREDIT" ? "credited" : "debited") + " successfully!"), isCritical: true });
         setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", walletType: "mainWallet", remarks: "", isSubmitting: false });
-        
+
         // Refresh table data
         const payload = {
           query: {
@@ -434,7 +434,7 @@ const Distribution = ({
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">AEPS1 Wallet</th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">AEPS2 Wallet</th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">Fund Adjust</th>
-<th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">Status</th>
+                  <th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">Status</th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">KYC Details</th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">Action</th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-sm tracking-wider whitespace-nowrap">Lock Status</th>
@@ -679,7 +679,7 @@ const Distribution = ({
         kycModalRef={kycModalRef}
         revertAction={kycRevertCompany}
       />
-    
+
       {/* Fund Adjust Modal */}
       {fundModal.show && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-900/50 p-4">
@@ -709,8 +709,8 @@ const Distribution = ({
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent bg-white appearance-none cursor-pointer"
                 >
                   <option value="mainWallet">Main Wallet</option>
-                  <option value="aeps1Wallet">AEPS Wallet 1</option>
-                  <option value="aeps2Wallet">AEPS Wallet 2</option>
+                  <option value="apes1Wallet">AEPS Wallet 1</option>
+                  <option value="apes2Wallet">AEPS Wallet 2</option>
                 </select>
               </div>
 
@@ -720,11 +720,10 @@ const Distribution = ({
                 <select
                   value={fundModal.action}
                   onChange={(e) => setFundModal((prev) => ({ ...prev, action: e.target.value }))}
-                  className={`w-full border rounded-xl px-4 py-3 text-sm font-[Gilroy-Semibold] focus:outline-none focus:ring-2 focus:border-transparent bg-white appearance-none cursor-pointer ${
-                    fundModal.action === "CREDIT"
-                      ? "border-green-400 text-green-700 focus:ring-green-500"
-                      : "border-red-400 text-red-600 focus:ring-red-500"
-                  }`}
+                  className={`w-full border rounded-xl px-4 py-3 text-sm font-[Gilroy-Semibold] focus:outline-none focus:ring-2 focus:border-transparent bg-white appearance-none cursor-pointer ${fundModal.action === "CREDIT"
+                    ? "border-green-400 text-green-700 focus:ring-green-500"
+                    : "border-red-400 text-red-600 focus:ring-red-500"
+                    }`}
                 >
                   <option value="CREDIT">▲ CREDIT</option>
                   <option value="DEBIT">▼ DEBIT</option>
@@ -769,9 +768,8 @@ const Distribution = ({
               <button
                 onClick={handleFundAdjustSubmit}
                 disabled={fundModal.isSubmitting}
-                className={`flex-1 text-white font-[Gilroy-Semibold] rounded-xl py-3 text-sm transition flex items-center justify-center gap-2 disabled:opacity-60 ${
-                  fundModal.action === "CREDIT" ? "bg-[#039155] hover:bg-green-700" : "bg-red-500 hover:bg-red-600"
-                }`}
+                className={`flex-1 text-white font-[Gilroy-Semibold] rounded-xl py-3 text-sm transition flex items-center justify-center gap-2 disabled:opacity-60 ${fundModal.action === "CREDIT" ? "bg-[#039155] hover:bg-green-700" : "bg-red-500 hover:bg-red-600"
+                  }`}
               >
                 {fundModal.isSubmitting ? <ButtonLoader size={18} color="white" /> : null}
                 {fundModal.action === "CREDIT" ? "Confirm Credit" : "Confirm Debit"}
