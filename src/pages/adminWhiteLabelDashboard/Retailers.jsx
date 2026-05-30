@@ -1794,8 +1794,8 @@ const Retailers = ({
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent bg-white appearance-none cursor-pointer"
                 >
                   <option value="mainWallet">Main Wallet</option>
-                  <option value="aeps1Wallet">AEPS Wallet 1</option>
-                  <option value="aeps2Wallet">AEPS Wallet 2</option>
+                  <option value="apes1Wallet">AEPS Wallet 1</option>
+                  <option value="apes2Wallet">AEPS Wallet 2</option>
                 </select>
               </div>
 
