@@ -552,6 +552,24 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.aeps2Wallet || "0"}
                       </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
+                        <button
+                          onClick={() => setFundModal({
+                            show: true,
+                            userId: row.id || row.originalItem?.id,
+                            userName: row.name || row.userName || "User",
+                            amount: "",
+                            action: "CREDIT",
+                            walletType: "mainWallet",
+                            remarks: "Manual balance credit transfer",
+                            isSubmitting: false,
+                          })}
+                          className="flex items-center gap-1.5 bg-[#039155] hover:bg-green-700 text-white px-4 py-2 rounded-xl font-[Gilroy-Semibold] text-xs transition-all active:scale-95 shadow-sm"
+                        >
+                          <Wallet className="w-3.5 h-3.5" />
+                          <span>Fund Adjust</span>
+                        </button>
+                      </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
