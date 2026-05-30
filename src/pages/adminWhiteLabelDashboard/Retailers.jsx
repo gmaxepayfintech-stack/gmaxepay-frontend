@@ -13,7 +13,7 @@ import {
   FaExpand,
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { User, X, ZoomIn } from "lucide-react";
+import { User, X, ZoomIn, Wallet } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
   kycStatusData,
