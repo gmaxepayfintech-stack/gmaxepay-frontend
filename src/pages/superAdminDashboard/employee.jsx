@@ -195,7 +195,6 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
           {/* Date filters */}
           <div className="flex flex-row items-center gap-2">
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-[Gilroy-Medium] text-gray-500">From</span>
               <input
                 type="date"
                 value={fromDate}
@@ -204,7 +203,6 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
               />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-[Gilroy-Medium] text-gray-500">To</span>
               <input
                 type="date"
                 value={toDate}

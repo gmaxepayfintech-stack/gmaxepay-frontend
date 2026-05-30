@@ -325,7 +325,7 @@ const Distribution = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
             <h2 className="text-xl sm:text-2xl font-normal text-gray-800">Distributor</h2>
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
-              <div className="flex flex-col xs:flex-row gap-3">
+              <div className="flex flex-row gap-3">
                 <input
                   type="date"
                   value={fromDate}
@@ -483,7 +483,7 @@ const Distribution = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
             <h2 className="text-xl sm:text-2xl font-normal text-gray-800">Distributor</h2>
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
-              <div className="flex flex-col xs:flex-row gap-3">
+              <div className="flex flex-row gap-3">
                 <input type="date" value={fromDate} onChange={(e) => { setFromDate(e.target.value); setCurrentPage(1); }} className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer" />
                 <input type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }} min={fromDate || undefined} className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer" />
               </div>

@@ -902,7 +902,7 @@ const CreateWhiteLabel = () => {
                 </h2>
 
                 <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
-                  <div className="flex flex-col xs:flex-row gap-3">
+                  <div className="flex flex-row gap-3">
                     <div className="relative">
                       <input
                         type="date"
