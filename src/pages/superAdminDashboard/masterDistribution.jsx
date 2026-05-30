@@ -348,7 +348,7 @@ const MasterDistribution = ({
             </h2>
 
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
-              <div className="flex flex-col xs:flex-row gap-3">
+              <div className="flex flex-row gap-3">
                 <input
                   type="date"
                   value={fromDate}
@@ -366,6 +366,13 @@ const MasterDistribution = ({
               </div>
 
               <div className="relative w-full sm:w-48">
+                <input
+                  type="text"
+                  placeholder="Search by Mobile No or Name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
+                />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none w-4 h-4" />
               </div>
 
