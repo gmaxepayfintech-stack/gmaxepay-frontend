@@ -4,7 +4,7 @@ import { API_ROUTE } from "../../data/env";
 import { clearAllStorage, isTokenExpiredError } from "../../utils/clearStorage";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { ADMIN_APPROVE_FAILURE, ADMIN_APPROVE_SUCCESS, ADMIN_REQUEST_SUCCESS, COMPANY_APPROVE_REQUEST_FAILURE, COMPANY_APPROVE_REQUEST_SUCCESS, COMPANY_BANK_LIST_FAILURE, COMPANY_BANK_LIST_SUCCESS, COMPANY_FUND_LOAD_FAILURE, COMPANY_FUND_LOAD_SUCCESS, COMPANY_GET_ALL_REQUEST_FAILURE, COMPANY_GET_ALL_REQUEST_SUCCESS, DISTRIBUTOR_FUND_APPROVE_FAILURE, DISTRIBUTOR_FUND_APPROVE_SUCCESS, DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, DISTRIBUTOR_FUND_LOAD_FAILURE, DISTRIBUTOR_FUND_LOAD_SUCCESS, DISTRIBUTOR_FUND_REQUEST_FAILURE, DISTRIBUTOR_FUND_REQUEST_SUCCESS, EMPLOYEE_APPROVE_FAILURE, EMPLOYEE_APPROVE_SUCCESS, EMPLOYEE_REQUEST_FAILURE, EMPLOYEE_REQUEST_SUCCESS, MASTER_DISTRIBUTOR_FUND_APPROVE_FAILURE, MASTER_DISTRIBUTOR_FUND_APPROVE_SUCCESS, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, MASTER_DISTRIBUTOR_FUND_LOAD_FAILURE, MASTER_DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_REQUEST_FAILURE, MASTER_DISTRIBUTOR_FUND_REQUEST_SUCCESS, PAN_SERVICE_REQUEST_FAILURE, PAN_SERVICE_REQUEST_SUCCESS, RETAILER_FUND_GET_ALL_BANKS_FAILURE, RETAILER_FUND_GET_ALL_BANKS_SUCCESS, RETAILER_FUND_LOAD_FAILURE, RETAILER_FUND_LOAD_SUCCESS } from "../actionType/fundActionType";
+import { ADMIN_APPROVE_FAILURE, ADMIN_APPROVE_SUCCESS, ADMIN_REQUEST_SUCCESS, COMPANY_APPROVE_REQUEST_FAILURE, COMPANY_APPROVE_REQUEST_SUCCESS, COMPANY_BANK_LIST_FAILURE, COMPANY_BANK_LIST_SUCCESS, COMPANY_FUND_LOAD_FAILURE, COMPANY_FUND_LOAD_SUCCESS, COMPANY_GET_ALL_REQUEST_FAILURE, COMPANY_GET_ALL_REQUEST_SUCCESS, DISTRIBUTOR_FUND_APPROVE_FAILURE, DISTRIBUTOR_FUND_APPROVE_SUCCESS, DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, DISTRIBUTOR_FUND_LOAD_FAILURE, DISTRIBUTOR_FUND_LOAD_SUCCESS, DISTRIBUTOR_FUND_REQUEST_FAILURE, DISTRIBUTOR_FUND_REQUEST_SUCCESS, EMPLOYEE_APPROVE_FAILURE, EMPLOYEE_APPROVE_SUCCESS, EMPLOYEE_REQUEST_FAILURE, EMPLOYEE_REQUEST_SUCCESS, MASTER_DISTRIBUTOR_FUND_APPROVE_FAILURE, MASTER_DISTRIBUTOR_FUND_APPROVE_SUCCESS, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, MASTER_DISTRIBUTOR_FUND_LOAD_FAILURE, MASTER_DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_REQUEST_FAILURE, MASTER_DISTRIBUTOR_FUND_REQUEST_SUCCESS, PAN_SERVICE_REQUEST_FAILURE, PAN_SERVICE_REQUEST_SUCCESS, RETAILER_FUND_GET_ALL_BANKS_FAILURE, RETAILER_FUND_GET_ALL_BANKS_SUCCESS, RETAILER_FUND_LOAD_FAILURE, RETAILER_FUND_LOAD_SUCCESS, ADMIN_CREDIT_DEBIT_SUCCESS, ADMIN_CREDIT_DEBIT_FAILURE, EMPLOYEE_CREDIT_DEBIT_SUCCESS, EMPLOYEE_CREDIT_DEBIT_FAILURE } from "../actionType/fundActionType";
 
 const commonError = "Something went wrong!";
 
@@ -1121,6 +1121,120 @@ export const PanAOneRequest = (payload) => async (dispatch) => {
       payload: errorMessage,
     });
     throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const adminCreditDebit = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/fund/credit-debit`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADMIN_CREDIT_DEBIT_SUCCESS,
+        payload: { status, message },
+      });
+      return { status, message };
+    } else {
+      dispatch({
+        type: ADMIN_CREDIT_DEBIT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    if (isTokenExpiredError(error)) {
+      clearAllStorage();
+    }
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: ADMIN_CREDIT_DEBIT_FAILURE,
+      payload: errorMessage,
+    });
+    return {
+      status: "FAILURE",
+      message: errorMessage || commonError,
+    };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeCreditDebit = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/fund/credit-debit`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_CREDIT_DEBIT_SUCCESS,
+        payload: { status, message },
+      });
+      return { status, message };
+    } else {
+      dispatch({
+        type: EMPLOYEE_CREDIT_DEBIT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    if (isTokenExpiredError(error)) {
+      clearAllStorage();
+    }
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: EMPLOYEE_CREDIT_DEBIT_FAILURE,
+      payload: errorMessage,
+    });
+    return {
+      status: "FAILURE",
+      message: errorMessage || commonError,
+    };
   } finally {
     dispatch({ type: LOADING_END });
   }
