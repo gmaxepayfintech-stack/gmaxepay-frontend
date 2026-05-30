@@ -5,7 +5,7 @@ import { ThemeProvider } from '@material-tailwind/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import '../public/css/tailwind.css';
+import '@/styles/globals.css';
 import App from './App';
 import { store } from './redux/store'; 
 import { CompanyProvider, useCompany } from './context/CompanyContext';
