@@ -8,9 +8,11 @@ import { ButtonLoader } from "../../widgets/layout/loader";
 import {
   ShieldAlert,
   CheckCircle2,
-  Info
+  Info,
+  Wallet
 } from "lucide-react";
 import { createEmployee, useList, ResendEmployeeLoginAccess, kycUnlock, kycStatusCheck } from "../../redux/action/whiteLabelAction";
+import { adminCreditDebit } from "../../redux/action/fundAction";
 import { useNotification } from "../../context/NotificationContext";
 
 const tableHeaders = [
@@ -22,7 +24,8 @@ const tableHeaders = [
   "Active",
   "Date",
   "Lock Status",
-  "Login Access"
+  "Login Access",
+  "Fund Adjust"
 ];
 
 const PAGE_SIZE = 10;
@@ -35,6 +38,17 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingLocal, setIsLoadingLocal] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Fund Adjust Modal State
+  const [fundModal, setFundModal] = useState({
+    show: false,
+    userId: null,
+    userName: "",
+    amount: "",
+    action: "CREDIT",
+    remarks: "",
+    isSubmitting: false,
+  });
 
   // Unified Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
@@ -161,6 +175,38 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
 
   // Filter logic handled by API, using search locally for immediate feedback if needed
   const currentTableData = embedded && tableData ? tableData : apiData;
+
+  // Handle Fund Adjust submission
+  const handleFundAdjustSubmit = async () => {
+    const { userId, amount, action, remarks } = fundModal;
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      notifyError({ message: "Please enter a valid amount greater than 0", isCritical: true });
+      return;
+    }
+    if (!remarks.trim()) {
+      notifyError({ message: "Remarks are required", isCritical: true });
+      return;
+    }
+    setFundModal((prev) => ({ ...prev, isSubmitting: true }));
+    try {
+      const result = await dispatch(adminCreditDebit({
+        userId: Number(userId),
+        amount: Number(amount),
+        action,
+        remarks: remarks.trim(),
+      }));
+      if (result?.status === "SUCCESS") {
+        notifySuccess({ message: result.message || `Fund ${action === 'CREDIT' ? 'credited' : 'debited'} successfully!`, isCritical: true });
+        setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", remarks: "", isSubmitting: false });
+      } else {
+        notifyError({ message: result?.message || "Fund adjustment failed. Please try again.", isCritical: true });
+        setFundModal((prev) => ({ ...prev, isSubmitting: false }));
+      }
+    } catch {
+      notifyError({ message: "An unexpected error occurred.", isCritical: true });
+      setFundModal((prev) => ({ ...prev, isSubmitting: false }));
+    }
+  };
 
   const handleToggle = (id, currentStatus) => {
     if (!id) return;
@@ -379,6 +425,25 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                         <span>Resend</span>
                       </button>
                     </td>
+
+                    {/* Fund Adjust */}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => setFundModal({
+                          show: true,
+                          userId: row.id,
+                          userName: row.name || "User",
+                          amount: "",
+                          action: "CREDIT",
+                          remarks: "Manual balance credit transfer",
+                          isSubmitting: false,
+                        })}
+                        className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-[Gilroy-Semibold] text-xs transition-all active:scale-95 shadow-sm"
+                      >
+                        <Wallet className="w-3.5 h-3.5" />
+                        <span>Fund Adjust</span>
+                      </button>
+                    </td>
                   </tr>
                 );
               })
@@ -554,6 +619,97 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Fund Adjust Modal */}
+      {fundModal.show && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="bg-white w-full max-w-[440px] rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Wallet className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-[Gilroy-Semibold] text-lg">Fund Adjustment</h2>
+                  <p className="text-purple-200 text-xs font-[Gilroy-Medium]">{fundModal.userName}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 space-y-4">
+              {/* Action Toggle */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-2">Action</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {["CREDIT", "DEBIT"].map((act) => (
+                    <button
+                      key={act}
+                      onClick={() => setFundModal((prev) => ({ ...prev, action: act }))}
+                      className={`py-2.5 rounded-xl font-[Gilroy-Semibold] text-sm transition-all ${
+                        fundModal.action === act
+                          ? act === "CREDIT"
+                            ? "bg-green-600 text-white shadow-md"
+                            : "bg-red-500 text-white shadow-md"
+                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                      }`}
+                    >
+                      {act === "CREDIT" ? "▲ Credit" : "▼ Debit"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Enter amount"
+                  value={fundModal.amount}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, amount: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Remarks</label>
+                <textarea
+                  placeholder="Enter remarks..."
+                  rows={3}
+                  value={fundModal.remarks}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, remarks: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-6 flex gap-3">
+              <button
+                onClick={() => setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", remarks: "", isSubmitting: false })}
+                disabled={fundModal.isSubmitting}
+                className="flex-1 border border-gray-300 text-gray-600 font-[Gilroy-Semibold] rounded-xl py-3 text-sm hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFundAdjustSubmit}
+                disabled={fundModal.isSubmitting}
+                className={`flex-1 text-white font-[Gilroy-Semibold] rounded-xl py-3 text-sm transition flex items-center justify-center gap-2 disabled:opacity-60 ${
+                  fundModal.action === "CREDIT" ? "bg-green-600 hover:bg-green-700" : "bg-red-500 hover:bg-red-600"
+                }`}
+              >
+                {fundModal.isSubmitting ? <ButtonLoader size={18} color="white" /> : null}
+                {fundModal.action === "CREDIT" ? "Confirm Credit" : "Confirm Debit"}
+              </button>
+            </div>
           </div>
         </div>
       )}
