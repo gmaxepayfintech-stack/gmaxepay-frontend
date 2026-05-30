@@ -5,7 +5,8 @@ import {
   Search,
   Download,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Wallet
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
@@ -23,6 +24,8 @@ import {
   getAdminProfileDetails,
   setSelectedUserRole,
 } from "../../redux/action/userProfileAction";
+import { adminCreditDebit } from "../../redux/action/fundAction";
+import { useNotification } from "../../context/NotificationContext";
 import KycModal from "./KycModal";
 const MasterDistribution = ({
   embedded = false,
@@ -49,6 +52,20 @@ const MasterDistribution = ({
   const [isReverting, setIsReverting] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+
+  const { success: notifySuccess, error: notifyError } = useNotification();
+
+  // Fund Adjust Modal State
+  const [fundModal, setFundModal] = useState({
+    show: false,
+    userId: null,
+    userName: "",
+    amount: "",
+    action: "CREDIT",
+    walletType: "mainWallet",
+    remarks: "",
+    isSubmitting: false,
+  });
 
   const [confirmModal, setConfirmModal] = useState({
     show: false,
@@ -163,6 +180,39 @@ const MasterDistribution = ({
 
     dispatch(useListAction(payload));
   }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+
+  // Handle Fund Adjust submission
+  const handleFundAdjustSubmit = async () => {
+    const { userId, amount, action, walletType, remarks } = fundModal;
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      notifyError({ message: "Please enter a valid amount greater than 0", isCritical: true });
+      return;
+    }
+    if (!remarks.trim()) {
+      notifyError({ message: "Remarks are required", isCritical: true });
+      return;
+    }
+    setFundModal((prev) => ({ ...prev, isSubmitting: true }));
+    try {
+      const result = await dispatch(adminCreditDebit({
+        userId: Number(userId),
+        amount: Number(amount),
+        action,
+        walletType,
+        remarks: remarks.trim(),
+      }));
+      if (result?.status === "SUCCESS") {
+        notifySuccess({ message: result.message || `Fund ${action === 'CREDIT' ? 'credited' : 'debited'} successfully!`, isCritical: true });
+        setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", walletType: "mainWallet", remarks: "", isSubmitting: false });
+      } else {
+        notifyError({ message: result?.message || "Fund adjustment failed. Please try again.", isCritical: true });
+        setFundModal((prev) => ({ ...prev, isSubmitting: false }));
+      }
+    } catch {
+      notifyError({ message: "An unexpected error occurred.", isCritical: true });
+      setFundModal((prev) => ({ ...prev, isSubmitting: false }));
+    }
+  };
 
   const handleExportToExcel = () => {
     if (!allTableData || allTableData.length === 0) {
@@ -376,6 +426,9 @@ const MasterDistribution = ({
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS2 Wallet
+                  </th>
+                  <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Fund Adjust
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
@@ -812,6 +865,9 @@ const MasterDistribution = ({
                     AEPS2 Wallet
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Fund Adjust
+                  </th>
+                  <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -929,6 +985,24 @@ const MasterDistribution = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.aeps2Wallet || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
+                        <button
+                          onClick={() => setFundModal({
+                            show: true,
+                            userId: row.id || row.originalItem?.id,
+                            userName: row.name || row.userName || "User",
+                            amount: "",
+                            action: "CREDIT",
+                            walletType: "mainWallet",
+                            remarks: "Manual balance credit transfer",
+                            isSubmitting: false,
+                          })}
+                          className="flex items-center gap-1.5 bg-[#039155] hover:bg-green-700 text-white px-4 py-2 rounded-xl font-[Gilroy-Semibold] text-xs transition-all active:scale-95 shadow-sm"
+                        >
+                          <Wallet className="w-3.5 h-3.5" />
+                          <span>Fund Adjust</span>
+                        </button>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Medium]">
                         <span
@@ -1147,6 +1221,107 @@ const MasterDistribution = ({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Fund Adjust Modal */}
+      {fundModal.show && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="bg-white w-full max-w-[440px] rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#039155] to-green-700 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Wallet className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-[Gilroy-Semibold] text-lg">Fund Adjustment</h2>
+                  <p className="text-green-100 text-xs font-[Gilroy-Medium]">{fundModal.userName}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 space-y-4">
+
+              {/* Wallet Type Dropdown */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Wallet Type</label>
+                <select
+                  value={fundModal.walletType}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, walletType: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent bg-white appearance-none cursor-pointer"
+                >
+                  <option value="mainWallet">Main Wallet</option>
+                  <option value="apes1Wallet">AEPS Wallet 1</option>
+                  <option value="apes2Wallet">AEPS Wallet 2</option>
+                </select>
+              </div>
+
+              {/* Action Dropdown */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Action</label>
+                <select
+                  value={fundModal.action}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, action: e.target.value }))}
+                  className={`w-full border rounded-xl px-4 py-3 text-sm font-[Gilroy-Semibold] focus:outline-none focus:ring-2 focus:border-transparent bg-white appearance-none cursor-pointer ${
+                    fundModal.action === "CREDIT"
+                      ? "border-green-400 text-green-700 focus:ring-green-500"
+                      : "border-red-400 text-red-600 focus:ring-red-500"
+                  }`}
+                >
+                  <option value="CREDIT">▲ CREDIT</option>
+                  <option value="DEBIT">▼ DEBIT</option>
+                </select>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Enter amount"
+                  value={fundModal.amount}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, amount: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                />
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label className="block text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-1.5">Remarks</label>
+                <textarea
+                  placeholder="Enter remarks..."
+                  rows={3}
+                  value={fundModal.remarks}
+                  onChange={(e) => setFundModal((prev) => ({ ...prev, remarks: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-[Gilroy-Medium] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-6 flex gap-3">
+              <button
+                onClick={() => setFundModal({ show: false, userId: null, userName: "", amount: "", action: "CREDIT", walletType: "mainWallet", remarks: "", isSubmitting: false })}
+                disabled={fundModal.isSubmitting}
+                className="flex-1 border border-gray-300 text-gray-600 font-[Gilroy-Semibold] rounded-xl py-3 text-sm hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFundAdjustSubmit}
+                disabled={fundModal.isSubmitting}
+                className={`flex-1 text-white font-[Gilroy-Semibold] rounded-xl py-3 text-sm transition flex items-center justify-center gap-2 disabled:opacity-60 ${
+                  fundModal.action === "CREDIT" ? "bg-[#039155] hover:bg-green-700" : "bg-red-500 hover:bg-red-600"
+                }`}
+              >
+                {fundModal.isSubmitting ? <ButtonLoader size={18} color="white" /> : null}
+                {fundModal.action === "CREDIT" ? "Confirm Credit" : "Confirm Debit"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
