@@ -92,7 +92,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
         if (!statusVal) return "Pending";
         const s = String(statusVal).toUpperCase();
         if (s === "SUCCESS" || s === "SUCCESSFUL" || s === "TRUE") return "Success";
-        if (s === "FAILED" || s === "FAILURE" || s === "FALSE") return "Failed";
+        if (s === "FAILED" || s === "FAILURE" || s === "FALSE" || s === "ERROR" || s === "ERR") return "Failed";
         return "Pending";
       };
 
@@ -116,6 +116,16 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       const wlComm = item.whitelabelComm || 0;
       const wlTDS = item.whitelabelCommTDS || 0;
 
+      // --- Wallet Balances ---
+      const rawOpening = apiType === "aeps2" ? item.openingAeps2Wallet : item.openingWallet;
+      const formattedOpening = rawOpening !== undefined && rawOpening !== null ? `₹${Number(rawOpening).toFixed(2)}` : "₹0.00";
+
+      const rawClosing = apiType === "aeps2" ? item.closingAeps2Wallet : item.closingWallet;
+      const formattedClosing = rawClosing !== undefined && rawClosing !== null ? `₹${Number(rawClosing).toFixed(2)}` : "₹0.00";
+
+      const formattedComm = `₹${Number(wlComm).toFixed(2)}`;
+      const formattedTDS = `₹${Number(wlTDS).toFixed(2)}`;
+
       return {
         id: item.id,
         refId: String(item.refId || item.addedBy || "N/A"),
@@ -136,6 +146,10 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
         refID: String(item.merchantReferenceId || item.refId || "N/A"),
         bankRRN: String(item.bankRRN || "N/A"),
         amount: formattedAmount,
+        openingBal: formattedOpening,
+        closingBal: formattedClosing,
+        commission: formattedComm,
+        tds: formattedTDS,
         via: getViaDisplay(item.peripheral, item.device, item.captureType),
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
@@ -301,6 +315,10 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
         "Tax ID": row.taxId,
         "Bank RRN": row.bankRRN,
         "Amount": row.amount,
+        "Commission": row.commission,
+        "TDS": row.tds,
+        "Opening Bal": row.openingBal,
+        "Closing Bal": row.closingBal,
         "VIA": row.via,
         "Status": row.status,
         "Created At": row.createdAt,
@@ -585,6 +603,18 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   Amount
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                  Comissions
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                  TDS
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                  Opening Bal
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                  Closing Bal
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   VIA
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
@@ -692,6 +722,30 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
+                            {transaction.commission}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
+                            {transaction.tds}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.openingBal}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.closingBal}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.via}
                           </span>
@@ -734,7 +788,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   })
                 ) : (
                   <tr>
-                    <td colSpan={apiType === "aeps2" ? 18 : 17} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={apiType === "aeps2" ? 22 : 21} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
