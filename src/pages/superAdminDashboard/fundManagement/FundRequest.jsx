@@ -50,13 +50,12 @@ const FundRequest = () => {
         query.endDate = toDate;
       }
 
-      // Build payload
       const payload = {
         query: query,
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
         options: {
-          page: 1,
-          paginate: 1000,
+          page: currentPage,
+          paginate: itemsPerPage,
           sort: { createdAt: -1 }
         }
       };
@@ -118,11 +117,9 @@ const FundRequest = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
-  // CLIENT-SIDE Pagination
-  const clientTotalPages = Math.ceil(fundRequests.length / itemsPerPage) || 1;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedRequests = fundRequests.slice(startIndex, endIndex);
+  // SERVER-SIDE Pagination
+  const clientTotalPages = Math.ceil(totalRecords / itemsPerPage) || 1;
+  const paginatedRequests = fundRequests;
 
   // Handle view details
   const handleViewDetails = (request) => {

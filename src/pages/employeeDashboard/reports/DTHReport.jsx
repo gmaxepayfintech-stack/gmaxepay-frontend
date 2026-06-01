@@ -43,7 +43,8 @@ const DTHReport = ({ onBack }) => {
     apiData = rechargeReportResponse;
   }
 
-  const totalCount = rechargeReportResponse?.total || apiData.length;
+  const paginator = rechargeReportResponse?.paginator || {};
+  const totalCount = rechargeReportResponse?.total || 0;
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -93,10 +94,10 @@ const DTHReport = ({ onBack }) => {
     const payload = {
       query,
       customSearch,
-      options: { page: 1, paginate: 1000, sort: { id: -1 } },
+      options: { page: currentPage, paginate: itemsPerPage, sort: { id: -1 } },
     };
     dispatch(rechargeReportsEmployee(payload));
-  }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+  }, [dispatch, debouncedSearchQuery, fromDate, toDate, currentPage, itemsPerPage]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -192,16 +193,9 @@ const DTHReport = ({ onBack }) => {
     return matchesStatus;
   });
 
-  // CLIENT-SIDE Pagination
-  const filteredCount = filteredTransactions.length;
-  const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  // SERVER-SIDE Pagination
+  const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+  const paginatedTransactions = filteredTransactions;
   const apiCurrentPage = currentPage;
 
   // Reset to page 1 when filter changes
@@ -346,7 +340,7 @@ const DTHReport = ({ onBack }) => {
                   customSearch,
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { id: -1 },
                   },
                 };

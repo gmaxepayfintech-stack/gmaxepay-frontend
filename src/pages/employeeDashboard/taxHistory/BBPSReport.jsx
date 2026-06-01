@@ -127,8 +127,8 @@ const BBPSReport = ({ onBack, type }) => {
         const payload = {
             query: query,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 sort: {
                     createdAt: -1
                 }
@@ -139,7 +139,7 @@ const BBPSReport = ({ onBack, type }) => {
         };
 
         dispatch(bbpsHistoryEmployee(payload));
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery, statusFilter]);
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery, statusFilter, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -162,16 +162,9 @@ const BBPSReport = ({ onBack, type }) => {
         return matchesSearch;
     });
 
-    // CLIENT-SIDE Pagination
-    const totalCount = filteredTransactions.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination
+    const totalPages = paginator.pageCount || Math.ceil(apiTotalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -248,7 +241,7 @@ const BBPSReport = ({ onBack, type }) => {
                                     },
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: {
                                             createdAt: -1
                                         }

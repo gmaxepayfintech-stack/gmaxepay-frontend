@@ -107,8 +107,8 @@ const SurCharges = ({ onBack, type }) => {
         const payload = {
             query: query, // Using the date query constructed above
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 order: [["createdAt", "DESC"]]
             },
             customSearch: debouncedSearchQuery ? {
@@ -123,7 +123,7 @@ const SurCharges = ({ onBack, type }) => {
                 showNotification(res?.message || "Failed to fetch Surcharges history", "error");
             }
         });
-    }, [dispatch, fromDate, toDate, showNotification]);
+    }, [dispatch, fromDate, toDate, showNotification, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -149,16 +149,12 @@ const SurCharges = ({ onBack, type }) => {
         return matchesSearch;
     });
 
-    // CLIENT-SIDE Pagination
-    const totalCount = filteredTransactions.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination - use paginator from API response
+    const surPaginator = useSelector((state) => state?.wallet?.surchargesHistory?.paginator || {});
+    const surTotal = useSelector((state) => state?.wallet?.surchargesHistory?.total || 0);
+    const totalCount = surTotal || filteredTransactions.length;
+    const totalPages = surPaginator?.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -231,7 +227,7 @@ const SurCharges = ({ onBack, type }) => {
                                     query: {},
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         order: [["createdAt", "DESC"]]
                                     },
                                     customSearch: {}

@@ -83,15 +83,14 @@ const DthRechargeHIstory = ({ onBack }) => {
       query: query,
       customSearch: customSearch,
       options: {
-        page: 1,
-        paginate: 1000,
-        // As per API contract: sort by id desc
+        page: currentPage,
+        paginate: itemsPerPage,
         sort: { id: -1 },
       },
     };
 
     dispatch(rechargeReportsUser(payload));
-  }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+  }, [dispatch, debouncedSearchQuery, fromDate, toDate, currentPage, itemsPerPage]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -175,17 +174,11 @@ const DthRechargeHIstory = ({ onBack }) => {
     return matchesStatus;
   });
 
-  // CLIENT-SIDE Pagination
-  const filteredCount = filteredTransactions.length;
-  const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
-  const apiCurrentPage = currentPage;
+  // SERVER-SIDE Pagination - use paginator from API response
+  const paginator = rechargeReportResponse?.paginator || rechargeReportResponse?.data?.paginator || {};
+  const totalPages = paginator.pageCount || Math.ceil((rechargeReportResponse?.data?.length || 0) / itemsPerPage) || 1;
+  const paginatedTransactions = filteredTransactions;
+  const apiCurrentPage = paginator.currentPage || currentPage;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
@@ -319,7 +312,7 @@ const DthRechargeHIstory = ({ onBack }) => {
                   customSearch,
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { id: -1 },
                   },
                 };

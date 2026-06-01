@@ -123,8 +123,8 @@ const GSTHistory = ({ onBack, type }) => {
         const payload = {
             query: query,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 sort: {
                     createdAt: -1
                 }
@@ -137,7 +137,7 @@ const GSTHistory = ({ onBack, type }) => {
         };
 
         dispatch(employeeGstHistory(payload));
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery]);
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -160,16 +160,9 @@ const GSTHistory = ({ onBack, type }) => {
         return matchesSearch;
     });
 
-    // CLIENT-SIDE Pagination
-    const totalCount = filteredTransactions.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination
+    const totalPages = paginator.pageCount || Math.ceil(apiTotalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -241,7 +234,7 @@ const GSTHistory = ({ onBack, type }) => {
                                     query: {},
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: {
                                             createdAt: -1
                                         }

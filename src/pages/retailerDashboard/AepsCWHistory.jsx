@@ -461,7 +461,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   customSearch,
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { createdAt: -1 },
                   },
                 };
@@ -633,7 +633,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const fallbackSrNo = startIndex + index + 1;
+                    const fallbackSrNo = (currentPage - 1) * itemsPerPage + index + 1;
                     const srNo = transaction.id ?? fallbackSrNo;
 
                     return (

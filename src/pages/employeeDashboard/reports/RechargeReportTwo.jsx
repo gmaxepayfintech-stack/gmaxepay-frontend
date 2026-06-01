@@ -85,14 +85,14 @@ const RechargeReportTwo = ({ onBack }) => {
             query,
             customSearch,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 sort: { id: -1 },
             },
         };
 
         dispatch(rechargeReportsTwoEmployee(payload));
-    }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+    }, [dispatch, debouncedSearchQuery, fromDate, toDate, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -127,7 +127,7 @@ const RechargeReportTwo = ({ onBack }) => {
                     customSearch,
                     options: {
                         page: 1,
-                        paginate: 1000,
+                        paginate: itemsPerPage,
                         sort: { id: -1 },
                     },
                 };
@@ -212,16 +212,10 @@ const RechargeReportTwo = ({ onBack }) => {
         return matchesStatus;
     });
 
-    // CLIENT-SIDE Pagination
-    const filteredCount = filteredTransactions.length;
-    const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination
+    const paginator = rechargeReportResponse?.paginator || {};
+    const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
     const apiCurrentPage = currentPage;
 
     // Reset to page 1 when filter changes
@@ -366,7 +360,7 @@ const RechargeReportTwo = ({ onBack }) => {
                                     customSearch,
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: { id: -1 },
                                     },
                                 };

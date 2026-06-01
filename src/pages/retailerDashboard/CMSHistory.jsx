@@ -119,7 +119,7 @@ const CMSHistory = ({ onBack }) => {
     const handleExportToExcel = () => {
         if (!transactions || transactions.length === 0) { alert("No data available to export"); return; }
         const excelData = transactions.map((row, index) => ({
-            "SR No": startIndex + index + 1,
+            "SR No": (currentPage - 1) * itemsPerPage + index + 1,
             "Date & Time": row.createdAt,
             "TXN User": row.txnUser,
             "User ID": row.userId,
@@ -234,7 +234,7 @@ const CMSHistory = ({ onBack }) => {
                                 {transactions.length > 0 ? (
                                     transactions.map((transaction, index) => (
                                         <tr key={transaction.id} className={`transition-colors ${index % 2 === 0 ? "bg-[#039155]/5 hover:bg-[#E8F5ED]" : "bg-white hover:bg-gray-50"}`}>
-                                            <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{startIndex + index + 1}</td>
+                                            <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                             <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                                                 {transaction.createdAt}
                                             </td>

@@ -379,7 +379,7 @@ const RechargeReportTwo = ({ onBack }) => {
                                     customSearch,
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: { id: -1 },
                                     },
                                 };
