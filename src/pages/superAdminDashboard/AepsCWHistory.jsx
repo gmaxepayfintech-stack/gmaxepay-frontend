@@ -57,9 +57,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const aepsHistoryResponse = isAeps2
     ? aeps2HistoryResponse
     : aeps1HistoryResponse;
-  const apiData = aepsHistoryResponse?.data || [];
-  const paginator = aepsHistoryResponse?.paginator || {};
-  const totalCount = aepsHistoryResponse?.total || 0;
+  const apiData = Array.isArray(aepsHistoryResponse?.data)
+    ? aepsHistoryResponse.data
+    : aepsHistoryResponse?.data?.docs || [];
+  const paginator = aepsHistoryResponse?.paginator || aepsHistoryResponse?.data?.paginator || {};
+  const totalCount = aepsHistoryResponse?.total ?? aepsHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionDetailsResponse = useSelector(
     (state) => state?.aeps?.transactionDetails,
