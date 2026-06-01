@@ -82,18 +82,14 @@ const DTHReportTwo = ({ onBack }) => {
     useEffect(() => {
         // Only fire API when BOTH dates are set OR BOTH are empty — never with only one date
         const bothDatesSelected = debouncedFromDate && debouncedToDate;
-        const bothDatesNull = !debouncedFromDate && !debouncedToDate;
-
-        if (!bothDatesSelected && !bothDatesNull) {
-            return;
-        }
-
         const query = {
+            // API expects serviceType: "DTHRecharge"
             serviceType: "DTH2Recharge",
         };
 
         // Add date filters only if both dates are selected
-        if (bothDatesSelected) {
+        if (debouncedFromDate && debouncedToDate) {
+            // Format date as YYYY-MM-DD (backend will handle format)
             query.startDate = debouncedFromDate;
             query.endDate = debouncedToDate;
         }
@@ -107,14 +103,14 @@ const DTHReportTwo = ({ onBack }) => {
             query: query,
             customSearch: customSearch,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 sort: { id: -1 },
             },
         };
 
         dispatch(rechargeReportsTwoAdmin(payload));
-    }, [dispatch, debouncedSearchQuery, debouncedFromDate, debouncedToDate]);
+    }, [dispatch, debouncedSearchQuery, debouncedFromDate, debouncedToDate, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -150,8 +146,8 @@ const DTHReportTwo = ({ onBack }) => {
                     query: query,
                     customSearch: customSearch,
                     options: {
-                        page: 1,
-                        paginate: 1000,
+                        page: currentPage,
+                        paginate: itemsPerPage,
                         sort: { id: -1 },
                     },
                 };
@@ -264,17 +260,10 @@ const DTHReportTwo = ({ onBack }) => {
         return matchesStatus;
     });
 
-    // CLIENT-SIDE Pagination
-    const filteredCount = filteredTransactions.length;
-    const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
-    const apiCurrentPage = currentPage;
+    // SERVER-SIDE Pagination
+    const totalPages = paginator.pageCount || 1;
+    const paginatedTransactions = filteredTransactions;
+    const apiCurrentPage = paginator.currentPage || currentPage;
 
     // Reset to page 1 when filter changes
     useEffect(() => {

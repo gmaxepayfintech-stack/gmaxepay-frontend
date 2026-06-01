@@ -231,8 +231,8 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query: query,
       customSearch: {},
       options: {
-        page: 1,
-        paginate: 1000,
+        page: currentPage,
+        paginate: itemsPerPageState,
         sort: { createdAt: -1 },
       },
     };
@@ -242,7 +242,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     } else {
       dispatch(getAepsCwHistoryCompany(payload));
     }
-  }, [dispatch, fromDate, toDate, apiType, transactionType]);
+  }, [dispatch, fromDate, toDate, apiType, transactionType, currentPage, itemsPerPageState]);
 
   useEffect(() => {
     if (!isLoading && isReloading) {
@@ -273,18 +273,11 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     return matchesStatus && matchesSearch;
   });
 
-  // CLIENT-SIDE Pagination like walletHistory and payoutHistory
-  const itemsPerPage = itemsPerPageState;
-  const totalCount = filteredTransactions.length;
-  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-  const apiCurrentPage = currentPage;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  // SERVER-SIDE Pagination
+  const itemsPerPage = paginator.perPage || itemsPerPageState;
+  const totalPages = paginator.pageCount || 1;
+  const apiCurrentPage = paginator.currentPage || currentPage;
+  const paginatedTransactions = filteredTransactions;
 
   useEffect(() => {
     setCurrentPage(1);
