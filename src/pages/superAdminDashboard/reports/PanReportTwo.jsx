@@ -85,15 +85,15 @@ const PanReportTwo = ({ onBack }) => {
             query: query,
             customSearch: customSearch,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 // As per API contract: sort by id desc
                 sort: { id: -1 },
             },
         };
 
         dispatch(rechargeReportsTwoAdmin(payload));
-    }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+    }, [dispatch, debouncedSearchQuery, fromDate, toDate, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -184,16 +184,9 @@ const PanReportTwo = ({ onBack }) => {
         return matchesStatus;
     });
 
-    // CLIENT-SIDE Pagination
-    const filteredCount = filteredTransactions.length;
-    const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination
+    const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
     const apiCurrentPage = currentPage;
 
     // Reset to page 1 when filter changes
@@ -326,7 +319,7 @@ const PanReportTwo = ({ onBack }) => {
                                     customSearch,
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: { id: -1 },
                                     },
                                 };
