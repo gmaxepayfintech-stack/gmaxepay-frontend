@@ -49,25 +49,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       : state?.aeps?.aepsCwHistoryEmployee
   );
   
-  // Robust array extraction that handles multiple nesting patterns
-  let apiData = [];
-  if (aepsHistoryResponse) {
-    if (Array.isArray(aepsHistoryResponse.data)) {
-      apiData = aepsHistoryResponse.data;
-    } else if (isAeps2 && Array.isArray(aepsHistoryResponse.aeps2CwHistoryEmployee)) {
-      apiData = aepsHistoryResponse.aeps2CwHistoryEmployee;
-    } else if (!isAeps2 && Array.isArray(aepsHistoryResponse.aepsCwHistoryEmployee)) {
-      apiData = aepsHistoryResponse.aepsCwHistoryEmployee;
-    } else if (Array.isArray(aepsHistoryResponse)) {
-      apiData = aepsHistoryResponse;
-    } else if (aepsHistoryResponse.data?.data && Array.isArray(aepsHistoryResponse.data.data)) {
-      apiData = aepsHistoryResponse.data.data;
-    }
-  }
-
-
-  const paginator = aepsHistoryResponse?.paginator || aepsHistoryResponse?.data?.paginator || aepsHistoryResponse?.data?.data?.paginator || {};
-  const totalCount = aepsHistoryResponse?.total || aepsHistoryResponse?.data?.total || aepsHistoryResponse?.data?.data?.total || 0;
+  const apiData = Array.isArray(aepsHistoryResponse?.data)
+    ? aepsHistoryResponse.data
+    : aepsHistoryResponse?.data?.docs || [];
+  const paginator = aepsHistoryResponse?.paginator || aepsHistoryResponse?.data?.paginator || {};
+  const totalCount = aepsHistoryResponse?.total ?? aepsHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
   
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionDetailsResponse = useSelector((state) =>

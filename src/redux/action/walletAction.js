@@ -745,13 +745,13 @@ export const walletHistoryCompany = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: WALLET_HISTORY_COMPANY_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: WALLET_HISTORY_COMPANY_FAILURE,
@@ -798,13 +798,13 @@ export const walletHistoryAdmin = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: WALLET_HISTORY_ADMIN_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: WALLET_HISTORY_ADMIN_FAILURE,
@@ -851,13 +851,13 @@ export const walletHistoryEmployee = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: WALLET_HISTORY_EMPLOYEE_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: WALLET_HISTORY_EMPLOYEE_FAILURE,
@@ -904,13 +904,13 @@ export const walletHistoryUsers = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: WALLET_HISTORY_USER_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: WALLET_HISTORY_USER_FAILURE,

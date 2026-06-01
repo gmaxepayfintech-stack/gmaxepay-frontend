@@ -40,8 +40,11 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     }
     return state?.aeps?.aepsCwHistoryUser;
   });
-  const apiData = aepsCwHistoryResponse?.data || [];
-  const paginator = aepsCwHistoryResponse?.paginator || {};
+  const apiData = Array.isArray(aepsCwHistoryResponse?.data)
+    ? aepsCwHistoryResponse.data
+    : aepsCwHistoryResponse?.data?.docs || [];
+  const paginator = aepsCwHistoryResponse?.paginator || aepsCwHistoryResponse?.data?.paginator || {};
+  const totalCount = aepsCwHistoryResponse?.total ?? aepsCwHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Selector for fetching transaction details from Redux
