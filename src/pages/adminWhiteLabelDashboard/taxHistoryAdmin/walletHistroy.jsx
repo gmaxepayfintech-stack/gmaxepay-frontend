@@ -181,6 +181,7 @@ const WalletHistory = ({ onBack, type }) => {
 
   // SERVER-SIDE Pagination
   const paginator = walletHistoryResponse?.paginator || {};
+  const totalCount = walletHistoryResponse?.total || walletHistoryResponse?.data?.total || 0;
   const totalPages = paginator.pageCount || walletHistoryResponse?.data?.pages || 1;
   const paginatedTransactions = filteredTransactions;
 
