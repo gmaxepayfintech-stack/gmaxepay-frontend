@@ -31,7 +31,9 @@ const WalletHistory = ({ onBack, type }) => {
   const walletHistoryResponse = useSelector(
     (state) => state?.wallet?.walletHistoryCompany,
   );
-  const apiData = walletHistoryResponse?.data?.docs || [];
+  const apiData = Array.isArray(walletHistoryResponse?.data)
+    ? walletHistoryResponse.data
+    : walletHistoryResponse?.data?.docs || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format

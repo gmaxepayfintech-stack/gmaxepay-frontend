@@ -957,13 +957,13 @@ export const surChargesHistory = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: SURCHARGES_HISTORY_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: SURCHARGES_HISTORY_FAILURE,
@@ -1116,13 +1116,13 @@ export const adminGstHistory = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: ADMIN_GST_HISTORY_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: ADMIN_GST_HISTORY_FAILURE,
@@ -1328,13 +1328,13 @@ export const surChargesHistoryEmployee = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: SURCHARGES_EMPLOYEE_HISTORY_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: SURCHARGES_EMPLOYEE_HISTORY_FAILURE,
@@ -1381,13 +1381,13 @@ export const employeeGstHistory = (payload) => async (dispatch) => {
             }
         );
 
-        const { data, status, message } = response?.data ?? {};
+        const { data, status, message, total, count, paginator } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
                 type: EMPLOYEE_GST_HISTORY_SUCCESS,
-                payload: { data, status, message },
+                payload: { data, status, message, total, count, paginator },
             });
-            return { data, status, message };
+            return { data, status, message, total, count, paginator };
         } else {
             dispatch({
                 type: EMPLOYEE_GST_HISTORY_FAILURE,

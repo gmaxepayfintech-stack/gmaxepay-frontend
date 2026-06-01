@@ -225,6 +225,7 @@ const PayoutHistoryTwo = ({ onBack, type }) => {
 
   // SERVER-SIDE Pagination
   const paginator = payoutHistoryResponse?.paginator || {};
+  const totalCount = payoutHistoryResponse?.total || payoutHistoryResponse?.data?.total || 0;
   const totalPages = paginator.pageCount || 1;
   const paginatedTransactions = filteredTransactions;
 

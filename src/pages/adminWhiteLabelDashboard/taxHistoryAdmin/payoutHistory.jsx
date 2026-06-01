@@ -232,6 +232,7 @@ const PayoutHistory = ({ onBack, type }) => {
 
   // SERVER-SIDE Pagination
   const paginator = payoutHistoryResponse?.paginator || {};
+  const totalCount = payoutHistoryResponse?.total || payoutHistoryResponse?.data?.total || 0;
   const itemsPerPage = paginator.perPage || itemsPerPageState;
   const totalPages = paginator.pageCount || 1;
   const apiCurrentPage = paginator.currentPage || currentPage;
