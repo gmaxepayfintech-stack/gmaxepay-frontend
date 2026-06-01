@@ -501,7 +501,7 @@ const PayoutHistory = ({ onBack, type }) => {
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
                     const currentPosition = (currentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
+                    const reverseSrNo = (totalCount > 0 && totalCount >= currentPosition) ? (totalCount - currentPosition + 1) : currentPosition;
                     const srNo = String(reverseSrNo).padStart(2, "0");
 
                     return (
@@ -514,7 +514,7 @@ const PayoutHistory = ({ onBack, type }) => {
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.id}
+                            {srNo}
                           </span>
                         </td>
 
