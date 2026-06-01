@@ -27,10 +27,23 @@ const GSTHistory = ({ onBack, type }) => {
     const [isReloading, setIsReloading] = useState(false);
 
     // Get GST history from Redux
-    const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.adminGstHistory?.data
+    const adminGstHistoryResponse = useSelector(
+        (state) => state?.wallet?.adminGstHistory
     );
-    const apiData = walletHistoryResponse || [];
+
+    // Robust array extraction that handles multiple nesting patterns
+    let apiData = [];
+    if (adminGstHistoryResponse) {
+        if (Array.isArray(adminGstHistoryResponse.data)) {
+            apiData = adminGstHistoryResponse.data;
+        } else if (Array.isArray(adminGstHistoryResponse.adminGstHistory)) {
+            apiData = adminGstHistoryResponse.adminGstHistory;
+        } else if (Array.isArray(adminGstHistoryResponse)) {
+            apiData = adminGstHistoryResponse;
+        } else if (adminGstHistoryResponse.data?.data && Array.isArray(adminGstHistoryResponse.data.data)) {
+            apiData = adminGstHistoryResponse.data.data;
+        }
+    }
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -154,8 +167,8 @@ const GSTHistory = ({ onBack, type }) => {
     });
 
     // SERVER-SIDE Pagination - use paginator from API response
-    const gstPaginator = useSelector((state) => state?.wallet?.adminGstHistory?.paginator || {});
-    const gstTotal = useSelector((state) => state?.wallet?.adminGstHistory?.total || 0);
+    const gstPaginator = adminGstHistoryResponse?.paginator || adminGstHistoryResponse?.data?.paginator || {};
+    const gstTotal = adminGstHistoryResponse?.total ?? adminGstHistoryResponse?.data?.total ?? gstPaginator?.itemCount ?? 0;
     const totalCount = gstTotal || filteredTransactions.length;
     const totalPages = gstPaginator?.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
     const paginatedTransactions = filteredTransactions;
@@ -163,7 +176,7 @@ const GSTHistory = ({ onBack, type }) => {
     // Reset to page 1 when filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [debouncedSearchQuery, itemsPerPage]);
+    }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
     // Export to Excel function
     const handleExportToExcel = () => {

@@ -58,7 +58,6 @@ const TaxHistory = () => {
   // Debug: Log when view parameter changes
   useEffect(() => {
     if (viewHistory) {
-      console.log("View history parameter:", viewHistory);
     }
   }, [viewHistory, location.search]);
 

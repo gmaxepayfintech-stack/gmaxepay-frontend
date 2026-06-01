@@ -27,10 +27,23 @@ const SurCharges = ({ onBack, type }) => {
     const [isReloading, setIsReloading] = useState(false);
 
     // Get payout history from Redux
-    const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.surchargesHistory?.data
+    const surchargesHistoryResponse = useSelector(
+        (state) => state?.wallet?.surchargesHistory
     );
-    const apiData = walletHistoryResponse || [];
+
+    // Robust array extraction that handles multiple nesting patterns
+    let apiData = [];
+    if (surchargesHistoryResponse) {
+        if (Array.isArray(surchargesHistoryResponse.data)) {
+            apiData = surchargesHistoryResponse.data;
+        } else if (Array.isArray(surchargesHistoryResponse.surchargesHistory)) {
+            apiData = surchargesHistoryResponse.surchargesHistory;
+        } else if (Array.isArray(surchargesHistoryResponse)) {
+            apiData = surchargesHistoryResponse;
+        } else if (surchargesHistoryResponse.data?.data && Array.isArray(surchargesHistoryResponse.data.data)) {
+            apiData = surchargesHistoryResponse.data.data;
+        }
+    }
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -123,7 +136,7 @@ const SurCharges = ({ onBack, type }) => {
                 showNotification(res?.message || "Failed to fetch Surcharges history", "error");
             }
         });
-    }, [dispatch, fromDate, toDate, showNotification, currentPage, itemsPerPage]);
+    }, [dispatch, fromDate, toDate, showNotification, currentPage, itemsPerPage, debouncedSearchQuery]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -150,8 +163,8 @@ const SurCharges = ({ onBack, type }) => {
     });
 
     // SERVER-SIDE Pagination - use paginator from API response
-    const surPaginator = useSelector((state) => state?.wallet?.surchargesHistory?.paginator || {});
-    const surTotal = useSelector((state) => state?.wallet?.surchargesHistory?.total || 0);
+    const surPaginator = surchargesHistoryResponse?.paginator || surchargesHistoryResponse?.data?.paginator || {};
+    const surTotal = surchargesHistoryResponse?.total ?? surchargesHistoryResponse?.data?.total ?? surPaginator?.itemCount ?? 0;
     const totalCount = surTotal || filteredTransactions.length;
     const totalPages = surPaginator?.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
     const paginatedTransactions = filteredTransactions;
@@ -422,7 +435,7 @@ const SurCharges = ({ onBack, type }) => {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={7} className="px-4 sm:px-6 py-8 text-center">
+                                        <td colSpan={8} className="px-4 sm:px-6 py-8 text-center">
                                             <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                                                 No transactions found
                                             </p>
