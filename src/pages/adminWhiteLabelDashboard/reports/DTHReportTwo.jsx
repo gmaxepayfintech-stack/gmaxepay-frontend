@@ -27,7 +27,7 @@ const DTHReportTwo = ({ onBack }) => {
     const [checkingStatusId, setCheckingStatusId] = useState(null);
     const { showNotification } = useNotification();
 
-    // Get data from Redux (company transaction reports)
+    // Get data  Redux (company transaction reports)
     const rechargeReportResponse = useSelector(
         (state) => state?.reports?.companyTransaction,
     );
