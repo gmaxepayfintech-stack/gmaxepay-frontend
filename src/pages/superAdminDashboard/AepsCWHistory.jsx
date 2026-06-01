@@ -378,6 +378,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const totalPages = paginator.pageCount || 1;
   const paginatedTransactions = filteredTransactions;
   const apiCurrentPage = paginator.currentPage || currentPage;
+  const filteredCount = totalCount;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
