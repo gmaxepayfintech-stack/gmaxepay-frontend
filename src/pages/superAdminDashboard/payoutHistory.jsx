@@ -500,7 +500,7 @@ const PayoutHistory = ({ onBack, type }) => {
               <tbody className="bg-white divide-y divide-gray-200 text-center">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const srNo = String(startIndex + index + 1).padStart(2, "0");
+                    const srNo = String((currentPage - 1) * itemsPerPage + index + 1).padStart(2, "0");
 
                     return (
                       <tr

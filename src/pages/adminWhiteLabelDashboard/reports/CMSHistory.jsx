@@ -85,7 +85,7 @@ const CMSHistory = ({ onBack }) => {
     const handleExportToExcel = () => {
         if (!transactions || transactions.length === 0) { alert("No data available to export"); return; }
         const excelData = transactions.map((row, index) => ({
-            "SR No": startIndex + index + 1, "Date & Time": row.formattedDateTime,
+            "SR No": (currentPage - 1) * itemsPerPage + index + 1, "Date & Time": row.formattedDateTime,
             "TXN User": row.txnUser, "User ID": row.userId, "Mobile No": row.mobileNo,
             "Event": row.event, "Biller Name": row.billerName,
             "TXN ID": row.transactionId, "UTR / Ackno": row.refNo,
@@ -167,7 +167,7 @@ const CMSHistory = ({ onBack }) => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {transactions.length > 0 ? transactions.map((transaction, index) => (
                                     <tr key={transaction.id} className={`transition-colors ${index % 2 === 0 ? "bg-[#039155]/5 hover:bg-[#E8F5ED]" : "bg-white hover:bg-gray-50"}`}>
-                                        <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{startIndex + index + 1}</td>
+                                        <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.formattedDateTime}</td>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap"><div className="flex flex-col"><span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.txnUser}</span><span className="text-xs text-[#1B1717]/50">{transaction.userId}</span></div></td>
                                         <td className="px-4 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">{transaction.mobileNo}</td>

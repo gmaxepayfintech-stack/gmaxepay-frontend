@@ -336,7 +336,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   customSearch: {},
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { id: -1 },
                   },
                 };
@@ -495,7 +495,7 @@ const PayoutHistory = ({ onBack, type }) => {
               <tbody className="bg-white divide-y divide-gray-200 text-center">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const currentPosition = startIndex + index + 1;
+                    const currentPosition = (currentPage - 1) * itemsPerPage + index + 1;
                     const reverseSrNo = totalCount - currentPosition + 1;
                     const srNo = String(reverseSrNo).padStart(2, "0");
 

@@ -284,8 +284,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       query,
       customSearch,
       options: {
-        page: 1,
-        paginate: 1000,
+        page: currentPage,
+        paginate: itemsPerPage,
         sort: { createdAt: -1 },
       },
     };
@@ -303,6 +303,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
     transactionType,
     isAeps2,
     statusFilter,
+    currentPage,
+    itemsPerPage,
   ]);
 
   // Reset isReloading when loading completes
@@ -320,16 +322,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   // Status is filtered server-side via customSearch — no client-side filter needed.
   const filteredTransactions = transactions;
 
-  // CLIENT-SIDE Pagination
-  const filteredCount = filteredTransactions.length;
-  const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  // SERVER-SIDE Pagination
+  const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+  const paginatedTransactions = filteredTransactions;
   const apiCurrentPage = currentPage;
 
   // Reset to page 1 when filter changes
@@ -484,7 +479,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                   customSearch,
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { createdAt: -1 },
                   },
                 };

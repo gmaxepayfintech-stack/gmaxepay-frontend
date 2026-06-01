@@ -545,7 +545,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                   customSearch: {},
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { createdAt: -1 },
                   },
                 };

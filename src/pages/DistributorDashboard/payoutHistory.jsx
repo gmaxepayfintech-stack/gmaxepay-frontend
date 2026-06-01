@@ -58,8 +58,8 @@ const PayoutHistory = ({ onBack, type }) => {
           query,
           customSearch: {},
           options: {
-            page: 1,
-            paginate: 1000,
+            page: currentPage,
+            paginate: itemsPerPageState,
             sort: { id: -1 },
           },
         }));
@@ -197,14 +197,14 @@ const PayoutHistory = ({ onBack, type }) => {
       query,
       customSearch: {},
       options: {
-        page: 1,
-        paginate: 1000, // Get all records since API doesn't support pagination
+        page: currentPage,
+        paginate: itemsPerPageState,
         sort: { id: -1 },
       },
     };
 
     dispatch(getPayoutHistoryUser(payload));
-  }, [dispatch, fromDate, toDate]);
+  }, [dispatch, fromDate, toDate, currentPage, itemsPerPageState]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -236,17 +236,12 @@ const PayoutHistory = ({ onBack, type }) => {
     return matchesStatus && matchesSearch;
   });
 
-  // CLIENT-SIDE Pagination
+  // SERVER-SIDE Pagination - use paginator from API response
   const itemsPerPage = itemsPerPageState;
-  const totalCount = filteredTransactions.length;
-  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  const paginator = payoutHistoryResponse?.paginator || {};
+  const totalCount = payoutHistoryResponse?.total || filteredTransactions.length;
+  const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+  const paginatedTransactions = filteredTransactions;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
@@ -340,7 +335,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   customSearch: {},
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPageState,
                     sort: { id: -1 },
                   },
                 };
@@ -505,7 +500,7 @@ const PayoutHistory = ({ onBack, type }) => {
               <tbody className="bg-white divide-y divide-gray-200 text-center">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const currentPosition = startIndex + index + 1;
+                    const currentPosition = (currentPage - 1) * itemsPerPage + index + 1;
                     const reverseSrNo = totalCount - currentPosition + 1;
                     const srNo = String(reverseSrNo).padStart(2, "0");
 

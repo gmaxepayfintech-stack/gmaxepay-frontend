@@ -120,8 +120,8 @@ const SurCharges = ({ onBack, type }) => {
         const payload = {
             query: query, // Using the date query constructed above
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 order: [["createdAt", "DESC"]]
             },
             customSearch: debouncedSearchQuery ? {
@@ -130,7 +130,7 @@ const SurCharges = ({ onBack, type }) => {
         };
 
         dispatch(surChargesHistoryEmployee(payload));
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery]);
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -156,16 +156,9 @@ const SurCharges = ({ onBack, type }) => {
         return matchesSearch;
     });
 
-    // CLIENT-SIDE Pagination
-    const totalCount = filteredTransactions.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination
+    const totalPages = paginator.pageCount || Math.ceil(apiTotalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -239,7 +232,7 @@ const SurCharges = ({ onBack, type }) => {
                                     query: {},
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         order: [["createdAt", "DESC"]]
                                     },
                                     customSearch: {}

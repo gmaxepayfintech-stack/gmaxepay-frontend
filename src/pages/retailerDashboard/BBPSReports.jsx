@@ -116,8 +116,8 @@ const BBPSReports = ({ onBack, type }) => {
         const payload = {
             query: query,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 sort: {
                     createdAt: -1
                 }
@@ -134,7 +134,7 @@ const BBPSReports = ({ onBack, type }) => {
                 showNotification(res?.message || "Failed to fetch BBPS history", "error");
             }
         });
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery, statusFilter, showNotification]);
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery, statusFilter, showNotification, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -157,16 +157,11 @@ const BBPSReports = ({ onBack, type }) => {
         return matchesSearch;
     });
 
-    // CLIENT-SIDE Pagination
-    const totalCount = filteredTransactions.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination - use paginator from API response
+    const bbpsResponse = useSelector((state) => state?.wallet?.bbpsUserHistory);
+    const paginator = bbpsResponse?.paginator || {};
+    const totalPages = paginator.pageCount || Math.ceil((bbpsResponse?.total || filteredTransactions.length) / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -242,7 +237,7 @@ const BBPSReports = ({ onBack, type }) => {
                                     },
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: {
                                             createdAt: -1
                                         }

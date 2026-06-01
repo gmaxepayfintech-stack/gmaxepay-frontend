@@ -9,7 +9,7 @@ import {
     RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsTwoAdmin } from "../../../redux/action/reportAction";
+import { rechargeReportsTwoEmployee } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import * as XLSX from "xlsx";
 
@@ -25,41 +25,12 @@ const PanReportTwo = ({ onBack }) => {
     const [isReloading, setIsReloading] = useState(false);
 
     // Get data from Redux
-    /*
     const rechargeReportResponse = useSelector(
-        (state) => state?.reports?.adminTransaction,
+        (state) => state?.reports?.employeeTransaction,
     );
     const apiData = rechargeReportResponse?.data || [];
     const paginator = rechargeReportResponse?.paginator || {};
     const totalCount = rechargeReportResponse?.total || 0;
-    */
-
-    // DUMMY DATA FOR PAN HISTORY
-    const apiData = [
-        {
-            id: "pan2-1",
-            transactionId: "PAN2029384756",
-            orderid: "ORD442190",
-            user: { name: "Ramesh Sharma", userId: "AG00123", mobileNo: "9876543210" },
-            mobile_number: "9876543210",
-            action: "New PAN",
-            apiResponse: { amount: "107", message: "Success", txid: "TXN3321", url: "https://example.com/pan/1" },
-            status: "SUCCESS",
-            createdAt: "2024-03-13T10:00:00.000Z"
-        },
-        {
-            id: "pan2-2",
-            transactionId: "PAN2029384757",
-            orderid: "ORD442191",
-            user: { name: "Suresh Patel", userId: "AG00100", mobileNo: "9988776655" },
-            mobile_number: "9988776655",
-            action: "Correction",
-            apiResponse: { amount: "107", message: "Pending", txid: "TXN3322", url: "https://example.com/pan/2" },
-            status: "PENDING",
-            createdAt: "2024-03-13T10:15:22.000Z"
-        }
-    ];
-    const totalCount = apiData.length;
 
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -94,7 +65,6 @@ const PanReportTwo = ({ onBack }) => {
 
     // Fetch PAN service reports
     useEffect(() => {
-        /*
         const query = {
             // API expects serviceType: "Pan"
             serviceType: "Pan2",
@@ -116,17 +86,15 @@ const PanReportTwo = ({ onBack }) => {
             query: query,
             customSearch: customSearch,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 // As per API contract: sort by id desc
                 sort: { id: -1 },
             },
         };
 
-        dispatch(rechargeReportsTwoAdmin(payload));
-        */
-        console.log("PAN report 2 fetching disabled in demo mode.");
-    }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+        dispatch(rechargeReportsTwoEmployee(payload));
+    }, [dispatch, debouncedSearchQuery, fromDate, toDate, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -212,16 +180,9 @@ const PanReportTwo = ({ onBack }) => {
         return matchesStatus;
     });
 
-    // CLIENT-SIDE Pagination
-    const filteredCount = filteredTransactions.length;
-    const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination
+    const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
     const apiCurrentPage = currentPage;
 
     // Reset to page 1 when filter changes
@@ -362,12 +323,12 @@ const PanReportTwo = ({ onBack }) => {
                                     customSearch,
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: { id: -1 },
                                     },
                                 };
 
-                                dispatch(rechargeReportsTwoAdmin(payload));
+                                dispatch(rechargeReportsTwoEmployee(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

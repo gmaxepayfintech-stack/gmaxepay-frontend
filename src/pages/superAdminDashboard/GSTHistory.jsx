@@ -110,8 +110,8 @@ const GSTHistory = ({ onBack, type }) => {
         const payload = {
             query: query,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 sort: {
                     createdAt: -1
                 }
@@ -130,7 +130,7 @@ const GSTHistory = ({ onBack, type }) => {
                 showNotification(res?.message || "Failed to fetch GST history", "error");
             }
         });
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery, showNotification]);
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery, showNotification, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -153,16 +153,12 @@ const GSTHistory = ({ onBack, type }) => {
         return matchesSearch;
     });
 
-    // CLIENT-SIDE Pagination
-    const totalCount = filteredTransactions.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
+    // SERVER-SIDE Pagination - use paginator from API response
+    const gstPaginator = useSelector((state) => state?.wallet?.adminGstHistory?.paginator || {});
+    const gstTotal = useSelector((state) => state?.wallet?.adminGstHistory?.total || 0);
+    const totalCount = gstTotal || filteredTransactions.length;
+    const totalPages = gstPaginator?.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
+    const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -234,7 +230,7 @@ const GSTHistory = ({ onBack, type }) => {
                                     query: {},
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: {
                                             createdAt: -1
                                         }
