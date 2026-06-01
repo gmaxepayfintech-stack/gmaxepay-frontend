@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-
 import { walletHistoryCompany } from "../../../redux/action/walletAction";
 import { useNotification } from "../../../context/NotificationContext";
 import * as XLSX from "xlsx";
@@ -443,7 +442,7 @@ const WalletHistory = ({ onBack, type }) => {
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
                     const currentPosition = (currentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
+                    const reverseSrNo = (totalCount > 0 && totalCount >= currentPosition) ? (totalCount - currentPosition + 1) : currentPosition;
                     const srNo = String(reverseSrNo).padStart(2, "0");
 
                     return (
@@ -456,7 +455,7 @@ const WalletHistory = ({ onBack, type }) => {
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {srNo}
+                            {transaction.id}
                           </span>
                         </td>
 
