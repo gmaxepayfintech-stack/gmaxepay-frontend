@@ -9,7 +9,7 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
   const dispatch = useDispatch();
   const { userBillerInfo, userBillerInfoLoading } = useSelector((state) => state.bbps);
   const { userFetchBill, userFetchBillLoading } = useSelector((state) => state.bbps);
-  
+
   const [mobileNumber, setMobileNumber] = useState(formData.mobileNumber || "");
   const [inputParams, setInputParams] = useState(formData.inputParams || {});
   const [isLoading, setIsLoading] = useState(false);
@@ -23,9 +23,9 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
 
   const handleFetchBill = async () => {
     if (!mobileNumber || mobileNumber.length !== 10 || !formData.biller?.billerId) return;
-    
+
     setIsLoading(true);
-    
+
     // Build input params from userBillerInfo
     const inputParamsList = userBillerInfo?.biller?.[0]?.billerInputParams?.[0]?.paramsList || [];
     const inputArray = inputParamsList.map((param) => ({
@@ -162,7 +162,18 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
                         value={inputParams[param.paramName] || ""}
                         onChange={(e) => {
                           const val = e.target.value;
-                          setInputParams({ ...inputParams, [param.paramName]: val });
+                          // Apply data type validation
+                          if (param.dataType === "NUMERIC") {
+                            if (/^\d*$/.test(val)) {
+                              setInputParams({ ...inputParams, [param.paramName]: val });
+                            }
+                          } else if (param.dataType === "ALPHANUMERIC") {
+                            if (/^[A-Za-z0-9]*$/.test(val)) {
+                              setInputParams({ ...inputParams, [param.paramName]: val });
+                            }
+                          } else {
+                            setInputParams({ ...inputParams, [param.paramName]: val });
+                          }
                         }}
                         maxLength={param.maxLength || undefined}
                         minLength={param.minLength || undefined}
