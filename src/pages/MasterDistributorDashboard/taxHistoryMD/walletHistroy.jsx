@@ -176,10 +176,10 @@ const WalletHistory = ({ onBack, type }) => {
     const searchLower = debouncedSearchQuery.toLowerCase();
     const matchesSearch =
       !debouncedSearchQuery ||
-      transaction.transactionId.toLowerCase().includes(searchLower) ||
-      transaction.refId.toString().includes(searchLower) ||
-      transaction.userName.toLowerCase().includes(searchLower) ||
-      transaction.paymentMode.toLowerCase().includes(searchLower);
+      String(transaction.transactionId || "").toLowerCase().includes(searchLower) ||
+      String(transaction.refId || "").toLowerCase().includes(searchLower) ||
+      String(transaction.userName || "").toLowerCase().includes(searchLower) ||
+      String(transaction.paymentMode || "").toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });
