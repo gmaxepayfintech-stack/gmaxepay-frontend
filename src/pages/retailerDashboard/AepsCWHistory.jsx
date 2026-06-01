@@ -292,7 +292,6 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
   });
 
   // SERVER-SIDE Pagination
-  const paginator = aepsCwHistoryResponse?.paginator || {};
   const totalPages = paginator.pageCount || 1;
   const paginatedTransactions = filteredTransactions;
 
