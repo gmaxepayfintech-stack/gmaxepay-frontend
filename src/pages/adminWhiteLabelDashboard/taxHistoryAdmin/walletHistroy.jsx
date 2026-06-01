@@ -134,8 +134,8 @@ const WalletHistory = ({ onBack, type }) => {
       query,
       customSearch: {},
       options: {
-        page: 1,
-        paginate: 1000, // Get all records since API doesn't support pagination
+        page: currentPage,
+        paginate: itemsPerPage,
         sort: { createdAt: -1 },
       },
     };
@@ -147,7 +147,7 @@ const WalletHistory = ({ onBack, type }) => {
         showNotification(res?.message || "Failed to fetch wallet history", "error");
       }
     });
-  }, [dispatch, fromDate, toDate, showNotification]);
+  }, [dispatch, fromDate, toDate, showNotification, currentPage, itemsPerPage]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -179,16 +179,10 @@ const WalletHistory = ({ onBack, type }) => {
     return matchesStatus && matchesSearch;
   });
 
-  // CLIENT-SIDE Pagination
-  const totalCount = filteredTransactions.length;
-  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  // SERVER-SIDE Pagination
+  const paginator = walletHistoryResponse?.paginator || {};
+  const totalPages = paginator.pageCount || walletHistoryResponse?.data?.pages || 1;
+  const paginatedTransactions = filteredTransactions;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
@@ -282,7 +276,7 @@ const WalletHistory = ({ onBack, type }) => {
                   customSearch: {},
                   options: {
                     page: 1,
-                    paginate: 1000,
+                    paginate: itemsPerPage,
                     sort: { createdAt: -1 },
                   },
                 };

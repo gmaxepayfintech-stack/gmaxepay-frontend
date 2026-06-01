@@ -86,15 +86,15 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
             query: query,
             customSearch: customSearch,
             options: {
-                page: 1,
-                paginate: 1000,
+                page: currentPage,
+                paginate: itemsPerPage,
                 // As per API contract: sort by id desc
                 sort: { id: -1 },
             },
         };
 
         dispatch(rechargeReportsTwoUser(payload));
-    }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+    }, [dispatch, debouncedSearchQuery, fromDate, toDate, currentPage, itemsPerPage]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -130,8 +130,8 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
                     query: query,
                     customSearch: customSearch,
                     options: {
-                        page: 1,
-                        paginate: 1000,
+                        page: currentPage,
+                        paginate: itemsPerPage,
                         sort: { id: -1 },
                     },
                 };
@@ -204,17 +204,11 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
         return matchesStatus;
     });
 
-    // CLIENT-SIDE Pagination
-    const filteredCount = filteredTransactions.length;
-    const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        endIndex,
-    );
-    const apiCurrentPage = currentPage;
+    // SERVER-SIDE Pagination
+    const paginator = rechargeReportResponse?.paginator || {};
+    const totalPages = paginator.pageCount || 1;
+    const paginatedTransactions = filteredTransactions;
+    const apiCurrentPage = paginator.currentPage || currentPage;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
@@ -348,7 +342,7 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
                                     customSearch,
                                     options: {
                                         page: 1,
-                                        paginate: 1000,
+                                        paginate: itemsPerPage,
                                         sort: { id: -1 },
                                     },
                                 };

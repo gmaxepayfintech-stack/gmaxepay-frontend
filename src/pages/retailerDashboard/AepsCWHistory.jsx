@@ -254,8 +254,8 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query,
       customSearch,
       options: {
-        page: 1,
-        paginate: 1000,
+        page: currentPage,
+        paginate: itemsPerPage,
         sort: { createdAt: -1 },
       },
     };
@@ -266,7 +266,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     } else {
       dispatch(getAepsCwHistoryUser(payload));
     }
-  }, [dispatch, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
+  }, [dispatch, debouncedSearchQuery, fromDate, toDate, apiType, transactionType, currentPage, itemsPerPage]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -287,16 +287,10 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     return matchesStatus;
   });
 
-  // CLIENT-SIDE Pagination
-  const totalCount = filteredTransactions.length;
-  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  // SERVER-SIDE Pagination
+  const paginator = aepsCwHistoryResponse?.paginator || {};
+  const totalPages = paginator.pageCount || 1;
+  const paginatedTransactions = filteredTransactions;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
