@@ -162,18 +162,7 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
                         value={inputParams[param.paramName] || ""}
                         onChange={(e) => {
                           const val = e.target.value;
-                          // Apply data type validation
-                          if (param.dataType === "NUMERIC") {
-                            if (/^\d*$/.test(val)) {
-                              setInputParams({ ...inputParams, [param.paramName]: val });
-                            }
-                          } else if (param.dataType === "ALPHANUMERIC") {
-                            if (/^[A-Za-z0-9]*$/.test(val)) {
-                              setInputParams({ ...inputParams, [param.paramName]: val });
-                            }
-                          } else {
-                            setInputParams({ ...inputParams, [param.paramName]: val });
-                          }
+                          setInputParams({ ...inputParams, [param.paramName]: val });
                         }}
                         maxLength={param.maxLength || undefined}
                         minLength={param.minLength || undefined}
