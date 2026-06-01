@@ -421,7 +421,7 @@ const SurCharges = ({ onBack, type }) => {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={7} className="px-4 sm:px-6 py-8 text-center">
+                                        <td colSpan={8} className="px-4 sm:px-6 py-8 text-center">
                                             <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                                                 No transactions found
                                             </p>
