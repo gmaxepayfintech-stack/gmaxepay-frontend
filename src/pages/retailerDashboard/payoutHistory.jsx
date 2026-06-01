@@ -58,8 +58,8 @@ const PayoutHistory = ({ onBack, type }) => {
           query,
           customSearch: {},
           options: {
-            page: 1,
-            paginate: 1000,
+            page: currentPage,
+            paginate: itemsPerPage,
             sort: { id: -1 },
           },
         }));
@@ -205,14 +205,14 @@ const PayoutHistory = ({ onBack, type }) => {
       query,
       customSearch: {},
       options: {
-        page: 1,
-        paginate: 1000, // Get all records since API doesn't support pagination
+        page: currentPage,
+        paginate: itemsPerPage,
         sort: { id: -1 },
       },
     };
 
     dispatch(getPayoutHistoryUser(payload));
-  }, [dispatch, fromDate, toDate]);
+  }, [dispatch, fromDate, toDate, currentPage, itemsPerPage]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -244,16 +244,10 @@ const PayoutHistory = ({ onBack, type }) => {
     return matchesStatus && matchesSearch;
   });
 
-  // CLIENT-SIDE Pagination
-  const totalCount = filteredTransactions.length;
-  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex,
-  );
+  // SERVER-SIDE Pagination
+  const paginator = payoutHistoryResponse?.paginator || {};
+  const totalPages = paginator.pageCount || 1;
+  const paginatedTransactions = filteredTransactions;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
