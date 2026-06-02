@@ -244,14 +244,76 @@ const PayoutHistory = ({ onBack, type }) => {
   }, [statusFilter, debouncedSearchQuery, itemsPerPageState]);
 
   // Export to Excel function
-  const handleExportToExcel = () => {
-    if (!filteredTransactions || filteredTransactions.length === 0) {
+  const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       if (showNotification) showNotification("No data available to export", "error");
       else alert("No data available to export");
       return;
     }
 
-    const excelData = filteredTransactions.map((row, index) => {
+    const query = {};
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const payload = {
+      query,
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await getPayoutHistoryCompany(payload)(customDispatch);
+      const rawDocs = result?.data || [];
+      const docs = Array.isArray(rawDocs) ? rawDocs : (rawDocs.docs || []);
+      exportData = transformApiData(docs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on status and search query (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+
+      const searchLower = debouncedSearchQuery.toLowerCase();
+      const matchesSearch =
+        !debouncedSearchQuery ||
+        String(transaction.transactionID).toLowerCase().includes(searchLower) ||
+        String(transaction.refId).toLowerCase().includes(searchLower) ||
+        String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
+        String(transaction.userName).toLowerCase().includes(searchLower) ||
+        String(transaction.beneficiaryName).toLowerCase().includes(searchLower);
+
+      return matchesStatus && matchesSearch;
+    });
+
+    if (filteredExport.length === 0) {
+      if (showNotification) showNotification("No data matches the selected filters for export", "error");
+      else alert("No data matches the selected filters for export");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row, index) => {
       const currentPosition = index + 1;
       const reverseSrNo = totalCount - currentPosition + 1;
       const srNo = String(reverseSrNo).padStart(2, "0");
@@ -267,9 +329,9 @@ const PayoutHistory = ({ onBack, type }) => {
         "Account Number": row.accountNumber,
         "IFSC Code": row.ifscCode,
         "Bank Name": row.bankName,
-        "Amount": row.amount,
-        "Opening Bal": row.openingBalance,
-        "Closing Bal": row.closingBalance,
+        "Amount": stripRupee(row.amount),
+        "Opening Bal": stripRupee(row.openingBalance),
+        "Closing Bal": stripRupee(row.closingBalance),
         "Type": row.type,
         "AEPS Type": row.aepsType,
         "Status": row.status,

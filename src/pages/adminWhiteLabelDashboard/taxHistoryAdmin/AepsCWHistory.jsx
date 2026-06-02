@@ -348,6 +348,13 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       return;
     }
 
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
     const excelData = exportData.map((row, index) => {
       const baseData = {
         "SR No": index + 1,
@@ -362,11 +369,11 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
         ...(apiType === "aeps2" ? { "Service Type": row.serviceType } : {}),
         "Tax ID": row.taxId,
         "Bank RRN": row.bankRRN,
-        "Amount": row.amount,
-        "Commission": row.commission,
-        "TDS": row.tds,
-        "Opening Bal": row.openingBal,
-        "Closing Bal": row.closingBal,
+        "Amount": stripRupee(row.amount),
+        "Commission": stripRupee(row.commission),
+        "TDS": stripRupee(row.tds),
+        "Opening Bal": stripRupee(row.openingBal),
+        "Closing Bal": stripRupee(row.closingBal),
         "VIA": row.via,
         "Status": row.status,
         "Created At": row.createdAt,

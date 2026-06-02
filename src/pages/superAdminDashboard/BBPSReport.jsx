@@ -168,13 +168,74 @@ const BBPSReport = ({ onBack, type }) => {
     }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
     // Export to Excel function
-    const handleExportToExcel = () => {
-        if (!filteredTransactions || filteredTransactions.length === 0) {
-            showNotification("No data available to export", "error");
-            return;
-        }
+      const handleExportToExcel = async () => {
+    if (totalCount === 0) {
+      showNotification("No data available to export", "error");
+      return;
+    }
 
-        const excelData = filteredTransactions.map((row) => ({
+    const query = {};
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const payload = {
+      query,
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await bbpsHistory(payload)(customDispatch);
+      let rawDocs = [];
+      if (result) {
+        if (Array.isArray(result.data)) {
+          rawDocs = result.data;
+        } else if (result.data?.docs && Array.isArray(result.data.docs)) {
+          rawDocs = result.data.docs;
+        } else if (result.data?.data && Array.isArray(result.data.data)) {
+          rawDocs = result.data.data;
+        } else if (Array.isArray(result)) {
+          rawDocs = result;
+        }
+      }
+      exportData = transformApiData(rawDocs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on selected status (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+      return matchesStatus;
+    });
+
+    if (filteredExport.length === 0) {
+      showNotification("No data matches the selected filters for export", "error");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row, index) => ({
             ID: row.id,
             "Transaction ID": row.transactionId,
             User: row.userName,
@@ -182,19 +243,19 @@ const BBPSReport = ({ onBack, type }) => {
             "Biller Name": row.billerName,
             "Bill Number": row.billNumber,
             "Mobile No": row.mobileNumber,
-            Amount: row.amount,
+            Amount: stripRupee(row.amount),
             Comm: row.comm,
             Status: row.paymentStatus,
             "Date & Time": row.createdAt,
         }));
 
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "BBPS History");
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "BBPS History");
 
-        const fileName = `BBPSHistory_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
-        XLSX.writeFile(workbook, fileName);
-    };
+    const fileName = `BBPSHistory_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };;
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
