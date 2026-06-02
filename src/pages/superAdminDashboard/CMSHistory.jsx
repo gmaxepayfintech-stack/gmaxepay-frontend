@@ -82,20 +82,88 @@ const CMSHistory = ({ onBack }) => {
     const statusFilters = ["All", "Success", "Pending", "Failed"];
     const startIndex = (currentPage - 1) * itemsPerPage;
 
-    const handleExportToExcel = () => {
-        if (!transactions || transactions.length === 0) { alert("No data available to export"); return; }
-        const excelData = transactions.map((row, index) => ({
+      const handleExportToExcel = async () => {
+    if (totalCount === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    const query = {};
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const payload = {
+      query,
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await cmsAdminHistory(payload)(customDispatch);
+      let rawDocs = [];
+      if (result) {
+        if (Array.isArray(result.data)) {
+          rawDocs = result.data;
+        } else if (result.data?.docs && Array.isArray(result.data.docs)) {
+          rawDocs = result.data.docs;
+        } else if (result.data?.data && Array.isArray(result.data.data)) {
+          rawDocs = result.data.data;
+        } else if (Array.isArray(result)) {
+          rawDocs = result;
+        }
+      }
+      exportData = transformApiData(rawDocs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on selected status (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+      return matchesStatus;
+    });
+
+    if (filteredExport.length === 0) {
+      alert("No data matches the selected filters for export");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row, index) => ({
             "SR No": (currentPage - 1) * itemsPerPage + index + 1, "Date & Time": row.createdAt,
             "TXN User": row.txnUser, "User ID": row.userId, "Mobile No": row.mobileNo,
             "Event": row.event, "Biller Name": row.billerName,
             "TXN ID": row.transactionId, "UTR / Ackno": row.refNo,
-            "Amount": row.amount, "Status": row.status, "Error": row.errorMsg || "",
+            "Amount": stripRupee(row.amount), "Status": row.status, "Error": row.errorMsg || "",
         }));
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "CMS_History");
-        XLSX.writeFile(workbook, `CMS_History_${new Date().toISOString().split("T")[0]}.xlsx`);
-    };
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "CMS_History");
+
+    const fileName = `Export_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };;
 
     if (showTransactionDetails) {
         return <CMSTransactionDetails transactionData={selectedTransactionData} onBack={() => { setShowTransactionDetails(false); setSelectedTransactionData(null); }} />;

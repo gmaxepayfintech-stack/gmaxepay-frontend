@@ -196,26 +196,86 @@ const WalletHistory = ({ onBack, type }) => {
   }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
   // Export to Excel function
-  const handleExportToExcel = () => {
-    if (!filteredTransactions || filteredTransactions.length === 0) {
+  const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       showNotification("No data available to export", "error");
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => ({
-      "SR No": row.id, // Keeping transaction id as reference if needed, ideally SR No mapping can be generated fresh
+    const query = {};
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const payload = {
+      query,
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await walletHistoryUsers(payload)(customDispatch);
+      const rawDocs = result?.data || [];
+      const docs = Array.isArray(rawDocs) ? rawDocs : (rawDocs.docs || []);
+      exportData = transformApiData(docs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on status and search query (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+
+      const searchLower = debouncedSearchQuery.toLowerCase();
+      const matchesSearch =
+        !debouncedSearchQuery ||
+        String(transaction.transactionId || "").toLowerCase().includes(searchLower) ||
+        String(transaction.refId || "").toLowerCase().includes(searchLower) ||
+        String(transaction.userName || "").toLowerCase().includes(searchLower) ||
+        String(transaction.paymentMode || "").toLowerCase().includes(searchLower);
+
+      return matchesStatus && matchesSearch;
+    });
+
+    if (filteredExport.length === 0) {
+      showNotification("No data matches the selected filters for export", "error");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row) => ({
+      "SR No": row.id,
       "Transaction ID": row.transactionId,
       "User ID": row.refId,
       "User Name": row.userName,
       "Company ID": row.companyId,
       "Payment Mode": row.paymentMode,
       "Wallet Type": row.walletType,
-      Amount: row.amount,
-      Surcharge: row.surcharge,
-      Commission: row.comm,
-      TDS: row.debit,
-      "Opening Bal": row.openingAmt,
-      "Closing Bal": row.closingAmt,
+      Amount: stripRupee(row.amount),
+      Surcharge: stripRupee(row.surcharge),
+      Commission: stripRupee(row.comm),
+      TDS: stripRupee(row.debit),
+      "Opening Bal": stripRupee(row.openingAmt),
+      "Closing Bal": stripRupee(row.closingAmt),
       Type: row.type,
       "AEPS Type": row.aepsType,
       Status: row.status,

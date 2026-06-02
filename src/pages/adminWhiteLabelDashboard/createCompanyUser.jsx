@@ -751,29 +751,77 @@ const CreateCompanyUser = () => {
   const currentTableData = getTableData();
 
   // Export to Excel function
-  const handleExportToExcel = () => {
-    // Get all transformed data (not just current page)
-    let allData = [];
-
-    if (responseForTable) {
-      if (Array.isArray(responseForTable) && responseForTable.length > 0) {
-        allData = transformApiData(responseForTable);
-      } else if (
-        responseForTable.data &&
-        Array.isArray(responseForTable.data) &&
-        responseForTable.data.length > 0
-      ) {
-        allData = transformApiData(responseForTable.data);
-      }
-    }
-
-    if (!allData || allData.length === 0) {
+    const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       alert("No data available to export");
       return;
     }
 
-    // Prepare data for Excel export
-    const excelData = allData.map((row) => ({
+    const query = {
+      serviceType: "",
+    };
+    if (fromDate && toDate) {
+      query.startDate = fromDate;
+      query.endDate = toDate;
+    }
+    const customSearch = searchQuery.trim() ? getSearchField(searchQuery) : {};
+
+    const payload = {
+      query,
+      customSearch,
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await roleDataCompanyUser(payload)(customDispatch);
+      let rawDocs = [];
+      if (result) {
+        if (Array.isArray(result.data)) {
+          rawDocs = result.data;
+        } else if (result.data?.docs && Array.isArray(result.data.docs)) {
+          rawDocs = result.data.docs;
+        } else if (result.data?.data && Array.isArray(result.data.data)) {
+          rawDocs = result.data.data;
+        } else if (Array.isArray(result)) {
+          rawDocs = result;
+        }
+      }
+      exportData = transformApiData(rawDocs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on selected status (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+      return matchesStatus;
+    });
+
+    if (filteredExport.length === 0) {
+      alert("No data matches the selected filters for export");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row, index) => ({
       ID: row.id || "N/A",
       Date: row.date || "N/A",
       "User Agent Code": row.userId || "N/A",
@@ -794,15 +842,13 @@ const CreateCompanyUser = () => {
       Status: row.status || "Active",
     }));
 
-    // Create a new workbook and worksheet
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `${activeNav} Data`);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-    // Generate Excel file and download
     const fileName = `${activeNav}_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
-  };
+  };;
 
   if (showProfileDetails) {
     return (

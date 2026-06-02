@@ -268,13 +268,24 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
         setCurrentPage(1);
     }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
-    const handleExportToExcel = () => {
-        if (!filteredTransactions || filteredTransactions.length === 0) {
-            alert("No data available to export");
-            return;
-        }
+      const handleExportToExcel = () => {
+    if (!filteredTransactions || filteredTransactions.length === 0) {
+      if (typeof showNotification === 'function') {
+        showNotification("No data available to export", "error");
+      } else {
+        alert("No data available to export");
+      }
+      return;
+    }
 
-        const excelData = filteredTransactions.map((row, index) => ({
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredTransactions.map((row, index) => ({
             "SR No": index + 1,
             "Date & Time": row.formattedDateTime,
             "TXN User": row.txnUser,
@@ -285,17 +296,17 @@ const MATMReport = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
             "Card No": row.cardNo,
             "TXN ID": row.transactionId,
             "REF NO": row.refNo,
-            "Amount": row.amount,
+            "Amount": stripRupee(row.amount),
             "Status": row.status,
         }));
 
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "MATM_History");
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "MATM_History");
 
-        const fileName = `MATM_History_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
-        XLSX.writeFile(workbook, fileName);
-    };
+    const fileName = `Export_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };;
 
     // Watch for transaction details to be loaded
     useEffect(() => {
