@@ -201,13 +201,88 @@ const WalletHistory = ({ onBack, type }) => {
   }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
   // Export to Excel function
-  const handleExportToExcel = () => {
-    if (!filteredTransactions || filteredTransactions.length === 0) {
+  const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       showNotification("No data available to export", "error");
       return;
     }
 
-    const excelData = filteredTransactions.map((row, index) => ({
+    const query = {};
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const payload = {
+      query,
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await walletHistoryEmployee(payload)(customDispatch);
+      
+      // employee response might have docs inside data, or might be the root
+      let rawDocs = [];
+      if (result) {
+        if (Array.isArray(result.data)) {
+          rawDocs = result.data;
+        } else if (Array.isArray(result.walletHistoryEmployee)) {
+          rawDocs = result.walletHistoryEmployee;
+        } else if (Array.isArray(result)) {
+          rawDocs = result;
+        } else if (result.data?.docs && Array.isArray(result.data.docs)) {
+          rawDocs = result.data.docs;
+        } else if (result.data?.data && Array.isArray(result.data.data)) {
+          rawDocs = result.data.data;
+        }
+      }
+      exportData = transformApiData(rawDocs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on status and search query (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+
+      const searchLower = debouncedSearchQuery.toLowerCase();
+      const matchesSearch =
+        !debouncedSearchQuery ||
+        String(transaction.transactionId || "").toLowerCase().includes(searchLower) ||
+        String(transaction.refId || "").toLowerCase().includes(searchLower) ||
+        String(transaction.mobileNo || "").toLowerCase().includes(searchLower) ||
+        String(transaction.userName || "").toLowerCase().includes(searchLower) ||
+        String(transaction.companyName || "").toLowerCase().includes(searchLower);
+
+      return matchesStatus && matchesSearch;
+    });
+
+    if (filteredExport.length === 0) {
+      showNotification("No data matches the selected filters for export", "error");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row, index) => ({
       "SR No": String(index + 1).padStart(2, "0"),
       "Transaction ID": row.transactionId,
       "User ID": row.refId,
@@ -216,12 +291,12 @@ const WalletHistory = ({ onBack, type }) => {
       "Company Name": row.companyName,
       "Company ID": row.companyId,
       "Wallet Type": row.walletType,
-      Amount: row.amount,
-      Surcharge: row.surcharge,
-      Comissions: row.comm,
-      TDS: row.debit,
-      "Opening Bal": row.openingAmt,
-      "Closing Bal": row.closingAmt,
+      Amount: stripRupee(row.amount),
+      Surcharge: stripRupee(row.surcharge),
+      Comissions: stripRupee(row.comm),
+      TDS: stripRupee(row.debit),
+      "Opening Bal": stripRupee(row.openingAmt),
+      "Closing Bal": stripRupee(row.closingAmt),
       Type: row.type,
       "AEPS Type": row.aepsType,
       Status: row.status,

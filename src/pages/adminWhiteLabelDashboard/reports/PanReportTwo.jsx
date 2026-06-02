@@ -200,14 +200,77 @@ const PanReportTwo = ({ onBack }) => {
     }, [statusFilter, itemsPerPageState]);
 
     // Export to Excel function
-    const handleExportToExcel = () => {
-        if (!filteredTransactions || filteredTransactions.length === 0) {
-            if (showNotification) showNotification("No data available to export", "error");
-            else alert("No data available to export");
-            return;
-        }
+      const handleExportToExcel = async () => {
+    if (totalCount === 0) {
+      showNotification("No data available to export", "error");
+      return;
+    }
 
-        const excelData = filteredTransactions.map((row, index) => {
+    const query = {
+      serviceType: "Pan",
+    };
+    if (fromDate && toDate) {
+      query.startDate = fromDate;
+      query.endDate = toDate;
+    }
+    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
+
+    const payload = {
+      query,
+      customSearch,
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000),
+        sort: { id: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      const result = await rechargeReportTwoCompany(payload)(customDispatch);
+      let rawDocs = [];
+      if (result) {
+        if (Array.isArray(result.data)) {
+          rawDocs = result.data;
+        } else if (result.data?.docs && Array.isArray(result.data.docs)) {
+          rawDocs = result.data.docs;
+        } else if (result.data?.data && Array.isArray(result.data.data)) {
+          rawDocs = result.data.data;
+        } else if (Array.isArray(result)) {
+          rawDocs = result;
+        }
+      }
+      exportData = transformApiData(rawDocs);
+    } catch (e) {
+      exportData = transactions;
+    }
+
+    // Filter transactions based on selected status (CLIENT-SIDE)
+    const filteredExport = exportData.filter((transaction) => {
+      const matchesStatus =
+        statusFilter === "All" || transaction.status === statusFilter;
+      return matchesStatus;
+    });
+
+    if (filteredExport.length === 0) {
+      showNotification("No data matches the selected filters for export", "error");
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = filteredExport.map((row, index) => {
             const fallbackSrNo = (apiCurrentPage - 1) * itemsPerPage + index + 1;
             const srNo = row.srNo ?? fallbackSrNo;
 
@@ -219,8 +282,8 @@ const PanReportTwo = ({ onBack }) => {
                 "User ID": row.userId,
                 "Mobile Number": row.mobileNo,
                 "Action": row.action,
-                "Amount": row.amount,
-                "Commission": row.commission,
+                "Amount": stripRupee(row.amount),
+                "Commission": stripRupee(row.commission),
                 "Status": row.status,
                 "TXID": row.txid,
                 "API Message": row.apiMessage,
@@ -229,15 +292,13 @@ const PanReportTwo = ({ onBack }) => {
             };
         });
 
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Pan_History_2");
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Pan_History_2");
 
-        // Dynamic filename with current date
-        const fileName = `Pan2_History_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
-
-        XLSX.writeFile(workbook, fileName);
-    };
+    const fileName = `Export_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };;
 
     // Format date for display
     const formatDate = (dateString) => {

@@ -319,13 +319,76 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
   // Export to Excel function
-  const handleExportToExcel = () => {
-    if (!filteredTransactions || filteredTransactions.length === 0) {
-      // showNotification("No data available to export", "error");
+  const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       return;
     }
 
-    const excelData = filteredTransactions.map((row, index) => {
+    const query = isAeps2 ? { transactionType: transactionType } : { transactionType };
+
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const customSearch = debouncedSearchQuery.trim()
+      ? getSearchField(debouncedSearchQuery)
+      : {};
+
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase();
+      if (isAeps2) {
+        customSearch.transactionStatus = camelStatus;
+      } else {
+        customSearch.paymentStatus = camelStatus;
+      }
+    }
+
+    const payload = {
+      query,
+      customSearch,
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000), // No limit (fetch all records)
+        sort: { createdAt: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      let result;
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      if (isAeps2) {
+        result = await getAeps2CwHistoryEmployee(payload)(customDispatch);
+      } else {
+        result = await getAepsCwHistoryEmployee(payload)(customDispatch);
+      }
+
+      const rawDocs = result?.data || [];
+      const docs = Array.isArray(rawDocs) ? rawDocs : rawDocs.docs || [];
+      exportData = transformApiData(docs);
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      exportData = filteredTransactions;
+    }
+
+    if (exportData.length === 0) {
+      return;
+    }
+
+    const stripRupee = (val) => {
+      if (val === undefined || val === null) return "";
+      const str = String(val).replace(/₹/g, "").trim();
+      const num = Number(str);
+      return isNaN(num) ? str : num;
+    };
+
+    const excelData = exportData.map((row, index) => {
       const baseData = {
         "SR No": String(index + 1).padStart(2, "0"),
         "Name": row.name,
@@ -337,11 +400,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
         ...(isAeps2 ? { "Service Type": row.serviceType } : {}),
         "Tax ID": row.taxId,
         "Bank RRN": row.bankRRN,
-        "Amount": row.amount,
-        "Commission": row.commission,
-        "TDS": row.tds,
-        "Opening Bal": row.openingBal,
-        "Closing Bal": row.closingBal,
+        "Amount": stripRupee(row.amount),
+        "Commission": stripRupee(row.commission),
+        "TDS": stripRupee(row.tds),
+        "Opening Bal": stripRupee(row.openingBal),
+        "Closing Bal": stripRupee(row.closingBal),
         "VIA": row.via,
         "Status": row.status,
         "Created At": row.createdAt,
