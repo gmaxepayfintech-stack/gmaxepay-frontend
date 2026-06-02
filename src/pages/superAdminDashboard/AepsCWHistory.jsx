@@ -377,7 +377,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   });
 
   // SERVER-SIDE Pagination
-  const totalPages = paginator.pageCount || 1;
+  const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
   const paginatedTransactions = filteredTransactions;
   const apiCurrentPage = paginator.currentPage || currentPage;
   const filteredCount = totalCount;
@@ -388,15 +388,64 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
 
   // Export to Excel function
-  const handleExportToExcel = () => {
-    if (!filteredTransactions || filteredTransactions.length === 0) {
+  const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       showNotification("No data available to export", "error");
       return;
     }
 
-    const excelData = filteredTransactions.map((row) => {
+    const query = isAeps2 ? { transactionType: transactionType } : { transactionType };
+
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    const customSearch = debouncedSearchQuery.trim()
+      ? getSearchField(debouncedSearchQuery)
+      : {};
+
+    const payload = {
+      query,
+      customSearch,
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000), // No limit (fetch all records)
+        sort: { createdAt: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      let result;
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      if (isAeps2) {
+        result = await getAeps2CwHistory(payload)(customDispatch);
+      } else {
+        result = await getAepsCwHistory(payload)(customDispatch);
+      }
+
+      const rawDocs = result?.data || [];
+      const docs = Array.isArray(rawDocs) ? rawDocs : rawDocs.docs || [];
+      exportData = transformApiData(docs);
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      exportData = filteredTransactions;
+    }
+
+    if (exportData.length === 0) {
+      showNotification("No data available to export", "error");
+      return;
+    }
+
+    const excelData = exportData.map((row, index) => {
       const baseData = {
-        "SR No": row.id,
+        "SR No": index + 1,
         "Name": row.name,
         "User Role": row.userRole,
         "Mobile": row.mobileNo,
