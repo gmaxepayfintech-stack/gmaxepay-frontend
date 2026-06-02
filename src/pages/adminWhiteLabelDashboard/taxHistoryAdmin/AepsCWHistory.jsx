@@ -278,7 +278,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
   // SERVER-SIDE Pagination
   const itemsPerPage = paginator.perPage || itemsPerPageState;
-  const totalPages = paginator.pageCount || 1;
+  const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
   const apiCurrentPage = paginator.currentPage || currentPage;
   const paginatedTransactions = filteredTransactions;
 
@@ -286,19 +286,71 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     setCurrentPage(1);
   }, [statusFilter, debouncedSearchQuery, itemsPerPageState]);
 
-  const handleExportToExcel = () => {
-    if (!filteredTransactions || filteredTransactions.length === 0) {
+  const handleExportToExcel = async () => {
+    if (totalCount === 0) {
       if (showNotification) showNotification("No data available to export", "error");
       else alert("No data available to export");
       return;
     }
 
-    const excelData = filteredTransactions.map((row, index) => {
-      const fallbackSrNo = (apiCurrentPage - 1) * itemsPerPage + index + 1;
-      const srNo = row.id ?? fallbackSrNo;
+    const query = {};
+    if (apiType === "aeps1") {
+      query.transactionType = transactionType;
+    } else if (apiType === "aeps2") {
+      query.transactionType = transactionType;
+    }
 
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replaceAll("-", "/");
+      query.endDate = toDate.replaceAll("-", "/");
+    }
+
+    const customSearch = debouncedSearchQuery.trim()
+      ? getSearchField(debouncedSearchQuery)
+      : {};
+
+    const payload = {
+      query,
+      customSearch,
+      options: {
+        page: 1,
+        paginate: Math.max(totalCount, 100000), // No limit (fetch all records)
+        sort: { createdAt: -1 },
+      },
+    };
+
+    let exportData = [];
+    try {
+      let result;
+      const customDispatch = (action) => {
+        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+          dispatch(action);
+        }
+      };
+
+      if (apiType === "aeps2") {
+        result = await getAeps2CwHistoryCompany(payload)(customDispatch);
+      } else {
+        result = await getAepsCwHistoryCompany(payload)(customDispatch);
+      }
+
+      const rawDocs = result?.data || [];
+      const docs = Array.isArray(rawDocs) ? rawDocs : rawDocs.docs || [];
+      exportData = transformApiData(docs);
+    } catch (error) {
+      console.error("Error fetching export data:", error);
+      exportData = filteredTransactions;
+    }
+
+    if (exportData.length === 0) {
+      if (showNotification) showNotification("No data available to export", "error");
+      else alert("No data available to export");
+      return;
+    }
+
+    const excelData = exportData.map((row, index) => {
       const baseData = {
-        "SR No": srNo,
+        "SR No": index + 1,
         "Name": row.name,
         "User Role": row.userRole,
         "Mobile": row.mobileNo,
