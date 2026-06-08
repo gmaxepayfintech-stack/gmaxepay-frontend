@@ -728,69 +728,46 @@ const MobileRechargeTwo = ({ onBack }) => {
         ];
     };
 
-    // Get category tabs - only show specific allowed categories
-    const getCategoryTabs = () => {
-        // Handle nested data structure: rechargePlans.data contains the plan categories
-        // API structure: { data: { DATA: [...], STV: [...], FULLTT: [...], PlanVoucher: [...], TOPUP: [...] } }
-        const plansData = rechargePlans?.data || rechargePlans || {};
+    const getActualPlansData = () => {
+        if (!rechargePlans) return {};
+        if (rechargePlans.data && rechargePlans.data.data) {
+            return rechargePlans.data.data;
+        }
+        if (rechargePlans.data) {
+            return rechargePlans.data;
+        }
+        return rechargePlans;
+    };
 
-        // If plansData has a nested 'data' property, use that (for the nested structure)
-        const actualPlansData = plansData.data || plansData;
+    // Get category tabs - dynamic categories from API response
+    const getCategoryTabs = () => {
+        const actualPlansData = getActualPlansData();
 
         if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
             return ["Recommended"];
         }
 
-        // Get API category keys (DATA, STV, FULLTT, PlanVoucher, TOPUP)
-        const apiCategoryKeys = Object.keys(actualPlansData).filter(key =>
-            Array.isArray(actualPlansData[key]) && actualPlansData[key].length > 0
-        );
-
-        // Map API category keys to UI categories
-        const categoryKeyMapping = {
-            "DATA": "DATA",
-            "STV": "Entertainment",
-            "FULLTT": "Truly Unlimited",
-            "PlanVoucher": "Plan Vouchers",
-            "TOPUP": "Talktime",
-        };
-
-        const allowedCategories = getAllowedCategories();
         const availableCategories = ["Recommended"];
 
-        // Add categories that have matching API keys
-        allowedCategories.forEach((category) => {
-            if (category === "Recommended") return;
-
-            // Handle Offers category separately
-            if (category === "Offers") {
-                const offersArray = rechargeOffers?.data || [];
-                if (Array.isArray(offersArray) && offersArray.length > 0) {
-                    availableCategories.push(category);
-                }
-                return;
-            }
-
-            // Find matching API key for this category
-            const matchingApiKey = Object.keys(categoryKeyMapping).find(
-                apiKey => categoryKeyMapping[apiKey] === category
-            );
-
-            if (matchingApiKey && apiCategoryKeys.includes(matchingApiKey)) {
-                availableCategories.push(category);
+        // Add keys from actualPlansData that have plans in them
+        Object.keys(actualPlansData).forEach((key) => {
+            if (Array.isArray(actualPlansData[key]) && actualPlansData[key].length > 0) {
+                availableCategories.push(key);
             }
         });
+
+        // Handle Offers category separately
+        const offersArray = rechargeOffers?.data || [];
+        if (Array.isArray(offersArray) && offersArray.length > 0) {
+            availableCategories.push("Offers");
+        }
 
         return availableCategories;
     };
 
-    // Helper function to get plans based on category (Type)
+    // Helper function to get plans based on category
     const getPlansByCategory = () => {
-        // Handle nested data structure: rechargePlans.data contains the plan categories
-        const plansData = rechargePlans?.data || rechargePlans || {};
-
-        // If plansData has a nested 'data' property, use that (for the nested structure)
-        const actualPlansData = plansData.data || plansData;
+        const actualPlansData = getActualPlansData();
 
         if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
             return [];
@@ -798,21 +775,11 @@ const MobileRechargeTwo = ({ onBack }) => {
 
         let selectedPlans = [];
 
-        // Map UI categories to API category keys
-        const categoryKeyMapping = {
-            "DATA": "DATA",
-            "Entertainment": "STV",
-            "Truly Unlimited": "FULLTT",
-            "Plan Vouchers": "PlanVoucher",
-            "Talktime": "TOPUP",
-        };
-
         // If "Recommended" is selected, show all plans
         if (activeCategory === "Recommended" || !activeCategory) {
             selectedPlans = getAllPlansFromData(actualPlansData);
         } else if (activeCategory === "Offers") {
             // Handle Offers category - transform offers to plan format
-            // The actual parsing will be done in transformPlanToUIFormat for Airtel
             const offersData = rechargeOffers?.data || [];
             if (Array.isArray(offersData) && offersData.length > 0) {
                 selectedPlans = offersData.map((offer, index) => {
@@ -820,31 +787,21 @@ const MobileRechargeTwo = ({ onBack }) => {
                         id: `offer-${index}`,
                         price: `₹${offer.amount}`,
                         rs: offer.amount,
-                        validity: "N/A", // Will be parsed in transformPlanToUIFormat
+                        validity: "N/A",
                         desc: offer.offer || "",
-                        data: "N/A", // Will be parsed in transformPlanToUIFormat
+                        data: "N/A",
                         Type: "Offer",
-                        originalOffer: offer, // Store original offer for parsing
+                        originalOffer: offer,
                     };
                 });
             }
+        } else if (actualPlansData[activeCategory]) {
+            // Get plans from the specific API category directly
+            selectedPlans = actualPlansData[activeCategory] || [];
         } else {
-            // Get the API category key for the selected UI category
-            const apiCategoryKey = categoryKeyMapping[activeCategory];
-
-            if (apiCategoryKey && actualPlansData[apiCategoryKey]) {
-                // Get plans from the specific API category
-                selectedPlans = actualPlansData[apiCategoryKey] || [];
-            } else {
-                // Fallback: filter by Type if API key mapping doesn't exist
-                const allPlans = getAllPlansFromData(actualPlansData);
-                const typeMapping = getCategoryTypeMapping();
-                const mappedTypes = typeMapping[activeCategory] || [activeCategory];
-
-                selectedPlans = allPlans.filter((plan) =>
-                    mappedTypes.includes(plan.Type),
-                );
-            }
+            // Fallback: search all plans and filter by Type
+            const allPlans = getAllPlansFromData(actualPlansData);
+            selectedPlans = allPlans.filter((plan) => plan.Type === activeCategory);
         }
 
         return selectedPlans;
