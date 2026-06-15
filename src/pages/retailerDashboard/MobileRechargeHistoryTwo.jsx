@@ -33,6 +33,7 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
     );
     const apiData = rechargeReportResponse?.data || [];
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
+    const totalCount = rechargeReportResponse?.total || 0;
 
     // Debounce search query
     useEffect(() => {
@@ -44,24 +45,29 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    // Helper function to determine search field based on input pattern
-    const getSearchField = (query) => {
-        const trimmedQuery = query.trim();
+      // Helper function to determine search field based on input pattern
+  const getSearchField = (query) => {
+    const trimmedQuery = query.trim();
 
-        // Check if it's a mobile number (10 digits)
-        if (/^\d{10}$/.test(trimmedQuery)) {
-            // API expects mobileNumber
-            return { mobileNumber: trimmedQuery };
-        }
+    // Check if it's a mobile number (10 digits)
+    if (/^\d{10}$/.test(trimmedQuery)) {
+      // API expects mobileNumber
+      return { mobileNumber: trimmedQuery };
+    }
 
-        // Otherwise treat as transactionId (alphanumeric)
-        if (trimmedQuery) {
-            return { transactionId: trimmedQuery };
-        }
+    // Check if it's a name (letters, spaces, dots)
+    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
+      return { name: trimmedQuery };
+    }
 
-        // No search
-        return {};
-    };
+    // Otherwise treat as transactionId (alphanumeric)
+    if (trimmedQuery) {
+      return { transactionId: trimmedQuery };
+    }
+
+    // No search
+    return {};
+  };
 
     // Fetch recharge reports
     useEffect(() => {

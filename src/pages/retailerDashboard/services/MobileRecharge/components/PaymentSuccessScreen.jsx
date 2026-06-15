@@ -9,6 +9,10 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
   const receiptRef = useRef(null);
   const { company } = useCompany();
 
+  const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
+  const txStatus = transactionDetails.status || apiResponse.status || transactionDetails.data?.apiResponse?.status || "Success";
+  const isFailure = txStatus.toLowerCase() === "failure" || txStatus.toLowerCase() === "failed";
+
   const getCurrentDateTime = () => {
     let date;
     if (transactionDetails.dateTime) {
@@ -302,7 +306,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
                 </tr>
                 <tr>
                     <td class="info-label">Status</td>
-                    <td class="info-value"><span class="status-success">${status}</span></td>
+                    <td class="info-value"><span class="status-success" style="${isFailure ? 'color: #d32f2f;' : 'color: #039155;'}">${status}</span></td>
                 </tr>
                 <tr>
                     <td class="info-label">Date & Time</td>
@@ -483,7 +487,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
 
 
   return (
-    <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+    <div className={`${isFailure ? "bg-red-100" : "bg-green-100"} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
       {/* Notches */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
@@ -494,29 +498,46 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         {/* Success Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+            <div className={`w-14 h-14 rounded-full ${isFailure ? "bg-red-600" : "bg-[#039155]"} flex items-center justify-center`}>
+              {isFailure ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
             </div>
           </div>
 
           <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            Payment Successful
+            {isFailure ? "Payment Failed" : "Payment Successful"}
           </h2>
           <p className="text-[12px] text-[#1B1717]/80">
-            Your Payment Has Been Completed
+            {isFailure ? "Your Payment Could Not Be Completed" : "Your Payment Has Been Completed"}
           </p>
         </div>
 
@@ -551,8 +572,8 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
               Transaction Status
             </div>
-            <div className="font-['Gilroy-Medium'] text-[#039155]">
-              {transactionDetails.status || transactionDetails.apiResponse?.status || transactionDetails.data?.apiResponse?.status || 'Success'}
+            <div className={`font-['Gilroy-Medium'] ${isFailure ? "text-red-600" : "text-[#039155]"}`}>
+              {txStatus}
             </div>
           </div>
 
@@ -596,7 +617,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
           <button
             type="button"
             onClick={handleShare}
-            className="w-28 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+            className={`w-28 border ${isFailure ? "border-red-600 text-red-600 hover:bg-red-600" : "border-[#039155] text-[#039155] hover:bg-[#039155]"} rounded-lg py-2 text-sm font-['Gilroy-Medium'] hover:text-white transition`}
           >
             Share
           </button>
@@ -604,7 +625,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
           <button
             type="button"
             onClick={handleDownload}
-            className="w-28 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
+            className={`w-28 ${isFailure ? "bg-red-600 hover:bg-red-700" : "bg-[#039155] hover:bg-[#027a44]"} text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] transition`}
           >
             Download
           </button>
