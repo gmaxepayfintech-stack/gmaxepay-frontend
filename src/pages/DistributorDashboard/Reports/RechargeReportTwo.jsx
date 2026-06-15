@@ -27,7 +27,7 @@ const RechargeReportTwo = ({ onBack }) => {
     const [checkingStatusId, setCheckingStatusId] = useState(null);
     const { showNotification } = useNotification();
 
-    // Get data from Redux (user transaction reports)
+    // Get data Redux (user transaction reports)
     const rechargeReportResponse = useSelector(
         (state) => state?.reports?.userTransaction,
     );
