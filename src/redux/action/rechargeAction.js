@@ -584,11 +584,13 @@ export const rechargeAOnePay = (payload) => async (dispatch) => {
       dispatch({
         type: PAY_RECHARGE_FAILURE,
         payload: {
+          mobileRechargePay,
           status: response?.data?.status ?? "FAILURE",
           message: response?.data?.message ?? commonError,
         },
       });
       return {
+        mobileRechargePay,
         status: response?.data?.status ?? "FAILURE",
         message: response?.data?.message ?? commonError,
       };

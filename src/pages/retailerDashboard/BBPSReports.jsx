@@ -24,6 +24,28 @@ const BBPSReports = ({ onBack, type }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Helper function to determine search field based on input pattern
+  const getSearchField = (query) => {
+    const trimmedQuery = query.trim();
+
+    // Check if it's a mobile number (10 digits)
+    if (/^\d{10}$/.test(trimmedQuery)) {
+      return { mobileNumber: trimmedQuery };
+    }
+
+    // Check if it's a name (letters, spaces, dots)
+    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
+      return { name: trimmedQuery };
+    }
+
+    // Otherwise treat as transactionId
+    if (trimmedQuery) {
+      return { transactionId: trimmedQuery };
+    }
+
+    return {};
+  };
     const [isReloading, setIsReloading] = useState(false);
 
     // Get BBPS history from Redux
@@ -122,9 +144,7 @@ const BBPSReports = ({ onBack, type }) => {
                     createdAt: -1
                 }
             },
-            customSearch: debouncedSearchQuery ? {
-                transactionId: debouncedSearchQuery
-            } : {}
+            customSearch: debouncedSearchQuery ? getSearchField(debouncedSearchQuery) : {}
         };
 
         dispatch(bbpsUsersHistory(payload)).then((res) => {
@@ -148,17 +168,19 @@ const BBPSReports = ({ onBack, type }) => {
 
     // Filter transactions based on status and search query (CLIENT-SIDE)
     const filteredTransactions = transactions.filter((transaction) => {
-        // Search in transactionId
         const searchLower = debouncedSearchQuery.toLowerCase();
         const matchesSearch =
             !debouncedSearchQuery ||
-            transaction.transactionId.toLowerCase().includes(searchLower);
+            transaction.transactionId.toLowerCase().includes(searchLower) ||
+            transaction.mobileNumber.toLowerCase().includes(searchLower) ||
+            transaction.userName.toLowerCase().includes(searchLower);
 
         return matchesSearch;
     });
 
     // SERVER-SIDE Pagination - use paginator from API response
     const bbpsResponse = useSelector((state) => state?.wallet?.bbpsUserHistory);
+    const totalCount = bbpsResponse?.total || 0;
     const paginator = bbpsResponse?.paginator || {};
     const totalPages = paginator.pageCount || Math.ceil((bbpsResponse?.total || filteredTransactions.length) / itemsPerPage) || 1;
     const paginatedTransactions = filteredTransactions;
@@ -334,7 +356,7 @@ const BBPSReports = ({ onBack, type }) => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
                         <input
                             type="text"
-                            placeholder="Search By Transaction ID"
+                            placeholder="Search By Transaction ID, Mobile Number, Name"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"

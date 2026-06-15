@@ -56,6 +56,11 @@ const PanReport = ({ onBack }) => {
       return { mobileNumber: trimmedQuery };
     }
 
+    // Check if it's a name (letters, spaces, dots)
+    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
+      return { name: trimmedQuery };
+    }
+
     // Otherwise treat as transactionId (alphanumeric)
     if (trimmedQuery) {
       return { transactionId: trimmedQuery };

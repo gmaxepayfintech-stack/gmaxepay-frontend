@@ -11,6 +11,10 @@ const PaymentSuccessScreen = ({
   const receiptRef = useRef(null);
   const { company } = useCompany();
 
+  const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
+  const txStatus = transactionDetails.status || apiResponse.status || transactionDetails.data?.apiResponse?.status || "Success";
+  const isFailure = txStatus.toLowerCase() === "failure" || txStatus.toLowerCase() === "failed";
+
   const generatePDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -41,19 +45,21 @@ const PaymentSuccessScreen = ({
     doc.setFont(undefined, "normal");
     doc.text("Payment Invoice", pageWidth - margin, 20, { align: "right" });
 
-    // Success badge
+    // Success/Failure badge
+    const statusColor = isFailure ? [211, 47, 47] : [3, 145, 85];
     yPos = headerHeight + 15;
     doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(...brandColor);
+    doc.setDrawColor(...statusColor);
     doc.setLineWidth(0.5);
     const badgeWidth = 40;
     const badgeHeight = 12;
     const badgeX = pageWidth - margin - badgeWidth;
     doc.rect(badgeX, yPos - 8, badgeWidth, badgeHeight, "FD");
-    doc.setTextColor(...brandColor);
+    doc.setTextColor(...statusColor);
     doc.setFontSize(10);
     doc.setFont(undefined, "bold");
-    doc.text("✓ SUCCESS", badgeX + badgeWidth / 2, yPos - 2, {
+    const badgeText = isFailure ? "✗ FAILED" : "✓ SUCCESS";
+    doc.text(badgeText, badgeX + badgeWidth / 2, yPos - 2, {
       align: "center",
     });
 
@@ -107,7 +113,7 @@ const PaymentSuccessScreen = ({
     doc.text("Total Amount Paid", margin + 10, yPos + 8);
 
     // Amount value - using "Rs." instead of ₹ symbol for better PDF compatibility
-    doc.setTextColor(...brandColor);
+    doc.setTextColor(...statusColor);
     doc.setFontSize(24);
     doc.setFont(undefined, "bold");
     const amount = transactionDetails.amount || 
@@ -193,9 +199,11 @@ const PaymentSuccessScreen = ({
       doc.setTextColor(...darkGray);
       doc.setFontSize(10);
       doc.setFont(undefined, "bold");
+      const isValSuccess = detail.value?.toLowerCase() === "success";
+      const isValFailure = detail.value?.toLowerCase() === "failure" || detail.value?.toLowerCase() === "failed";
       const valueColor =
-        detail.label === "Transaction Status" && detail.value === "Success"
-          ? brandColor
+        detail.label === "Transaction Status"
+          ? (isValSuccess ? [3, 145, 85] : (isValFailure ? [211, 47, 47] : darkGray))
           : darkGray;
       doc.setTextColor(...valueColor);
       doc.text(detail.value, xPos, currentY + 6);
@@ -297,7 +305,7 @@ const PaymentSuccessScreen = ({
   };
 
   return (
-    <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+    <div className={`${isFailure ? "bg-red-100" : "bg-green-100"} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
       {/* Notches */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
@@ -308,29 +316,46 @@ const PaymentSuccessScreen = ({
         {/* Success Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+            <div className={`w-14 h-14 rounded-full ${isFailure ? "bg-red-600" : "bg-[#039155]"} flex items-center justify-center`}>
+              {isFailure ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
             </div>
           </div>
 
           <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            Payment Successful
+            {isFailure ? "Payment Failed" : "Payment Successful"}
           </h2>
           <p className="text-[12px] text-[#1B1717]/80">
-            Your Payment Has Been Completed
+            {isFailure ? "Your Payment Could Not Be Completed" : "Your Payment Has Been Completed"}
           </p>
         </div>
 
@@ -365,8 +390,8 @@ const PaymentSuccessScreen = ({
             <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
               Transaction Status
             </div>
-            <div className="font-['Gilroy-Medium'] text-[#039155]">
-              {transactionDetails.status || transactionDetails.apiResponse?.status || transactionDetails.data?.apiResponse?.status || "Success"}
+            <div className={`font-['Gilroy-Medium'] ${isFailure ? "text-red-600" : "text-[#039155]"}`}>
+              {txStatus}
             </div>
           </div>
 
@@ -410,7 +435,7 @@ const PaymentSuccessScreen = ({
           <button
             type="button"
             onClick={handleShare}
-            className="flex-1 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+            className={`flex-1 border ${isFailure ? "border-red-600 text-red-600 hover:bg-red-600" : "border-[#039155] text-[#039155] hover:bg-[#039155]"} rounded-lg py-2 text-sm font-['Gilroy-Medium'] hover:text-white transition`}
           >
             Share
           </button>
@@ -418,7 +443,7 @@ const PaymentSuccessScreen = ({
           <button
             type="button"
             onClick={handleDownload}
-            className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
+            className={`flex-1 ${isFailure ? "bg-red-600 hover:bg-red-700" : "bg-[#039155] hover:bg-[#027a44]"} text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] transition`}
           >
             Download Receipt
           </button>

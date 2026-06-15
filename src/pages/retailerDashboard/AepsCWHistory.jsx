@@ -186,7 +186,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
     // Check if it's a 10-digit phone number
     if (/^\d{10}$/.test(trimmedValue)) {
-      return { mobileNo: trimmedValue };
+      return { mobileNo: trimmedValue, mobileNumber: trimmedValue };
     }
 
     // Check if it's 11-20 digits (Bank RRN pattern)
@@ -254,6 +254,16 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       ? getSearchField(debouncedSearchQuery)
       : {};
 
+    // Pass the status filter inside customSearch
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase();
+      if (apiType === "aeps2") {
+        customSearch.transactionStatus = camelStatus;
+      } else {
+        customSearch.paymentStatus = camelStatus;
+      }
+    }
+
     const payload = {
       query,
       customSearch,
@@ -270,7 +280,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     } else {
       dispatch(getAepsCwHistoryUser(payload));
     }
-  }, [dispatch, debouncedSearchQuery, fromDate, toDate, apiType, transactionType, currentPage, itemsPerPage]);
+  }, [dispatch, debouncedSearchQuery, fromDate, toDate, apiType, transactionType, statusFilter, currentPage, itemsPerPage]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -284,11 +294,21 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Filter transactions based on selected status (search is handled by API)
+  // Filter transactions based on selected status and search query
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesStatus =
       statusFilter === "All" || transaction.status === statusFilter;
-    return matchesStatus;
+
+    const searchLower = debouncedSearchQuery.trim().toLowerCase();
+    const matchesSearch =
+      !searchLower ||
+      String(transaction.name).toLowerCase().includes(searchLower) ||
+      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
+      String(transaction.taxId).toLowerCase().includes(searchLower) ||
+      String(transaction.refID).toLowerCase().includes(searchLower) ||
+      String(transaction.bankRRN).toLowerCase().includes(searchLower);
+
+    return matchesStatus && matchesSearch;
   });
 
   // SERVER-SIDE Pagination
@@ -491,7 +511,10 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
             {statusFilters.map((status) => (
               <button
                 key={status}
-                onClick={() => setStatusFilter(status)}
+                onClick={() => {
+                  setStatusFilter(status);
+                  setCurrentPage(1);
+                }}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
                   ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
                   : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
@@ -519,6 +542,15 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
+
+                if (statusFilter !== "All") {
+                  const camelStatus = statusFilter.toLowerCase();
+                  if (apiType === "aeps2") {
+                    customSearch.transactionStatus = camelStatus;
+                  } else {
+                    customSearch.paymentStatus = camelStatus;
+                  }
+                }
 
                 const payload = {
                   query,

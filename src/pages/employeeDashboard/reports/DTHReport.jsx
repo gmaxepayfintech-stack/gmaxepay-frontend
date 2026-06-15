@@ -58,7 +58,7 @@ const DTHReport = ({ onBack }) => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Helper function to determine search field based on input pattern
+    // Helper function to determine search field based on input pattern
   const getSearchField = (query) => {
     const trimmedQuery = query.trim();
 
@@ -66,6 +66,11 @@ const DTHReport = ({ onBack }) => {
     if (/^\d{10,12}$/.test(trimmedQuery)) {
       // API expects dthNumber for DTH service
       return { dthNumber: trimmedQuery };
+    }
+
+    // Check if it's a name (letters, spaces, dots)
+    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
+      return { name: trimmedQuery };
     }
 
     // Otherwise treat as transactionId (alphanumeric)
