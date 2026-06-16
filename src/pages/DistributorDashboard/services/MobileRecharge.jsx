@@ -604,53 +604,80 @@ const MobileRecharge = ({ onBack }) => {
     ];
   };
 
-  // Get category tabs - only show specific allowed categories
+  const getActualPlansData = () => {
+    if (!rechargePlans) return {};
+    if (rechargePlans.data && rechargePlans.data.data) {
+      return rechargePlans.data.data;
+    }
+    if (rechargePlans.data) {
+      return rechargePlans.data;
+    }
+    return rechargePlans;
+  };
+
+  // Get category tabs - dynamic categories from API response
   const getCategoryTabs = () => {
-    if (!rechargePlans?.data) {
+    const actualPlansData = getActualPlansData();
+
+    if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
       return ["Recommended"];
     }
 
-    const plansData = rechargePlans.data;
-    const allPlans = getAllPlansFromData(plansData);
+    const availableCategories = ["Recommended"];
 
-    // Get unique plan types from API
-    const uniqueTypes = [
-      ...new Set(allPlans.map((plan) => plan.Type).filter(Boolean)),
-    ];
-    const typeMapping = getCategoryTypeMapping();
-    const allowedCategories = getAllowedCategories();
-
-    // Filter to only include allowed categories that have matching plans in API
-    const availableCategories = allowedCategories.filter((category) => {
-      if (category === "Recommended") return true;
-      const mappedTypes = typeMapping[category] || [];
-      return mappedTypes.some((type) => uniqueTypes.includes(type));
+    // Add keys from actualPlansData that have plans in them
+    Object.keys(actualPlansData).forEach((key) => {
+      if (Array.isArray(actualPlansData[key]) && actualPlansData[key].length > 0) {
+        availableCategories.push(key);
+      }
     });
+
+    // Handle Offers category separately
+    const offersArray = rechargeOffers?.data || [];
+    if (Array.isArray(offersArray) && offersArray.length > 0) {
+      availableCategories.push("Offers");
+    }
 
     return availableCategories;
   };
 
-  // Helper function to get plans based on category (Type)
+  // Helper function to get plans based on category
   const getPlansByCategory = () => {
-    if (!rechargePlans?.data) {
+    const actualPlansData = getActualPlansData();
+
+    if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
       return [];
     }
 
-    const plansData = rechargePlans.data;
     let selectedPlans = [];
 
     // If "Recommended" is selected, show all plans
     if (activeCategory === "Recommended" || !activeCategory) {
-      selectedPlans = getAllPlansFromData(plansData);
+      selectedPlans = getAllPlansFromData(actualPlansData);
+    } else if (activeCategory === "Offers") {
+      // Handle Offers category - transform offers to plan format
+      const offersData = rechargeOffers?.data || [];
+      if (Array.isArray(offersData) && offersData.length > 0) {
+        selectedPlans = offersData.map((offer, index) => {
+          return {
+            id: `offer-${index}`,
+            price: `₹${offer.amount}`,
+            rs: offer.amount,
+            validity: "N/A",
+            desc: offer.offer || "",
+            data: "N/A",
+            Type: "Offer",
+            originalOffer: offer,
+          };
+        });
+      }
+    } else if (actualPlansData[activeCategory]) {
+      // Get plans from the specific API category directly
+      selectedPlans = actualPlansData[activeCategory] || [];
     } else {
-      // Filter by Type using category mapping
-      const allPlans = getAllPlansFromData(plansData);
-      const typeMapping = getCategoryTypeMapping();
-      const mappedTypes = typeMapping[activeCategory] || [activeCategory];
-
-      selectedPlans = allPlans.filter((plan) =>
-        mappedTypes.includes(plan.Type),
-      );
+      // Fallback: search all plans and filter by Type
+      const allPlans = getAllPlansFromData(actualPlansData);
+      selectedPlans = allPlans.filter((plan) => plan.Type === activeCategory);
     }
 
     return selectedPlans;
@@ -719,7 +746,10 @@ const MobileRecharge = ({ onBack }) => {
   };
 
   // Get filtered plans for display (only show if API data is available, don't show default)
-  const displayDetailedPlans = rechargePlans ? getFilteredPlans() : [];
+  // Include offers when "Offers" category is selected
+  const displayDetailedPlans = (rechargePlans || (activeCategory === "Offers" && rechargeOffers))
+    ? getFilteredPlans()
+    : [];
 
   const handleProceed = async (number = null) => {
     const numberToUse = number || mobileNumber;

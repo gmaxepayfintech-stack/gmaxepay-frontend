@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Search, ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";
 import { Formik, Form, Field } from "formik";
@@ -294,6 +295,12 @@ const validationSchema = Yup.object().shape({
 
 const DTHRecharge = ({ onBack }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const dashboardPath = window.location.pathname.includes("distributer") || window.location.pathname.includes("Distributor")
+    ? "/distributerDashboard/services"
+    : "/retailerDashboard/services";
+
   const { recentHistory: recentHistoryData } = useSelector((state) => state.recharge);
   const [recentRecharges, setRecentRecharges] = useState([]);
   const [step, setStep] = useState("operator"); // operator → input → plans
@@ -315,6 +322,7 @@ const DTHRecharge = ({ onBack }) => {
   const [dthPlans, setDthPlans] = useState(null);
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
   const [paymentResponse, setPaymentResponse] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("");
 
   useEffect(() => {
     const fetchRecentHistory = async () => {
@@ -414,100 +422,111 @@ const DTHRecharge = ({ onBack }) => {
   const isValidSubscriber = inputValue.length >= 8 && inputValue.length <= 15;
   const isMobileNumber = inputValue.length === 10;
 
+  const getActualDthPlansData = (apiData) => {
+    if (!apiData) return {};
+    if (apiData.data && apiData.data.data && typeof apiData.data.data === 'object' && !Array.isArray(apiData.data.data)) {
+      return apiData.data.data;
+    }
+    if (apiData.data && typeof apiData.data === 'object' && !Array.isArray(apiData.data)) {
+      return apiData.data;
+    }
+    return apiData;
+  };
+
   // Transform API response to UI format
   const transformPlansFromAPI = (apiData) => {
-    // The API response structure is: data.data.Combo
-    const comboArray = apiData?.data?.data?.Combo || apiData?.data?.Combo;
-
-    if (!comboArray || !Array.isArray(comboArray)) {
-      return [];
-    }
-
+    const actualPlansData = getActualDthPlansData(apiData);
     const allPlans = [];
     let planId = 1;
 
-    comboArray.forEach((combo) => {
-      const languageName = combo.Language || "";
+    Object.keys(actualPlansData).forEach((categoryKey) => {
+      const categoryArray = actualPlansData[categoryKey];
+      if (!Array.isArray(categoryArray)) return;
 
-      combo.Details?.forEach((detail) => {
-        detail.PricingList?.forEach((pricing) => {
-          // Extract channel count
-          const channelsMatch = detail.Channels?.match(/(\d+)/);
-          const channels = channelsMatch ? parseInt(channelsMatch[1]) : 0;
+      categoryArray.forEach((combo) => {
+        const languageName = combo.Language || "";
 
-          // Extract paid channels
-          const paidMatch = detail.PaidChannels?.match(/(\d+)/);
-          const paidChannels = paidMatch ? parseInt(paidMatch[1]) : 0;
+        combo.Details?.forEach((detail) => {
+          detail.PricingList?.forEach((pricing) => {
+            // Extract channel count
+            const channelsMatch = detail.Channels?.match(/(\d+)/);
+            const channels = channelsMatch ? parseInt(channelsMatch[1]) : 0;
 
-          // Extract HD channels
-          const hdMatch = detail.HdChannels?.match(/(\d+)/);
-          const hdChannels = hdMatch ? parseInt(hdMatch[1]) : 0;
-          const hasHD =
-            detail.HdChannels && !detail.HdChannels.includes("No HD");
+            // Extract paid channels
+            const paidMatch = detail.PaidChannels?.match(/(\d+)/);
+            const paidChannels = paidMatch ? parseInt(paidMatch[1]) : 0;
 
-          // Calculate free channels (approximate)
-          const freeChannels = channels - paidChannels;
+            // Extract HD channels
+            const hdMatch = detail.HdChannels?.match(/(\d+)/);
+            const hdChannels = hdMatch ? parseInt(hdMatch[1]) : 0;
+            const hasHD =
+              detail.HdChannels && !detail.HdChannels.includes("No HD");
 
-          // Create features array from available data
-          const features = [];
+            // Calculate free channels (approximate)
+            const freeChannels = channels - paidChannels;
 
-          // Add channels information
-          if (detail.Channels) {
-            features.push(`Total Channels: ${detail.Channels}`);
-          }
+            // Create features array from available data
+            const features = [];
 
-          // Add paid channels information
-          if (detail.PaidChannels) {
-            features.push(detail.PaidChannels);
-          }
-
-          // Add HD channels information (include "No HD Channels" too)
-          if (detail.HdChannels) {
-            features.push(detail.HdChannels);
-          }
-
-          // Add language content
-          if (languageName) {
-            features.push(`${languageName} Language Pack`);
-          }
-
-          // Add last update information
-          if (detail.last_update) {
-            features.push(`Last Updated: ${detail.last_update}`);
-          }
-
-          // Normalize validity format (API returns "1 Months", but we want "1 Month" for consistency)
-          const normalizeValidity = (monthStr) => {
-            if (!monthStr) return "1 Month";
-            // Convert "1 Months" to "1 Month", keep others as "X Months"
-            const normalized = monthStr.trim();
-            if (
-              normalized.toLowerCase() === "1 months" ||
-              normalized.toLowerCase() === "1 month"
-            ) {
-              return "1 Month";
+            // Add channels information
+            if (detail.Channels) {
+              features.push(`Total Channels: ${detail.Channels}`);
             }
-            // Keep other formats as is (e.g., "3 Months", "6 Months")
-            return normalized;
-          };
 
-          allPlans.push({
-            id: planId++,
-            price: `₹${pricing.Amount}`,
-            validity: normalizeValidity(pricing.Month) || "1 Month",
-            channels: channels,
-            bouquet: detail.PlanName || "",
-            paidChannels: paidChannels,
-            freeChannels: freeChannels > 0 ? freeChannels : 0,
-            hdChannels: hasHD ? hdChannels : 0,
-            language: languageName,
-            planName: detail.PlanName,
-            features: features.length > 0 ? features : ["Premium DTH Channels"],
-            originalData: {
-              ...detail,
-              pricing: pricing,
+            // Add paid channels information
+            if (detail.PaidChannels) {
+              features.push(detail.PaidChannels);
+            }
+
+            // Add HD channels information (include "No HD Channels" too)
+            if (detail.HdChannels) {
+              features.push(detail.HdChannels);
+            }
+
+            // Add language content
+            if (languageName) {
+              features.push(`${languageName} Language Pack`);
+            }
+
+            // Add last update information
+            if (detail.last_update) {
+              features.push(`Last Updated: ${detail.last_update}`);
+            }
+
+            // Normalize validity format (API returns "1 Months", but we want "1 Month" for consistency)
+            const normalizeValidity = (monthStr) => {
+              if (!monthStr) return "1 Month";
+              // Convert "1 Months" to "1 Month", keep others as "X Months"
+              const normalized = monthStr.trim();
+              if (
+                normalized.toLowerCase() === "1 months" ||
+                normalized.toLowerCase() === "1 month"
+              ) {
+                return "1 Month";
+              }
+              // Keep other formats as is (e.g., "3 Months", "6 Months")
+              return normalized;
+            };
+
+            allPlans.push({
+              id: planId++,
+              price: `₹${pricing.Amount}`,
+              validity: normalizeValidity(pricing.Month) || "1 Month",
+              channels: channels,
+              bouquet: detail.PlanName || "",
+              paidChannels: paidChannels,
+              freeChannels: freeChannels > 0 ? freeChannels : 0,
+              hdChannels: hasHD ? hdChannels : 0,
               language: languageName,
-            },
+              planName: detail.PlanName,
+              category: categoryKey,
+              features: features.length > 0 ? features : ["Premium DTH Channels"],
+              originalData: {
+                ...detail,
+                pricing: pricing,
+                language: languageName,
+              },
+            });
           });
         });
       });
@@ -523,6 +542,13 @@ const DTHRecharge = ({ onBack }) => {
     }
 
     let filtered = [...filteredSuggestPlans];
+
+    // Filter by active category
+    if (activeCategory) {
+      filtered = filtered.filter(
+        (plan) => plan.category === activeCategory
+      );
+    }
 
     // Filter by search query
     if (searchQuery) {
@@ -838,25 +864,24 @@ const DTHRecharge = ({ onBack }) => {
       )}
 
       {/* Header */}
-      <div className="flex items-start gap-3 mb-6">
-        {onBack && (
-          <button
-            type="button"
-            aria-label="Back"
-            onClick={() => {
-              if (showPayment) setShowPayment(false);
-              else if (showDetails) setShowDetails(false);
-              else if (step === "success") setStep("review");
-              else if (step === "review") setStep("confirm");
-              else if (step === "confirm") setStep("input");
-              else if (step === "input") setStep("operator");
-              else onBack();
-            }}
-            className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
-          >
-            <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-          </button>
-        )}
+      <div className="flex items-start gap-3 mb-6 py-4 px-1">
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={() => {
+            if (showPayment) setShowPayment(false);
+            else if (showDetails) setShowDetails(false);
+            else if (step === "success") setStep("review");
+            else if (step === "review") setStep("confirm");
+            else if (step === "confirm") setStep("input");
+            else if (step === "input") setStep("operator");
+            else if (onBack) onBack();
+            else navigate(dashboardPath);
+          }}
+          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
+        >
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+        </button>
         <div className="flex-1 mt-[-10px]">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
             Recharge DTH or TV
@@ -963,18 +988,28 @@ const DTHRecharge = ({ onBack }) => {
                           );
                           setFilteredSuggestPlans(transformedPlans);
 
-                          // Extract unique languages from API response
-                          // The API response structure is: data.data.Combo
-                          const comboArray =
-                            planResponse.dthRechargePlan?.data?.data?.Combo ||
-                            planResponse.dthRechargePlan?.data?.Combo;
-                          if (comboArray && Array.isArray(comboArray)) {
-                            const languages = comboArray
-                              .map((combo) => combo.Language)
-                              .filter(Boolean);
-                            setAvailableLanguages(languages);
-                            // Don't set initial language - let user select
+                          // Extract unique languages and categories from API response
+                          const plansData = getActualDthPlansData(planResponse.dthRechargePlan);
+                          const categories = Object.keys(plansData).filter(
+                            (key) => Array.isArray(plansData[key]) && plansData[key].length > 0
+                          );
+
+                          if (categories.length > 0) {
+                            setActiveCategory(categories[0]);
+                          } else {
+                            setActiveCategory("");
                           }
+
+                          const languagesSet = new Set();
+                          categories.forEach((catKey) => {
+                            plansData[catKey].forEach((combo) => {
+                              if (combo.Language) {
+                                languagesSet.add(combo.Language);
+                              }
+                            });
+                          });
+                          const languages = Array.from(languagesSet).filter(Boolean);
+                          setAvailableLanguages(languages);
 
                           setStep("confirm");
                         } else {
@@ -1117,6 +1152,7 @@ const DTHRecharge = ({ onBack }) => {
                   const languageFilteredPlans = filteredSuggestPlans.filter(
                     (plan) => {
                       if (!plan || !plan.language) return false;
+                      if (activeCategory && plan.category !== activeCategory) return false;
                       // Case-insensitive comparison with trimmed values
                       const planLang = String(plan.language)
                         .toLowerCase()
@@ -1185,6 +1221,40 @@ const DTHRecharge = ({ onBack }) => {
                 <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] pt-3">
                   Select Plan
                 </div>
+
+                {/* Dynamic Category Tabs */}
+                {(() => {
+                  const plansData = getActualDthPlansData(dthPlans);
+                  const categories = Object.keys(plansData).filter(
+                    (key) => Array.isArray(plansData[key]) && plansData[key].length > 0
+                  );
+
+                  if (categories.length <= 1) return null;
+
+                  return (
+                    <div className="flex gap-4 overflow-x-auto pb-2 mt-2 mb-2 font-['Gilroy-SemiBold'] border-gray-200 w-fit">
+                      {categories.map((category) => (
+                        <button
+                          key={category}
+                          type="button"
+                          onClick={() => {
+                            setActiveCategory(category);
+                            setActiveLanguagePack("");
+                          }}
+                          className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
+                            ? "text-[#039155]"
+                            : "text-gray-600 hover:text-[#1B1717]"
+                            }`}
+                        >
+                          {category}
+                          {activeCategory === category && (
+                            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[3px] bg-[#039155]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* Search */}
                 <div className="relative">

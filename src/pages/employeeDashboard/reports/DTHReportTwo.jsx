@@ -46,24 +46,29 @@ const DTHReportTwo = ({ onBack }) => {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    // Helper function to determine search field based on input pattern
-    const getSearchField = (query) => {
-        const trimmedQuery = query.trim();
+      // Helper function to determine search field based on input pattern
+  const getSearchField = (query) => {
+    const trimmedQuery = query.trim();
 
-        // Check if it's a DTH number (10-12 digits) or mobile number (10 digits)
-        if (/^\d{10,12}$/.test(trimmedQuery)) {
-            // API expects dthNumber for DTH service
-            return { dthNumber: trimmedQuery };
-        }
+    // Check if it's a DTH number (10-12 digits) or mobile number (10 digits)
+    if (/^\d{10,12}$/.test(trimmedQuery)) {
+      // API expects dthNumber for DTH service
+      return { dthNumber: trimmedQuery };
+    }
 
-        // Otherwise treat as transactionId (alphanumeric)
-        if (trimmedQuery) {
-            return { transactionId: trimmedQuery };
-        }
+    // Check if it's a name (letters, spaces, dots)
+    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
+      return { name: trimmedQuery };
+    }
 
-        // No search
-        return {};
-    };
+    // Otherwise treat as transactionId (alphanumeric)
+    if (trimmedQuery) {
+      return { transactionId: trimmedQuery };
+    }
+
+    // No search
+    return {};
+  };
 
     // Fetch DTH recharge reports
     useEffect(() => {

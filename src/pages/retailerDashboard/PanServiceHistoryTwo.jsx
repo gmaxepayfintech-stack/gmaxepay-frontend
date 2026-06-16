@@ -51,6 +51,11 @@ const PanServiceHistoryTwo = ({ onBack }) => {
             return { mobileNumber: trimmedQuery };
         }
 
+        // Check if it's a name (letters, spaces, dots)
+        if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
+            return { name: trimmedQuery };
+        }
+
         // Otherwise treat as transactionId (alphanumeric)
         if (trimmedQuery) {
             return { transactionId: trimmedQuery };
@@ -169,6 +174,8 @@ const PanServiceHistoryTwo = ({ onBack }) => {
             statusFilter === "All" || transaction.status === statusFilter;
         return matchesStatus;
     });
+
+    const totalCount = rechargeReportResponse?.total || 0;
 
     // SERVER-SIDE Pagination
     const paginator = rechargeReportResponse?.paginator || {};
