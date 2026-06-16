@@ -28,15 +28,29 @@ const CMSHistory = ({ onBack }) => {
     const totalCount = paginator.itemCount || 0;
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
+    const getSearchField = (searchValue) => {
+        const trimmedValue = searchValue.trim();
+        if (!trimmedValue) return {};
+        if (/^\d{10}$/.test(trimmedValue)) {
+            return { mobileNo: trimmedValue };
+        }
+        return { referenceId: trimmedValue };
+    };
+
     const fetchData = useCallback((page = 1) => {
+        const query = {
+            ...(fromDate && toDate ? { startDate: fromDate, endDate: toDate } : {}),
+            ...(statusFilter !== "All" ? { status: statusFilter.toUpperCase() } : {}),
+        };
+
+        if (debouncedSearchQuery.trim()) {
+            const searchFields = getSearchField(debouncedSearchQuery);
+            Object.assign(query, searchFields);
+        }
+
         const payload = {
-            query: {
-                ...(fromDate && toDate ? { startDate: fromDate, endDate: toDate } : {}),
-                ...(statusFilter !== "All" ? { status: statusFilter.toUpperCase() } : {}),
-            },
-            ...(debouncedSearchQuery.trim()
-                ? { customSearch: { transactionId: debouncedSearchQuery.trim() } }
-                : {}),
+            query,
+            customSearch: {},
             options: { page, paginate: itemsPerPage, sort: { createdAt: -1 } },
         };
         dispatch(cmsUserHistory(payload));
@@ -101,6 +115,15 @@ const CMSHistory = ({ onBack }) => {
       query.endDate = toDate.replace(/-/g, "/");
     }
 
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
+
+    if (statusFilter !== "All") {
+      query.status = statusFilter.toUpperCase();
+    }
+
     const payload = {
       query,
       customSearch: {},
@@ -137,12 +160,8 @@ const CMSHistory = ({ onBack }) => {
       exportData = transactions;
     }
 
-    // Filter transactions based on selected status (CLIENT-SIDE)
-    const filteredExport = exportData.filter((transaction) => {
-      const matchesStatus =
-        statusFilter === "All" || transaction.status === statusFilter;
-      return matchesStatus;
-    });
+    // Status is filtered server-side - no client-side filter needed
+    const filteredExport = exportData;
 
     if (filteredExport.length === 0) {
       alert("No data matches the selected filters for export");
@@ -196,7 +215,7 @@ const CMSHistory = ({ onBack }) => {
                                 {status}
                             </button>
                         ))}
-                        <button onClick={() => { setFromDate(""); setToDate(""); setSearchQuery(""); setStatusFilter("All"); setCurrentPage(1); setIsReloading(true); dispatch(cmsUserHistory({ options: { page: 1, paginate: itemsPerPage, sort: { createdAt: -1 } } })); }}
+                        <button onClick={() => { setFromDate(""); setToDate(""); setSearchQuery(""); setStatusFilter("All"); setCurrentPage(1); setIsReloading(true); dispatch(cmsUserHistory({ query: {}, customSearch: {}, options: { page: 1, paginate: itemsPerPage, sort: { createdAt: -1 } } })); }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading}>
                             <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isLoading ? "animate-spin" : ""}`} />
                         </button>

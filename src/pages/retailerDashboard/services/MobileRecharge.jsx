@@ -1360,7 +1360,7 @@ const MobileRecharge = ({ onBack }) => {
 
                     // Updated to match new API response structure
                     if (
-                      paymentResponse?.status === "SUCCESS" &&
+                      (paymentResponse?.status === "SUCCESS" || paymentResponse?.status === "FAILURE") &&
                       paymentResponse?.mobileRechargePay
                     ) {
                       const responseData = paymentResponse.mobileRechargePay;
@@ -1380,13 +1380,14 @@ const MobileRecharge = ({ onBack }) => {
                       const transactionData = {
                         transactionId:
                           apiResponse.txid?.toString() ||
+                          responseData.transactionId ||
                           responseData.orderid ||
                           "N/A",
                         bConnectId: apiResponse.opid?.toString() || "N/A",
                         dateTime: dateTime,
                         amount: apiResponse.amount || paymentPayload.amount,
                         orderid: responseData.orderid || "N/A",
-                        status: apiResponse.status || "Success",
+                        status: apiResponse.status || paymentResponse.status || "Failure",
                         dr_amount: apiResponse.dr_amount || null,
                         number: apiResponse.number || mobileNumber,
                       };
@@ -1396,13 +1397,52 @@ const MobileRecharge = ({ onBack }) => {
                       setShowPaymentModal(false);
                       setPaymentSuccess(true);
                     } else {
-                      // Handle error case
-                      console.error("Payment failed:", paymentResponse);
-                      // You might want to show an error message to the user here
+                      // Handle other failure cases (no responseData from server)
+                      const dateTime = new Date().toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      });
+                      const transactionData = {
+                        transactionId: "N/A",
+                        bConnectId: "N/A",
+                        dateTime: dateTime,
+                        amount: paymentPayload.amount,
+                        orderid: "N/A",
+                        status: paymentResponse?.status || "Failure",
+                        dr_amount: null,
+                        number: mobileNumber,
+                      };
+                      setTransactionDetails(transactionData);
+                      setShowPaymentModal(false);
+                      setPaymentSuccess(true);
                     }
                   } catch (error) {
                     console.error("Error processing payment:", error);
-                    // You might want to show an error message to the user here
+                    const dateTime = new Date().toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+                    const transactionData = {
+                      transactionId: "N/A",
+                      bConnectId: "N/A",
+                      dateTime: dateTime,
+                      amount: selectedPlanForRecharge.price.replace("₹", "").trim(),
+                      orderid: "N/A",
+                      status: "Failure",
+                      dr_amount: null,
+                      number: mobileNumber,
+                    };
+                    setTransactionDetails(transactionData);
+                    setShowPaymentModal(false);
+                    setPaymentSuccess(true);
                   } finally {
                     setIsLoadingPayment(false);
                   }

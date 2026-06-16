@@ -683,19 +683,47 @@ const DTHRecharge = ({ onBack }) => {
                     );
 
                     if (
-                      paymentResponse?.status === "SUCCESS" &&
-                      paymentResponse?.data
+                      (paymentResponse?.status === "SUCCESS" || paymentResponse?.status === "FAILURE") &&
+                      (paymentResponse?.dthRecharge || paymentResponse?.data)
                     ) {
                       setPaymentResponse(paymentResponse);
                       setShowPayment(false);
                       setStep("success");
                     } else {
-                      console.error("Payment failed:", paymentResponse);
-                      // You might want to show an error message here
+                      // Handle other failure cases (no response from server)
+                      const failedResponse = {
+                        status: paymentResponse?.status || "FAILURE",
+                        data: {
+                          apiResponse: {
+                            status: "Failed",
+                            amount: paymentPayload.amount,
+                            number: paymentPayload.dth_number,
+                            txid: "N/A",
+                          },
+                          orderid: "N/A",
+                        }
+                      };
+                      setPaymentResponse(failedResponse);
+                      setShowPayment(false);
+                      setStep("success");
                     }
                   } catch (error) {
                     console.error("Error processing payment:", error);
-                    // You might want to show an error message here
+                    const failedResponse = {
+                      status: "FAILURE",
+                      data: {
+                        apiResponse: {
+                          status: "Failed",
+                          amount: selectedPlan.price.replace(/[₹\s]/g, ""),
+                          number: inputValue,
+                          txid: "N/A",
+                        },
+                        orderid: "N/A",
+                      }
+                    };
+                    setPaymentResponse(failedResponse);
+                    setShowPayment(false);
+                    setStep("success");
                   } finally {
                     setIsLoadingPayment(false);
                   }
@@ -1542,12 +1570,14 @@ const DTHRecharge = ({ onBack }) => {
           )}
 
           {step === "success" && selectedPlan && (() => {
-            const apiStatus = paymentResponse?.data?.apiResponse?.status || paymentResponse?.dthRecharge?.apiResponse?.status;
+            const apiStatus = paymentResponse?.data?.apiResponse?.status || paymentResponse?.dthRecharge?.apiResponse?.status || paymentResponse?.status;
             const isPending = apiStatus?.toLowerCase() === "pending";
-            const bgColor = isPending ? "bg-yellow-100" : "bg-green-100";
-            const iconBgColor = isPending ? "bg-yellow-500" : "bg-[#039155]";
-            const titleText = isPending ? "Payment Pending" : "Payment Successful";
-            const subtitleText = isPending ? "Your Payment Is Being Processed" : "Your Payment Has Been Completed";
+            const isFailure = apiStatus?.toLowerCase() === "failed" || apiStatus?.toLowerCase() === "failure" || paymentResponse?.status === "FAILURE";
+            
+            const bgColor = isFailure ? "bg-red-100" : (isPending ? "bg-yellow-100" : "bg-green-100");
+            const iconBgColor = isFailure ? "bg-red-600" : (isPending ? "bg-yellow-500" : "bg-[#039155]");
+            const titleText = isFailure ? "Payment Failed" : (isPending ? "Payment Pending" : "Payment Successful");
+            const subtitleText = isFailure ? "Your Payment Could Not Be Completed" : (isPending ? "Your Payment Is Being Processed" : "Your Payment Has Been Completed");
 
             return (
               <div className={`${bgColor} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
@@ -1562,7 +1592,22 @@ const DTHRecharge = ({ onBack }) => {
                   <div className="text-center mb-6">
                     <div className="flex justify-center mb-3">
                       <div className={`w-14 h-14 rounded-full ${iconBgColor} flex items-center justify-center`}>
-                        {isPending ? (
+                        {isFailure ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        ) : isPending ? (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-8 w-8 text-white"
@@ -1607,8 +1652,8 @@ const DTHRecharge = ({ onBack }) => {
                   {/* Amount */}
                   <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
                     <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                      {paymentResponse?.data?.apiResponse?.amount
-                        ? `₹${paymentResponse.data.apiResponse.amount}`
+                      {paymentResponse?.data?.apiResponse?.amount || paymentResponse?.dthRecharge?.apiResponse?.amount
+                        ? `₹${paymentResponse?.data?.apiResponse?.amount || paymentResponse?.dthRecharge?.apiResponse?.amount}`
                         : selectedPlan?.price || "N/A"}
                     </div>
                   </div>
@@ -1620,18 +1665,18 @@ const DTHRecharge = ({ onBack }) => {
                         Transaction ID
                       </div>
                       <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-                        {paymentResponse?.data?.apiResponse?.txid || "N/A"}
+                        {paymentResponse?.data?.apiResponse?.txid || paymentResponse?.dthRecharge?.apiResponse?.txid || "N/A"}
                       </div>
                     </div>
 
                     <div>
                       <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                        {paymentResponse?.data?.apiResponse?.number?.length === 10
+                        {paymentResponse?.data?.apiResponse?.number?.length === 10 || paymentResponse?.dthRecharge?.apiResponse?.number?.length === 10
                           ? "Mobile Number"
                           : "Subscriber ID"}
                       </div>
                       <div className="font-['Gilroy-Medium'] text-sm">
-                        {paymentResponse?.data?.apiResponse?.number || inputValue}
+                        {paymentResponse?.data?.apiResponse?.number || paymentResponse?.dthRecharge?.apiResponse?.number || inputValue}
                       </div>
                     </div>
 
@@ -1676,7 +1721,7 @@ const DTHRecharge = ({ onBack }) => {
                         Order ID
                       </div>
                       <div className="font-['Gilroy-Medium']">
-                        {paymentResponse?.data?.orderid || "N/A"}
+                        {paymentResponse?.data?.orderid || paymentResponse?.dthRecharge?.orderid || "N/A"}
                       </div>
                     </div>
 
@@ -1690,11 +1735,11 @@ const DTHRecharge = ({ onBack }) => {
 
                   {/* Buttons */}
                   <div className="absolute left-5 right-5 bottom-2 flex gap-28">
-                    <button className="flex-1  border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium']">
+                    <button className={`flex-1 border ${isFailure ? "border-red-600 text-red-600 hover:bg-red-600" : (isPending ? "border-yellow-500 text-yellow-500 hover:bg-yellow-500" : "border-[#039155] text-[#039155] hover:bg-[#039155]")} rounded-lg py-2 text-sm hover:text-white transition font-['Gilroy-Medium']`}>
                       Share
                     </button>
 
-                    <button className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold']">
+                    <button className={`flex-1 ${isFailure ? "bg-red-600 hover:bg-red-700" : (isPending ? "bg-yellow-500 hover:bg-yellow-600" : "bg-[#039155] hover:bg-[#027a44]")} text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] transition`}>
                       Download Receipt
                     </button>
                   </div>

@@ -178,37 +178,19 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   // Function to determine search field based on input pattern
   const getSearchField = (searchValue) => {
     const trimmedValue = searchValue.trim();
-    if (!trimmedValue) return null;
-
-    // Check if it starts with "CW" (FP Transaction ID pattern)
-    if (/^CW/i.test(trimmedValue)) {
-      return { fpTransactionId: trimmedValue };
-    }
+    if (!trimmedValue) return {};
 
     // Check if it's a 10-digit phone number
     if (/^\d{10}$/.test(trimmedValue)) {
-      return { mobileNo: trimmedValue };
+      return { mobileNumber: trimmedValue };
     }
 
-    // Check if it's 11-20 digits (Bank RRN pattern)
-    if (/^\d{11,20}$/.test(trimmedValue)) {
-      return { bankRRN: trimmedValue };
+    // Check if it's all letters and spaces with no numbers (Bank Name pattern)
+    if (/^[A-Za-z\s.]+$/.test(trimmedValue)) {
+      return { bankName: trimmedValue };
     }
 
-    // Check if it's all letters and spaces with no numbers (Name pattern)
-    // Must be checked before transaction ID to avoid false matches
-    if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
-      return { name: trimmedValue };
-    }
-
-    // Check if it matches transaction ID pattern (3-4 capital letters at start, then alphanumeric with numbers)
-    // Pattern: 3-4 capital letters at start, followed by alphanumeric that includes numbers
-    // Example: ZPAY2512191006CEEFB5 (ZPAY = 4 caps, then has numbers)
-    if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
-      return { transactionId: trimmedValue };
-    }
-
-    // Default: if pattern doesn't match, try as transactionId
+    // Default: treat as transactionId
     return { transactionId: trimmedValue };
   };
 
@@ -249,26 +231,27 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       query.endDate = toDate.replace(/-/g, "/");
     }
 
-    // Build customSearch — merge text search + status filter
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
+    // Merge search fields directly into query
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
-    // --- Status filter via customSearch (camelCase values) ---
+    // --- Status filter via query (camelCase values) ---
     // AEPS2: filter by `transactionStatus` ("successful" / "failed" / "pending")
     // AEPS1: filter by `paymentStatus`   ("success"    / "failed" / "pending")
     if (statusFilter !== "All") {
       const camelStatus = statusFilter.toLowerCase(); // "success" | "failed" | "pending"
       if (isAeps2) {
-        customSearch.transactionStatus = camelStatus;
+        query.transactionStatus = camelStatus;
       } else {
-        customSearch.paymentStatus = camelStatus;
+        query.paymentStatus = camelStatus;
       }
     }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: currentPage,
         paginate: itemsPerPage,
@@ -331,22 +314,23 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       query.endDate = toDate.replace(/-/g, "/");
     }
 
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
     if (statusFilter !== "All") {
       const camelStatus = statusFilter.toLowerCase();
       if (isAeps2) {
-        customSearch.transactionStatus = camelStatus;
+        query.transactionStatus = camelStatus;
       } else {
-        customSearch.paymentStatus = camelStatus;
+        query.paymentStatus = camelStatus;
       }
     }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000), // No limit (fetch all records)
@@ -519,13 +503,24 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 const query = isAeps2
                   ? { transactionType: transactionType }
                   : { transactionType };
-                const customSearch = debouncedSearchQuery.trim()
-                  ? getSearchField(debouncedSearchQuery)
-                  : {};
+                
+                if (debouncedSearchQuery.trim()) {
+                  const searchFields = getSearchField(debouncedSearchQuery);
+                  Object.assign(query, searchFields);
+                }
+
+                if (statusFilter !== "All") {
+                  const camelStatus = statusFilter.toLowerCase();
+                  if (isAeps2) {
+                    query.transactionStatus = camelStatus;
+                  } else {
+                    query.paymentStatus = camelStatus;
+                  }
+                }
 
                 const payload = {
                   query,
-                  customSearch,
+                  customSearch: {},
                   options: {
                     page: 1,
                     paginate: itemsPerPage,

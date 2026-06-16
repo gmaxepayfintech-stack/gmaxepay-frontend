@@ -17,7 +17,7 @@ import * as XLSX from "xlsx";
 const BBPSReports = ({ onBack, type }) => {
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState("");
-    const [statusFilter, setStatusFilter] = useState("Success");
+    const [statusFilter, setStatusFilter] = useState("All");
     const { showNotification } = useNotification();
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
@@ -28,23 +28,14 @@ const BBPSReports = ({ onBack, type }) => {
   // Helper function to determine search field based on input pattern
   const getSearchField = (query) => {
     const trimmedQuery = query.trim();
+    if (!trimmedQuery) return {};
 
-    // Check if it's a mobile number (10 digits)
-    if (/^\d{10}$/.test(trimmedQuery)) {
+    // Check if it's a mobile number (10-12 digits)
+    if (/^\d{10,12}$/.test(trimmedQuery)) {
       return { mobileNumber: trimmedQuery };
     }
 
-    // Check if it's a name (letters, spaces, dots)
-    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
-      return { name: trimmedQuery };
-    }
-
-    // Otherwise treat as transactionId
-    if (trimmedQuery) {
-      return { transactionId: trimmedQuery };
-    }
-
-    return {};
+    return { transactionId: trimmedQuery };
   };
     const [isReloading, setIsReloading] = useState(false);
 
@@ -125,14 +116,20 @@ const BBPSReports = ({ onBack, type }) => {
             return;
         }
 
-        const query = {
-            paymentStatus: statusFilter === "All" ? "" : statusFilter
-        };
+        const query = {};
+        if (statusFilter !== "All") {
+            query.paymentStatus = statusFilter;
+        }
 
         // Add date filters only if both dates are selected
         if (fromDate && toDate) {
             query.startDate = fromDate.replace(/-/g, "/");
             query.endDate = toDate.replace(/-/g, "/");
+        }
+
+        if (debouncedSearchQuery.trim()) {
+            const searchFields = getSearchField(debouncedSearchQuery);
+            Object.assign(query, searchFields);
         }
 
         const payload = {
@@ -144,7 +141,7 @@ const BBPSReports = ({ onBack, type }) => {
                     createdAt: -1
                 }
             },
-            customSearch: debouncedSearchQuery ? getSearchField(debouncedSearchQuery) : {}
+            customSearch: {}
         };
 
         dispatch(bbpsUsersHistory(payload)).then((res) => {
@@ -241,7 +238,7 @@ const BBPSReports = ({ onBack, type }) => {
     // Filter transactions based on selected status (CLIENT-SIDE)
     const filteredExport = exportData.filter((transaction) => {
       const matchesStatus =
-        statusFilter === "All" || transaction.status === statusFilter;
+        statusFilter === "All" || transaction.paymentStatus === statusFilter;
       return matchesStatus;
     });
 
@@ -306,18 +303,29 @@ const BBPSReports = ({ onBack, type }) => {
 
                     {/* Status Filter Buttons and Reload Button */}
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        {["All", "Success", "Pending", "Failed"].map((status) => (
+                            <button
+                                key={status}
+                                onClick={() => setStatusFilter(status)}
+                                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
+                                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                                    }`}
+                            >
+                                {status}
+                            </button>
+                        ))}
+
                         <button
                             onClick={() => {
                                 setFromDate("");
                                 setToDate("");
                                 setSearchQuery("");
-                                setStatusFilter("Success");
+                                setStatusFilter("All");
                                 setIsReloading(true);
 
                                 const payload = {
-                                    query: {
-                                        paymentStatus: "Success"
-                                    },
+                                    query: {},
                                     options: {
                                         page: 1,
                                         paginate: itemsPerPage,
