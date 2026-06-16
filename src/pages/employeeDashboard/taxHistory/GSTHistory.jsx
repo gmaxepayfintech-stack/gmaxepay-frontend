@@ -120,6 +120,10 @@ const GSTHistory = ({ onBack, type }) => {
             query.endDate = toDate.replace(/-/g, "/");
         }
 
+        if (debouncedSearchQuery.trim()) {
+            query.transactionId = debouncedSearchQuery.trim();
+        }
+
         const payload = {
             query: query,
             options: {
@@ -129,11 +133,7 @@ const GSTHistory = ({ onBack, type }) => {
                     createdAt: -1
                 }
             },
-            customSearch: {
-                transactionId: debouncedSearchQuery || "",
-                name: "",
-                mobileNo: ""
-            }
+            customSearch: {}
         };
 
         dispatch(employeeGstHistory(payload));
@@ -161,7 +161,8 @@ const GSTHistory = ({ onBack, type }) => {
     });
 
     // SERVER-SIDE Pagination
-    const totalPages = paginator.pageCount || Math.ceil(apiTotalCount / itemsPerPage) || 1;
+    const totalCount = apiTotalCount || filteredTransactions.length;
+    const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
     const paginatedTransactions = filteredTransactions;
 
     // Reset to page 1 when filter changes
@@ -176,18 +177,23 @@ const GSTHistory = ({ onBack, type }) => {
       return;
     }
 
+    const query = {};
+    if (fromDate && toDate) {
+      query.startDate = fromDate.replace(/-/g, "/");
+      query.endDate = toDate.replace(/-/g, "/");
+    }
+    if (debouncedSearchQuery.trim()) {
+      query.transactionId = debouncedSearchQuery.trim();
+    }
+
     const payload = {
-      query: {},
+      query: query,
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000),
         sort: { createdAt: -1 }
       },
-      customSearch: {
-        transactionId: debouncedSearchQuery || "",
-        name: "",
-        mobileNo: ""
-      }
+      customSearch: {}
     };
 
     let exportData = [];
@@ -298,11 +304,7 @@ const GSTHistory = ({ onBack, type }) => {
                                             createdAt: -1
                                         }
                                     },
-                                    customSearch: {
-                                        transactionId: "",
-                                        name: "",
-                                        mobileNo: ""
-                                    }
+                                    customSearch: {}
                                 };
 
                                 dispatch(employeeGstHistory(payload));

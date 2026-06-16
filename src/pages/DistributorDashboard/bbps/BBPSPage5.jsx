@@ -25,15 +25,62 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
       secureKey: "1234",
     };
 
-    const result = await dispatch(getUserBBPSPayBill(paymentPayload));
-    if (result?.status === 'SUCCESS') {
+    try {
+      const result = await dispatch(getUserBBPSPayBill(paymentPayload));
+      if (result?.status === 'SUCCESS') {
+        setShowConfirmModal(false);
+        setFormData((prev) => ({
+          ...prev,
+          paymentResponse: result.data,
+        }));
+        if (onSuccess) {
+          onSuccess(result.data);
+        }
+      } else {
+        const failedResponse = {
+          status: "Failed",
+          amount: formData.amount || formData.billDetails?.billDetails?.billAmount || "0.00",
+          txid: "N/A",
+          txnRefId: "N/A",
+          bConnectId: "N/A",
+          utr: "N/A",
+          approvalRefNumber: "N/A",
+          customerName: formData.billDetails?.billDetails?.customerName || "N/A",
+          billerNumber: formData.billDetails?.billDetails?.billNumber || "N/A",
+          custConvFee: "0.00",
+          responseReason: result?.message || "Payment Failed",
+        };
+        setShowConfirmModal(false);
+        setFormData((prev) => ({
+          ...prev,
+          paymentResponse: failedResponse,
+        }));
+        if (onSuccess) {
+          onSuccess(failedResponse);
+        }
+      }
+    } catch (error) {
+      console.error("Error processing BBPS payment:", error);
+      const failedResponse = {
+        status: "Failed",
+        amount: formData.amount || formData.billDetails?.billDetails?.billAmount || "0.00",
+        txid: "N/A",
+        txnRefId: "N/A",
+        bConnectId: "N/A",
+        utr: "N/A",
+        approvalRefNumber: "N/A",
+        customerName: formData.billDetails?.billDetails?.customerName || "N/A",
+        billerNumber: formData.billDetails?.billDetails?.billNumber || "N/A",
+        custConvFee: "0.00",
+        responseReason: error?.message || "Payment Failed",
+      };
       setShowConfirmModal(false);
       setFormData((prev) => ({
         ...prev,
-        paymentResponse: result.data,
+        paymentResponse: failedResponse,
       }));
       if (onSuccess) {
-        onSuccess(result.data);
+        onSuccess(failedResponse);
       }
     }
   };

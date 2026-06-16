@@ -49,25 +49,14 @@ const PanReport = ({ onBack }) => {
   // Helper function to determine search field based on input pattern
   const getSearchField = (query) => {
     const trimmedQuery = query.trim();
+    if (!trimmedQuery) return {};
 
-    // Check if it's a mobile number (10 digits)
-    if (/^\d{10}$/.test(trimmedQuery)) {
-      // For PAN service, API might expect mobile_number
+    // Check if it's a mobile number (10-12 digits)
+    if (/^\d{10,12}$/.test(trimmedQuery)) {
       return { mobileNumber: trimmedQuery };
     }
 
-    // Check if it's a name (letters, spaces, dots)
-    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
-      return { name: trimmedQuery };
-    }
-
-    // Otherwise treat as transactionId (alphanumeric)
-    if (trimmedQuery) {
-      return { transactionId: trimmedQuery };
-    }
-
-    // No search
-    return {};
+    return { transactionId: trimmedQuery };
   };
 
   // Fetch PAN service reports
@@ -84,14 +73,14 @@ const PanReport = ({ onBack }) => {
       query.endDate = toDate;
     }
 
-    // Get the appropriate search field based on input pattern
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
     const payload = {
       query: query,
-      customSearch: customSearch,
+      customSearch: {},
       options: {
         page: currentPage,
         paginate: itemsPerPageState,
@@ -205,7 +194,7 @@ const PanReport = ({ onBack }) => {
   }, [statusFilter, itemsPerPageState]);
 
   // Export to Excel function
-    const handleExportToExcel = async () => {
+  const handleExportToExcel = async () => {
     if (totalCount === 0) {
       showNotification("No data available to export", "error");
       return;
@@ -218,11 +207,14 @@ const PanReport = ({ onBack }) => {
       query.startDate = fromDate;
       query.endDate = toDate;
     }
-    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000),
@@ -303,7 +295,7 @@ const PanReport = ({ onBack }) => {
 
     const fileName = `Export_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
-  };;
+  };
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -396,13 +388,14 @@ const PanReport = ({ onBack }) => {
                 setIsReloading(true);
 
                 const query = { serviceType: "Pan" };
-                const customSearch = debouncedSearchQuery.trim()
-                  ? getSearchField(debouncedSearchQuery)
-                  : {};
+                if (debouncedSearchQuery.trim()) {
+                  const searchFields = getSearchField(debouncedSearchQuery);
+                  Object.assign(query, searchFields);
+                }
 
                 const payload = {
                   query,
-                  customSearch,
+                  customSearch: {},
                   options: {
                     page: currentPage,
                     paginate: itemsPerPageState,
@@ -666,17 +659,6 @@ const PanReport = ({ onBack }) => {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
-            {/* <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
-              {(() => {
-                const start =
-                  paginatedTransactions.length > 0
-                    ? (apiCurrentPage - 1) * itemsPerPage + 1
-                    : 0;
-                const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
-                return `Showing ${start} to ${end} of ${totalCount} entries`;
-              })()}
-            </div> */}
-
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
