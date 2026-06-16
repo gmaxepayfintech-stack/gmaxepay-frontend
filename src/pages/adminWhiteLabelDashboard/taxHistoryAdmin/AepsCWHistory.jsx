@@ -166,38 +166,19 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
   const getSearchField = (searchValue) => {
     const trimmedValue = searchValue.trim();
-    if (!trimmedValue) return null;
+    if (!trimmedValue) return {};
 
-    // 1. Check if it looks like a Company ID (alphanumeric containing both letters and numbers, length < 15)
-    if (/^[A-Za-z0-9\-_]+$/i.test(trimmedValue) && /[A-Za-z]/i.test(trimmedValue) && /\d/.test(trimmedValue) && trimmedValue.length < 15) {
-      return { companyId: trimmedValue };
-    }
-
-    // 2. Check if it's a short number (representing Serial Number / short ID / database ID)
-    if (/^\d+$/.test(trimmedValue) && trimmedValue.length < 8) {
-      return { id: trimmedValue };
-    }
-
-    if (/^CW/i.test(trimmedValue)) {
-      return { fpTransactionId: trimmedValue };
-    }
-
+    // Check if it's a 10-digit phone number
     if (/^\d{10}$/.test(trimmedValue)) {
-      return { mobileNo: trimmedValue };
+      return { mobileNumber: trimmedValue };
     }
 
-    if (/^\d{11,20}$/.test(trimmedValue)) {
-      return { bankRRN: trimmedValue };
+    // Check if it's all letters and spaces with no numbers (Bank Name pattern)
+    if (/^[A-Za-z\s.]+$/.test(trimmedValue)) {
+      return { bankName: trimmedValue };
     }
 
-    if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
-      return { name: trimmedValue };
-    }
-
-    if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
-      return { transactionId: trimmedValue };
-    }
-
+    // Default: treat as transactionId
     return { transactionId: trimmedValue };
   };
 
@@ -230,8 +211,24 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query.endDate = toDate.replaceAll("-", "/");
     }
 
+    // Merge search fields directly into query
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
+
+    // Pass the status filter inside query
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase();
+      if (apiType === "aeps2") {
+        query.transactionStatus = camelStatus;
+      } else {
+        query.paymentStatus = camelStatus;
+      }
+    }
+
     const payload = {
-      query: query,
+      query,
       customSearch: {},
       options: {
         page: currentPage,
@@ -245,7 +242,7 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
     } else {
       dispatch(getAepsCwHistoryCompany(payload));
     }
-  }, [dispatch, fromDate, toDate, apiType, transactionType, currentPage, itemsPerPageState]);
+  }, [dispatch, debouncedSearchQuery, statusFilter, fromDate, toDate, apiType, transactionType, currentPage, itemsPerPageState]);
 
   useEffect(() => {
     if (!isLoading && isReloading) {
@@ -257,24 +254,8 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Filter transactions based on status and search query (CLIENT-SIDE)
-  // 4 main search fields: Name, Mobile, Transaction ID, Reference ID
-  const filteredTransactions = transactions.filter((transaction, index) => {
-    const matchesStatus =
-      statusFilter === "All" ||
-      transaction.status.toLowerCase() === statusFilter.toLowerCase();
-
-    const searchLower = debouncedSearchQuery.trim().toLowerCase();
-
-    const matchesSearch =
-      !searchLower ||
-      String(transaction.name).toLowerCase().includes(searchLower) ||
-      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
-      String(transaction.taxId).toLowerCase().includes(searchLower) ||
-      String(transaction.refID).toLowerCase().includes(searchLower);
-
-    return matchesStatus && matchesSearch;
-  });
+  // Status is filtered server-side — no client-side filter needed.
+  const filteredTransactions = transactions;
 
   // SERVER-SIDE Pagination
   const itemsPerPage = paginator.perPage || itemsPerPageState;
@@ -305,13 +286,23 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query.endDate = toDate.replaceAll("-", "/");
     }
 
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
+
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase();
+      if (apiType === "aeps2") {
+        query.transactionStatus = camelStatus;
+      } else {
+        query.paymentStatus = camelStatus;
+      }
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000), // No limit (fetch all records)
@@ -513,13 +504,23 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   query.transactionType = transactionType;
                 }
 
-                const customSearch = debouncedSearchQuery.trim()
-                  ? getSearchField(debouncedSearchQuery)
-                  : {};
+                if (debouncedSearchQuery.trim()) {
+                  const searchFields = getSearchField(debouncedSearchQuery);
+                  Object.assign(query, searchFields);
+                }
+
+                if (statusFilter !== "All") {
+                  const camelStatus = statusFilter.toLowerCase();
+                  if (apiType === "aeps2") {
+                    query.transactionStatus = camelStatus;
+                  } else {
+                    query.paymentStatus = camelStatus;
+                  }
+                }
 
                 const payload = {
                   query,
-                  customSearch,
+                  customSearch: {},
                   options: {
                     page: currentPage,
                     paginate: itemsPerPageState,

@@ -117,16 +117,18 @@ const SurCharges = ({ onBack, type }) => {
             query.endDate = toDate.replace(/-/g, "/");
         }
 
+        if (debouncedSearchQuery.trim()) {
+            query.transactionId = debouncedSearchQuery.trim();
+        }
+
         const payload = {
-            query: query, // Using the date query constructed above
+            query: query,
             options: {
                 page: currentPage,
                 paginate: itemsPerPage,
                 order: [["createdAt", "DESC"]]
             },
-            customSearch: debouncedSearchQuery ? {
-                transactionId: debouncedSearchQuery
-            } : {}
+            customSearch: {}
         };
 
         dispatch(surChargesHistory(payload)).then((res) => {
@@ -188,11 +190,14 @@ const SurCharges = ({ onBack, type }) => {
       query.startDate = fromDate;
       query.endDate = toDate;
     }
-    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
+
+    if (debouncedSearchQuery.trim()) {
+      query.transactionId = debouncedSearchQuery.trim();
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000),

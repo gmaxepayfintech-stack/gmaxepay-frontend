@@ -5,7 +5,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Download } from "lucide-react";
 
-const SuccessDetail = ({ label, value, green }) => {
+const SuccessDetail = ({ label, value, green, red }) => {
   return (
     <div>
       <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
@@ -13,7 +13,7 @@ const SuccessDetail = ({ label, value, green }) => {
       </div>
       <div
         className={`font-['Gilroy-Medium'] text-sm ${
-          green ? "text-[#039155]" : "text-[#1B1717]"
+          red ? "text-red-600" : (green ? "text-[#039155]" : "text-[#1B1717]")
         }`}
       >
         {value || "N/A"}
@@ -79,6 +79,10 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
       transactionDetails?.status ||
       transactionDetails?.responseReason ||
       "Success";
+    const isFailure =
+      status.toLowerCase() === "failure" ||
+      status.toLowerCase() === "failed" ||
+      status.toLowerCase() === "fail";
     const dateTime = getCurrentDateTime();
     const ccf =
       transactionDetails?.custConvFee ||
@@ -300,7 +304,7 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
                 </tr>
                 <tr>
                     <td class="info-label">Transaction Status</td>
-                    <td class="info-value"><span class="status-success">${status}</span></td>
+                    <td class="info-value"><span class="status-success" style="${isFailure ? 'color: #d32f2f;' : 'color: #039155;'}">${status}</span></td>
                 </tr>
                 <tr>
                     <td class="info-label">Date & Time</td>
@@ -494,9 +498,17 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
       console.error("Error sharing:", error);
     }
   };
+  const isFailure =
+    status.toLowerCase() === "failure" ||
+    status.toLowerCase() === "failed" ||
+    status.toLowerCase() === "fail";
+  const bgColor = isFailure ? "bg-red-100" : "bg-green-100";
+  const iconBgColor = isFailure ? "bg-red-600" : "bg-[#039155]";
+  const titleText = isFailure ? "Payment Failed" : "Payment Successful";
+  const subtitleText = isFailure ? "Your Payment Could Not Be Completed" : "Your Payment Has Been Completed";
 
   return (
-    <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+    <div className={`${bgColor} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
       {/* Ticket Notches */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full" />
@@ -507,36 +519,53 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
         {/* Success Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+            <div className={`w-14 h-14 rounded-full ${iconBgColor} flex items-center justify-center`}>
+              {isFailure ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
             </div>
           </div>
 
           <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            Payment Successful
+            {titleText}
           </h2>
           <p className="text-[12px] text-[#1B1717]/80">
-            Your Payment Has Been Completed
+            {subtitleText}
           </p>
         </div>
 
         {/* Amount */}
         <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
           <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            ₹
+            ₹{" "}
             {transactionDetails?.amount ||
               transactionDetails?.respAmount ||
               "0.00"}
@@ -577,7 +606,8 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
               transactionDetails?.responseReason ||
               "Success"
             }
-            green
+            green={!isFailure}
+            red={isFailure}
           />
           <SuccessDetail label="Date" value={getCurrentDateTime()} />
           <SuccessDetail
@@ -594,14 +624,18 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
         <div className="absolute left-5 right-5 bottom-2 flex gap-24">
           <button
             onClick={handleShare}
-            className="flex-1 border border-[#039155] rounded-lg py-2 text-xs text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+            className={`flex-1 border ${
+              isFailure ? "border-red-600 text-red-600 hover:bg-red-600" : "border-[#039155] text-[#039155] hover:bg-[#039155]"
+            } rounded-lg py-2 text-xs hover:text-white transition font-['Gilroy-Medium']`}
           >
             Share
           </button>
 
           <button
             onClick={handleDownload}
-            className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-xs font-['Gilroy-semibold'] hover:bg-[#027a44] transition flex items-center justify-center gap-2"
+            className={`flex-1 ${
+              isFailure ? "bg-red-600 hover:bg-red-700" : "bg-[#039155] hover:bg-[#027a44]"
+            } text-white rounded-lg py-2 text-xs font-['Gilroy-semibold'] transition flex items-center justify-center gap-2`}
           >
             <Download size={16} />
             Download Receipt

@@ -147,6 +147,10 @@ const WalletHistory = ({ onBack, type }) => {
       query.endDate = toDate.replace(/-/g, "/");
     }
 
+    if (debouncedSearchQuery.trim()) {
+      query.transactionId = debouncedSearchQuery.trim();
+    }
+
     const payload = {
       query,
       customSearch: {},
@@ -211,6 +215,10 @@ const WalletHistory = ({ onBack, type }) => {
     if (fromDate && toDate) {
       query.startDate = fromDate.replace(/-/g, "/");
       query.endDate = toDate.replace(/-/g, "/");
+    }
+
+    if (debouncedSearchQuery.trim()) {
+      query.transactionId = debouncedSearchQuery.trim();
     }
 
     const payload = {

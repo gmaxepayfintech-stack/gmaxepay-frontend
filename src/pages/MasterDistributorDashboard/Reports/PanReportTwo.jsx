@@ -216,11 +216,14 @@ const PanReportTwo = ({ onBack }) => {
       query.startDate = fromDate;
       query.endDate = toDate;
     }
-    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000),
@@ -381,13 +384,14 @@ const PanReportTwo = ({ onBack }) => {
                                 setIsReloading(true);
 
                                 const query = { serviceType: "Pan2" };
-                                const customSearch = debouncedSearchQuery.trim()
-                                    ? getSearchField(debouncedSearchQuery)
-                                    : {};
+                                if (debouncedSearchQuery.trim()) {
+                                    const searchFields = getSearchField(debouncedSearchQuery);
+                                    Object.assign(query, searchFields);
+                                }
 
                                 const payload = {
                                     query,
-                                    customSearch,
+                                    customSearch: {},
                                     options: {
                                         page: currentPage,
                                         paginate: itemsPerPageState,

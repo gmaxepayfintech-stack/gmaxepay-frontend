@@ -45,28 +45,14 @@ const DTHRechargeHistoryTwo = ({ onBack }) => {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-      // Helper function to determine search field based on input pattern
-  const getSearchField = (query) => {
-    const trimmedQuery = query.trim();
-
-    // Check if it's a DTH number (10-12 digits) or mobile number (10 digits)
-    if (/^\d{10,12}$/.test(trimmedQuery)) {
-      // API expects dthNumber for DTH service
-      return { dthNumber: trimmedQuery };
+  // Helper function to determine search field based on input pattern
+  const getSearchField = (searchValue) => {
+    const trimmedValue = searchValue.trim();
+    if (!trimmedValue) return {};
+    if (/^\d{10,12}$/.test(trimmedValue)) {
+      return { mobileNumber: trimmedValue };
     }
-
-    // Check if it's a name (letters, spaces, dots)
-    if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
-      return { name: trimmedQuery };
-    }
-
-    // Otherwise treat as transactionId (alphanumeric)
-    if (trimmedQuery) {
-      return { transactionId: trimmedQuery };
-    }
-
-    // No search
-    return {};
+    return { transactionId: trimmedValue };
   };
 
     // Fetch DTH recharge reports
@@ -83,14 +69,14 @@ const DTHRechargeHistoryTwo = ({ onBack }) => {
             query.endDate = toDate;
         }
 
-        // Get the appropriate search field based on input pattern
-        const customSearch = debouncedSearchQuery.trim()
-            ? getSearchField(debouncedSearchQuery)
-            : {};
+        if (debouncedSearchQuery.trim()) {
+            const searchFields = getSearchField(debouncedSearchQuery);
+            Object.assign(query, searchFields);
+        }
 
         const payload = {
             query: query,
-            customSearch: customSearch,
+            customSearch: {},
             options: {
                 page: currentPage,
                 paginate: itemsPerPage,
@@ -128,12 +114,13 @@ const DTHRechargeHistoryTwo = ({ onBack }) => {
                     query.startDate = fromDate;
                     query.endDate = toDate;
                 }
-                const customSearch = debouncedSearchQuery.trim()
-                    ? getSearchField(debouncedSearchQuery)
-                    : {};
+                if (debouncedSearchQuery.trim()) {
+                    const searchFields = getSearchField(debouncedSearchQuery);
+                    Object.assign(query, searchFields);
+                }
                 const fetchPayload = {
                     query: query,
-                    customSearch: customSearch,
+                    customSearch: {},
                     options: {
                         page: currentPage,
                         paginate: itemsPerPage,
@@ -250,11 +237,14 @@ const DTHRechargeHistoryTwo = ({ onBack }) => {
       query.startDate = fromDate;
       query.endDate = toDate;
     }
-    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000),
@@ -419,13 +409,14 @@ const DTHRechargeHistoryTwo = ({ onBack }) => {
                                 setIsReloading(true);
 
                                 const query = { serviceType: "DTH2Recharge" };
-                                const customSearch = debouncedSearchQuery.trim()
-                                    ? getSearchField(debouncedSearchQuery)
-                                    : {};
+                                if (debouncedSearchQuery.trim()) {
+                                    const searchFields = getSearchField(debouncedSearchQuery);
+                                    Object.assign(query, searchFields);
+                                }
 
                                 const payload = {
                                     query,
-                                    customSearch,
+                                    customSearch: {},
                                     options: {
                                         page: 1,
                                         paginate: itemsPerPage,

@@ -177,37 +177,19 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
   // Function to determine search field based on input pattern
   const getSearchField = (searchValue) => {
     const trimmedValue = searchValue.trim();
-    if (!trimmedValue) return null;
-
-    // Check if it starts with "CW" (FP Transaction ID pattern)
-    if (/^CW/i.test(trimmedValue)) {
-      return { fpTransactionId: trimmedValue };
-    }
+    if (!trimmedValue) return {};
 
     // Check if it's a 10-digit phone number
     if (/^\d{10}$/.test(trimmedValue)) {
-      return { mobileNo: trimmedValue, mobileNumber: trimmedValue };
+      return { mobileNumber: trimmedValue };
     }
 
-    // Check if it's 11-20 digits (Bank RRN pattern)
-    if (/^\d{11,20}$/.test(trimmedValue)) {
-      return { bankRRN: trimmedValue };
+    // Check if it's all letters and spaces with no numbers (Bank Name pattern)
+    if (/^[A-Za-z\s.]+$/.test(trimmedValue)) {
+      return { bankName: trimmedValue };
     }
 
-    // Check if it's all letters and spaces with no numbers (Name pattern)
-    // Must be checked before transaction ID to avoid false matches
-    if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
-      return { name: trimmedValue };
-    }
-
-    // Check if it matches transaction ID pattern (3-4 capital letters at start, then alphanumeric with numbers)
-    // Pattern: 3-4 capital letters at start, followed by alphanumeric that includes numbers
-    // Example: ZPAY2512191006CEEFB5 (ZPAY = 4 caps, then has numbers)
-    if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
-      return { transactionId: trimmedValue };
-    }
-
-    // Default: if pattern doesn't match, try as transactionId
+    // Default: treat as transactionId
     return { transactionId: trimmedValue };
   };
 
@@ -249,24 +231,25 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query.endDate = toDate.replaceAll("-", "/");
     }
 
-    // Get the appropriate search field based on input pattern
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
+    // Merge search fields directly into query
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
-    // Pass the status filter inside customSearch
+    // Pass the status filter inside query
     if (statusFilter !== "All") {
       const camelStatus = statusFilter.toLowerCase();
       if (apiType === "aeps2") {
-        customSearch.transactionStatus = camelStatus;
+        query.transactionStatus = camelStatus;
       } else {
-        customSearch.paymentStatus = camelStatus;
+        query.paymentStatus = camelStatus;
       }
     }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: currentPage,
         paginate: itemsPerPage,
@@ -294,22 +277,8 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Filter transactions based on selected status and search query
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesStatus =
-      statusFilter === "All" || transaction.status === statusFilter;
-
-    const searchLower = debouncedSearchQuery.trim().toLowerCase();
-    const matchesSearch =
-      !searchLower ||
-      String(transaction.name).toLowerCase().includes(searchLower) ||
-      String(transaction.mobileNo).toLowerCase().includes(searchLower) ||
-      String(transaction.taxId).toLowerCase().includes(searchLower) ||
-      String(transaction.refID).toLowerCase().includes(searchLower) ||
-      String(transaction.bankRRN).toLowerCase().includes(searchLower);
-
-    return matchesStatus && matchesSearch;
-  });
+  // Status is filtered server-side — no client-side filter needed.
+  const filteredTransactions = transactions;
 
   // SERVER-SIDE Pagination
   const totalPages = paginator.pageCount || Math.ceil(totalCount / itemsPerPage) || 1;
@@ -338,13 +307,23 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
       query.endDate = toDate.replaceAll("-", "/");
     }
 
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
+
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase();
+      if (apiType === "aeps2") {
+        query.transactionStatus = camelStatus;
+      } else {
+        query.paymentStatus = camelStatus;
+      }
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000), // No limit (fetch all records)
@@ -539,22 +518,24 @@ const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW
                   // For AEPS 2, use transactionType
                   query.transactionType = transactionType;
                 }
-                const customSearch = debouncedSearchQuery.trim()
-                  ? getSearchField(debouncedSearchQuery)
-                  : {};
+                
+                if (debouncedSearchQuery.trim()) {
+                  const searchFields = getSearchField(debouncedSearchQuery);
+                  Object.assign(query, searchFields);
+                }
 
                 if (statusFilter !== "All") {
                   const camelStatus = statusFilter.toLowerCase();
                   if (apiType === "aeps2") {
-                    customSearch.transactionStatus = camelStatus;
+                    query.transactionStatus = camelStatus;
                   } else {
-                    customSearch.paymentStatus = camelStatus;
+                    query.paymentStatus = camelStatus;
                   }
                 }
 
                 const payload = {
                   query,
-                  customSearch,
+                  customSearch: {},
                   options: {
                     page: 1,
                     paginate: itemsPerPage,

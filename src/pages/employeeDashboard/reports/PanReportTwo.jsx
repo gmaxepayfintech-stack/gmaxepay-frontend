@@ -47,25 +47,14 @@ const PanReportTwo = ({ onBack }) => {
     // Helper function to determine search field based on input pattern
     const getSearchField = (query) => {
         const trimmedQuery = query.trim();
+        if (!trimmedQuery) return {};
 
-        // Check if it's a mobile number (10 digits)
-        if (/^\d{10}$/.test(trimmedQuery)) {
-            // For PAN service, API might expect mobile_number
+        // Check if it's a mobile number (10-12 digits)
+        if (/^\d{10,12}$/.test(trimmedQuery)) {
             return { mobileNumber: trimmedQuery };
         }
 
-        // Check if it's a name (letters, spaces, dots)
-        if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
-            return { name: trimmedQuery };
-        }
-
-        // Otherwise treat as transactionId (alphanumeric)
-        if (trimmedQuery) {
-            return { transactionId: trimmedQuery };
-        }
-
-        // No search
-        return {};
+        return { transactionId: trimmedQuery };
     };
 
     // Fetch PAN service reports
@@ -82,14 +71,14 @@ const PanReportTwo = ({ onBack }) => {
             query.endDate = toDate;
         }
 
-        // Get the appropriate search field based on input pattern
-        const customSearch = debouncedSearchQuery.trim()
-            ? getSearchField(debouncedSearchQuery)
-            : {};
+        if (debouncedSearchQuery.trim()) {
+            const searchFields = getSearchField(debouncedSearchQuery);
+            Object.assign(query, searchFields);
+        }
 
         const payload = {
             query: query,
-            customSearch: customSearch,
+            customSearch: {},
             options: {
                 page: currentPage,
                 paginate: itemsPerPage,
@@ -201,7 +190,6 @@ const PanReportTwo = ({ onBack }) => {
       alert("No data available to export");
       return;
     }
-
     const query = {
       serviceType: "Pan",
     };
@@ -209,11 +197,14 @@ const PanReportTwo = ({ onBack }) => {
       query.startDate = fromDate;
       query.endDate = toDate;
     }
-    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
+    if (debouncedSearchQuery.trim()) {
+      const searchFields = getSearchField(debouncedSearchQuery);
+      Object.assign(query, searchFields);
+    }
 
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
         page: 1,
         paginate: Math.max(totalCount, 100000),
@@ -381,15 +372,15 @@ const PanReportTwo = ({ onBack }) => {
                                 setFromDate("");
                                 setToDate("");
                                 setIsReloading(true);
-
                                 const query = { serviceType: "Pan2" };
-                                const customSearch = debouncedSearchQuery.trim()
-                                    ? getSearchField(debouncedSearchQuery)
-                                    : {};
+                                if (debouncedSearchQuery.trim()) {
+                                    const searchFields = getSearchField(debouncedSearchQuery);
+                                    Object.assign(query, searchFields);
+                                }
 
                                 const payload = {
                                     query,
-                                    customSearch,
+                                    customSearch: {},
                                     options: {
                                         page: 1,
                                         paginate: itemsPerPage,

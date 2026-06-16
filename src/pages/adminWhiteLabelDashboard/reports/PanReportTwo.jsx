@@ -49,31 +49,20 @@ const PanReportTwo = ({ onBack }) => {
     // Helper function to determine search field based on input pattern
     const getSearchField = (query) => {
         const trimmedQuery = query.trim();
+        if (!trimmedQuery) return {};
 
-        // Check if it's a mobile number (10 digits)
-        if (/^\d{10}$/.test(trimmedQuery)) {
-            // For PAN service, API might expect mobile_number
+        // Check if it's a mobile number (10-12 digits)
+        if (/^\d{10,12}$/.test(trimmedQuery)) {
             return { mobileNumber: trimmedQuery };
         }
 
-        // Check if it's a name (letters, spaces, dots)
-        if (/^[A-Za-z\s.]+$/.test(trimmedQuery)) {
-            return { name: trimmedQuery };
-        }
-
-        // Otherwise treat as transactionId (alphanumeric)
-        if (trimmedQuery) {
-            return { transactionId: trimmedQuery };
-        }
-
-        // No search
-        return {};
+        return { transactionId: trimmedQuery };
     };
 
     // Fetch PAN service reports
     useEffect(() => {
         const query = {
-            // API expects serviceType: "Pan"
+            // API expects serviceType: "Pan2"
             serviceType: "Pan2",
         };
 
@@ -84,14 +73,14 @@ const PanReportTwo = ({ onBack }) => {
             query.endDate = toDate;
         }
 
-        // Get the appropriate search field based on input pattern
-        const customSearch = debouncedSearchQuery.trim()
-            ? getSearchField(debouncedSearchQuery)
-            : {};
+        if (debouncedSearchQuery.trim()) {
+            const searchFields = getSearchField(debouncedSearchQuery);
+            Object.assign(query, searchFields);
+        }
 
         const payload = {
             query: query,
-            customSearch: customSearch,
+            customSearch: {},
             options: {
                 page: currentPage,
                 paginate: itemsPerPageState,
@@ -205,77 +194,80 @@ const PanReportTwo = ({ onBack }) => {
     }, [statusFilter, itemsPerPageState]);
 
     // Export to Excel function
-      const handleExportToExcel = async () => {
-    if (totalCount === 0) {
-      showNotification("No data available to export", "error");
-      return;
-    }
-
-    const query = {
-      serviceType: "Pan",
-    };
-    if (fromDate && toDate) {
-      query.startDate = fromDate;
-      query.endDate = toDate;
-    }
-    const customSearch = debouncedSearchQuery.trim() ? getSearchField(debouncedSearchQuery) : {};
-
-    const payload = {
-      query,
-      customSearch,
-      options: {
-        page: 1,
-        paginate: Math.max(totalCount, 100000),
-        sort: { id: -1 },
-      },
-    };
-
-    let exportData = [];
-    try {
-      const customDispatch = (action) => {
-        if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
-          dispatch(action);
+    const handleExportToExcel = async () => {
+        if (totalCount === 0) {
+            showNotification("No data available to export", "error");
+            return;
         }
-      };
 
-      const result = await rechargeReportTwoCompany(payload)(customDispatch);
-      let rawDocs = [];
-      if (result) {
-        if (Array.isArray(result.data)) {
-          rawDocs = result.data;
-        } else if (result.data?.docs && Array.isArray(result.data.docs)) {
-          rawDocs = result.data.docs;
-        } else if (result.data?.data && Array.isArray(result.data.data)) {
-          rawDocs = result.data.data;
-        } else if (Array.isArray(result)) {
-          rawDocs = result;
+        const query = {
+            serviceType: "Pan2",
+        };
+        if (fromDate && toDate) {
+            query.startDate = fromDate;
+            query.endDate = toDate;
         }
-      }
-      exportData = transformApiData(rawDocs);
-    } catch (e) {
-      exportData = transactions;
-    }
+        if (debouncedSearchQuery.trim()) {
+            const searchFields = getSearchField(debouncedSearchQuery);
+            Object.assign(query, searchFields);
+        }
 
-    // Filter transactions based on selected status (CLIENT-SIDE)
-    const filteredExport = exportData.filter((transaction) => {
-      const matchesStatus =
-        statusFilter === "All" || transaction.status === statusFilter;
-      return matchesStatus;
-    });
+        const payload = {
+            query,
+            customSearch: {},
+            options: {
+                page: 1,
+                paginate: Math.max(totalCount, 100000),
+                sort: { id: -1 },
+            },
+        };
 
-    if (filteredExport.length === 0) {
-      showNotification("No data matches the selected filters for export", "error");
-      return;
-    }
+        let exportData = [];
+        try {
+            const customDispatch = (action) => {
+                if (action?.type === "LOADING_START" || action?.type === "LOADING_END") {
+                    dispatch(action);
+                }
+            };
 
-    const stripRupee = (val) => {
-      if (val === undefined || val === null) return "";
-      const str = String(val).replace(/₹/g, "").trim();
-      const num = Number(str);
-      return isNaN(num) ? str : num;
-    };
+            const result = await rechargeReportTwoCompany(payload)(customDispatch);
+            let rawDocs = [];
+            if (result) {
+                if (Array.isArray(result.data)) {
+                    rawDocs = result.data;
+                } else if (result.data?.docs && Array.isArray(result.data.docs)) {
+                    rawDocs = result.data.docs;
+                } else if (result.data?.data && Array.isArray(result.data.data)) {
+                    rawDocs = result.data.data;
+                } else if (Array.isArray(result)) {
+                    rawDocs = result;
+                }
+            }
+            exportData = transformApiData(rawDocs);
+        } catch (e) {
+            exportData = transactions;
+        }
 
-    const excelData = filteredExport.map((row, index) => {
+        // Filter transactions based on selected status (CLIENT-SIDE)
+        const filteredExport = exportData.filter((transaction) => {
+            const matchesStatus =
+                statusFilter === "All" || transaction.status === statusFilter;
+            return matchesStatus;
+        });
+
+        if (filteredExport.length === 0) {
+            showNotification("No data matches the selected filters for export", "error");
+            return;
+        }
+
+        const stripRupee = (val) => {
+            if (val === undefined || val === null) return "";
+            const str = String(val).replace(/₹/g, "").trim();
+            const num = Number(str);
+            return isNaN(num) ? str : num;
+        };
+
+        const excelData = filteredExport.map((row, index) => {
             const fallbackSrNo = (apiCurrentPage - 1) * itemsPerPage + index + 1;
             const srNo = row.srNo ?? fallbackSrNo;
 
@@ -297,13 +289,13 @@ const PanReportTwo = ({ onBack }) => {
             };
         });
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Pan_History_2");
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Pan_History_2");
 
-    const fileName = `Export_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-  };;
+        const fileName = `Export_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    };
 
     // Format date for display
     const formatDate = (dateString) => {
@@ -396,13 +388,14 @@ const PanReportTwo = ({ onBack }) => {
                                 setIsReloading(true);
 
                                 const query = { serviceType: "Pan2" };
-                                const customSearch = debouncedSearchQuery.trim()
-                                    ? getSearchField(debouncedSearchQuery)
-                                    : {};
+                                if (debouncedSearchQuery.trim()) {
+                                    const searchFields = getSearchField(debouncedSearchQuery);
+                                    Object.assign(query, searchFields);
+                                }
 
                                 const payload = {
                                     query,
-                                    customSearch,
+                                    customSearch: {},
                                     options: {
                                         page: currentPage,
                                         paginate: itemsPerPageState,
@@ -666,17 +659,6 @@ const PanReportTwo = ({ onBack }) => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
-                        {/* <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
-              {(() => {
-                const start =
-                  paginatedTransactions.length > 0
-                    ? (apiCurrentPage - 1) * itemsPerPage + 1
-                    : 0;
-                const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
-                return `Showing ${start} to ${end} of ${totalCount} entries`;
-              })()}
-            </div> */}
-
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
