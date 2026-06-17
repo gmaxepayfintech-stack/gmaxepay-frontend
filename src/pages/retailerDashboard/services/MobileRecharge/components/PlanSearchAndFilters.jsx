@@ -55,7 +55,7 @@ const PlanSearchAndFilters = ({
 
       {/* Category Tabs */}
       {getCategoryTabs().length > 0 && (
-        <div className="flex gap-4 overflow-x-auto pb-2 mt-[40px] mb-[40px] font-['Gilroy-SemiBold'] border-gray-200 w-fit">
+        <div className="flex gap-4 overflow-x-auto pb-2 mt-4 mb-4 font-['Gilroy-SemiBold'] border-gray-200 w-full scrollbar-none">
           {getCategoryTabs().map((category) => (
             <button
               key={category}
@@ -70,7 +70,7 @@ const PlanSearchAndFilters = ({
                 }
                 setActiveFilter(null); // Reset filter when category changes
               }}
-              className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
+              className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap flex-shrink-0 pb-2 transition relative ${activeCategory === category
                 ? "text-[#039155]"
                 : "text-gray-600 hover:text-[#1B1717]"
                 }`}
@@ -85,29 +85,29 @@ const PlanSearchAndFilters = ({
       )}
 
       {/* Detailed Plan Cards - Scrollable Container */}
-      <div className="space-y-4 gap-[18px] max-h-[600px] overflow-y-auto pr-2">
+      <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
         {displayDetailedPlans.length > 0 ? (
           displayDetailedPlans.map((plan) => (
             <div
               key={plan.id}
               onClick={() => setSelectedPlanForRecharge(plan)}
-              className="bg-white border border-[#1B1717] border-opacity-80 border-[0.5px] rounded-xl p-4 hover:shadow-sm transition cursor-pointer"
+              className="bg-white border border-[#1B1717] border-opacity-80 border-[0.5px] rounded-xl p-3 hover:shadow-sm transition cursor-pointer"
             >
               {/* Top Section */}
-              <div className="flex items-center justify-between pb-3 border-b border-[#1B1717] border-opacity-80 ">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1B1717] border-opacity-80 ">
                 {/* Price */}
-                <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] flex-shrink-0">
+                <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] flex-shrink-0">
                   {plan.price}
                 </div>
 
                 {/* Vertical Divider */}
-                <div className="h-12 w-[1px] mx-6 bg-[#1B1717] bg-opacity-80 flex-shrink-0" />
+                <div className="h-8 w-[1px] mx-4 bg-[#1B1717] bg-opacity-80 flex-shrink-0" />
 
                 {/* Validity and Data */}
-                <div className="flex-1 flex gap-6 flex-shrink-0">
+                <div className="flex-1 flex gap-4 flex-shrink-0">
                   <div className="flex-shrink-0" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                     <div
-                      className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1"
+                      className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-0.5"
                       style={{ margin: 0, padding: 0, textAlign: "left" }}
                     >
                       Plan Validity
@@ -121,7 +121,7 @@ const PlanSearchAndFilters = ({
                   </div>
                   <div className="flex-shrink-0" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                     <div
-                      className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1"
+                      className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-0.5"
                       style={{ margin: 0, padding: 0, textAlign: "left" }}
                     >
                       Plan Data
@@ -136,12 +136,12 @@ const PlanSearchAndFilters = ({
                 </div>
 
                 {/* Arrow Icon */}
-                <ChevronRight className="text-[#1B1717] text-opacity-80 w-5 h-5" />
+                <ChevronRight className="text-[#1B1717] text-opacity-80 w-4 h-4" />
               </div>
 
               {/* Bottom Section */}
-              <div className="pt-3 space-y-1">
-                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+              <div className="pt-2 space-y-0.5">
+                <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
                   Calls : {plan.calls}
                 </div>
                 <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 flex items-center justify-between">
@@ -153,7 +153,7 @@ const PlanSearchAndFilters = ({
                       setSelectedPlan(plan);
                       setShowDetailsModal(true);
                     }}
-                    className="text-[14px] font-['Gilroy-Medium'] underline text-[#1B1717] cursor-pointer hover:underline"
+                    className="text-[12px] font-['Gilroy-Medium'] underline text-[#1B1717] cursor-pointer hover:underline"
                   >
                     Details
                   </button>
