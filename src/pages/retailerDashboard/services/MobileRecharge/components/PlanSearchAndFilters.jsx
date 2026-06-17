@@ -96,21 +96,16 @@ const PlanSearchAndFilters = ({
               {/* Top Section */}
               <div className="flex items-center justify-between pb-3 border-b border-[#1B1717] border-opacity-80 ">
                 {/* Price */}
-                <div
-                  className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] flex items-center flex-shrink-0"
-                  style={{
-                    paddingRight: "24px",
-                    borderRight: "1px solid rgba(27, 23, 23, 0.8)",
-                    height: "48px",
-                    minWidth: "70px",
-                  }}
-                >
+                <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] flex-shrink-0">
                   {plan.price}
                 </div>
 
+                {/* Vertical Divider */}
+                <div className="h-12 w-[1px] mx-6 bg-[#1B1717] bg-opacity-80 flex-shrink-0" />
+
                 {/* Validity and Data */}
-                <div className="flex-1 flex gap-6" style={{ paddingLeft: "24px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <div className="flex-1 flex gap-6 flex-shrink-0">
+                  <div className="flex-shrink-0" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                     <div
                       className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1"
                       style={{ margin: 0, padding: 0, textAlign: "left" }}
@@ -124,7 +119,7 @@ const PlanSearchAndFilters = ({
                       {plan.validity}
                     </div>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                  <div className="flex-shrink-0" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                     <div
                       className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1"
                       style={{ margin: 0, padding: 0, textAlign: "left" }}
