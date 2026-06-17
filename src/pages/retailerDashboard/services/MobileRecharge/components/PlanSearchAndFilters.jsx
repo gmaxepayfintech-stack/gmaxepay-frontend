@@ -96,15 +96,12 @@ const PlanSearchAndFilters = ({
               {/* Top Section */}
               <div className="flex items-center justify-between pb-3 border-b border-[#1B1717] border-opacity-80 ">
                 {/* Price */}
-                <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] pr-6 border-r border-[#1B1717] border-opacity-80 h-12 flex items-center flex-shrink-0 min-w-[70px]">
                   {plan.price}
                 </div>
 
-                {/* Vertical Divider */}
-                <div className="h-12 w-[1px]  mx-6 bg-[#1B1717] bg-opacity-80" />
-
                 {/* Validity and Data */}
-                <div className="flex-1 flex gap-6">
+                <div className="flex-1 flex gap-6 pl-6">
                   <div>
                     <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
                       Validity
