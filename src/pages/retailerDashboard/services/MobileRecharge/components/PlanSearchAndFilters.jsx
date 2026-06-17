@@ -110,19 +110,31 @@ const PlanSearchAndFilters = ({
 
                 {/* Validity and Data */}
                 <div className="flex-1 flex gap-6" style={{ paddingLeft: "24px" }}>
-                  <div>
-                    <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                      Validity
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                    <div
+                      className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1"
+                      style={{ margin: 0, padding: 0, textAlign: "left" }}
+                    >
+                      Plan Validity
                     </div>
-                    <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
+                    <div
+                      className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]"
+                      style={{ margin: 0, padding: 0, textAlign: "left" }}
+                    >
                       {plan.validity}
                     </div>
                   </div>
-                  <div>
-                    <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                      Data
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                    <div
+                      className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1"
+                      style={{ margin: 0, padding: 0, textAlign: "left" }}
+                    >
+                      Plan Data
                     </div>
-                    <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
+                    <div
+                      className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]"
+                      style={{ margin: 0, padding: 0, textAlign: "left" }}
+                    >
                       {plan.data}
                     </div>
                   </div>
