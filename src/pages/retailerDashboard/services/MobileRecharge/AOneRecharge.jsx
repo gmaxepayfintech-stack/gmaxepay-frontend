@@ -1001,7 +1001,7 @@ const AOneRecharge = ({ onBack }) => {
             <div className="flex flex-col lg:flex-row gap-6 items-start">
                 {/* Left Side - Information or Plans */}
                 <div
-                    className={`${step === "input" ? "bg-white rounded-xl border border-gray-200 p-6" : ""} lg:flex-[1.6] w-full lg:w-auto self-start`}
+                    className={`${step === "input" ? "bg-white rounded-xl border border-gray-200 p-6" : ""} lg:flex-[1.6] w-full lg:w-auto min-w-0 self-start`}
                 >
                     {step === "input" ? (
                         <InformationForm
